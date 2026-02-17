@@ -48,7 +48,9 @@ Overall score = weighted average using these weights:
 Be binary -- either evidence exists on the page or it does not. Do not use partial credit.
 
 For each category that scores below 80, provide a specific actionable fix based on the criteria above.
-Also identify the top 3 "quick wins" — the highest-impact, easiest-to-implement changes.`;
+Also identify the top 3 "quick wins" — the highest-impact, easiest-to-implement changes.
+
+LANGUAGE RULE: Detect the language of the page content (title, headers, body text). Write ALL text output (recommendations, quick_wins titles/descriptions, breakdown recommendations) in that same language. Category names stay in English.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
