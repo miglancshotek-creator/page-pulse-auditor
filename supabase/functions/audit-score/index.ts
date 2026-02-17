@@ -25,7 +25,7 @@ serve(async (req) => {
       .map((c) => `[${c.category}] ${c.criterion} (weight: ${c.weight}): ${c.description}`)
       .join("\n");
 
-    const prompt = `Analyze this landing page data and score it using the criteria and methodology below.
+    const prompt = `You are a landing page conversion expert. Analyze this landing page data and score it.
 
 AUDIT CRITERIA (Gold Standard):
 ${criteriaText}
@@ -39,18 +39,9 @@ PAGE DATA:
 - CTA Texts Found: ${JSON.stringify(scrapeData.ctaTexts || [])}
 - Body Text (excerpt): ${(scrapeData.bodyText || "").substring(0, 3000)}
 
-SCORING METHODOLOGY (follow exactly):
-For each category, evaluate each criterion as PASS (1) or FAIL (0).
-Category score = (number of passing criteria / total criteria in category) * 100, rounded to nearest integer.
-Overall score = weighted average using these weights:
-  Messaging Clarity: 30%, Trust Signals: 20%, CTA Strength: 25%, Mobile Layout: 15%, SEO Meta-data: 10%
-
-Be binary -- either evidence exists on the page or it does not. Do not use partial credit.
-
+Score the page on these 5 categories (0-100 each), and provide an overall weighted score.
 For each category that scores below 80, provide a specific actionable fix based on the criteria above.
-Also identify the top 3 "quick wins" — the highest-impact, easiest-to-implement changes.
-
-LANGUAGE RULE: Detect the language of the page content (title, headers, body text). Write ALL text output (recommendations, quick_wins titles/descriptions, breakdown recommendations) in that same language. Category names stay in English.`;
+Also identify the top 3 "quick wins" — the highest-impact, easiest-to-implement changes.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -60,9 +51,9 @@ LANGUAGE RULE: Detect the language of the page content (title, headers, body tex
       },
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
-        temperature: 0,
         messages: [
-          { role: "system", content: "You are a landing page conversion optimization expert. Score strictly using the provided rubric. Be deterministic: identical page data must always produce identical scores. Use binary pass/fail per criterion -- no partial credit. Always respond with valid JSON only, no markdown fences." },
+          { role: "system", content: "You are a landing page conversion optimization expert. Always respond with valid JSON only, no markdown fences." },
+          { role: "user", content: prompt },
         ],
         tools: [
           {
