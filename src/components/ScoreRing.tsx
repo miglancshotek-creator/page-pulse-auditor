@@ -27,7 +27,7 @@ const ScoreRing = ({ score, size = 200, strokeWidth = 12 }: ScoreRingProps) => {
   return (
     <div className="relative flex flex-col items-center gap-3">
       <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="-rotate-90">
+        <svg width={size} height={size} className="-rotate-90" style={{ overflow: 'visible' }}>
           {/* Background ring */}
           <circle
             cx={size / 2}
