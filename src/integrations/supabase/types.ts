@@ -14,7 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audits: {
+        Row: {
+          body_text: string | null
+          breakdown: Json | null
+          created_at: string
+          cta_texts: Json | null
+          headers: Json | null
+          id: string
+          overall_score: number | null
+          page_title: string | null
+          quick_wins: Json | null
+          raw_ai_response: string | null
+          scores: Json | null
+          screenshot_url: string | null
+          status: string
+          url: string
+        }
+        Insert: {
+          body_text?: string | null
+          breakdown?: Json | null
+          created_at?: string
+          cta_texts?: Json | null
+          headers?: Json | null
+          id?: string
+          overall_score?: number | null
+          page_title?: string | null
+          quick_wins?: Json | null
+          raw_ai_response?: string | null
+          scores?: Json | null
+          screenshot_url?: string | null
+          status?: string
+          url: string
+        }
+        Update: {
+          body_text?: string | null
+          breakdown?: Json | null
+          created_at?: string
+          cta_texts?: Json | null
+          headers?: Json | null
+          id?: string
+          overall_score?: number | null
+          page_title?: string | null
+          quick_wins?: Json | null
+          raw_ai_response?: string | null
+          scores?: Json | null
+          screenshot_url?: string | null
+          status?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      knowledge_base: {
+        Row: {
+          category: string
+          created_at: string
+          criterion: string
+          description: string | null
+          id: string
+          weight: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          criterion: string
+          description?: string | null
+          id?: string
+          weight?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          criterion?: string
+          description?: string | null
+          id?: string
+          weight?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
