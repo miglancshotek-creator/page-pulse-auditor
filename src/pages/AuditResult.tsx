@@ -34,10 +34,16 @@ const AuditResult = () => {
         .from("audits")
         .select("*")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
-      if (error || !data) {
+      if (error) {
+        toast({ title: "Error", description: "Failed to load audit", variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+      if (!data) {
         toast({ title: "Not found", description: "Audit not found", variant: "destructive" });
+        setLoading(false);
         return;
       }
       setAudit(data as AuditData);
