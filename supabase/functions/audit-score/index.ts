@@ -25,9 +25,9 @@ serve(async (req) => {
       .map((c) => `[${c.category}] ${c.criterion} (weight: ${c.weight}): ${c.description}`)
       .join("\n");
 
-    const prompt = `Analyze this landing page data and score it using the criteria and methodology below.
+    const prompt = `You are an expert landing page conversion auditor. Analyze the following page data against the criteria below.
 
-AUDIT CRITERIA (Gold Standard):
+AUDIT CRITERIA:
 ${criteriaText}
 
 PAGE DATA:
@@ -39,16 +39,15 @@ PAGE DATA:
 - CTA Texts Found: ${JSON.stringify(scrapeData.ctaTexts || [])}
 - Body Text (excerpt): ${(scrapeData.bodyText || "").substring(0, 3000)}
 
-SCORING METHODOLOGY (follow exactly):
-For each category, evaluate each criterion as PASS (1) or FAIL (0).
-Category score = (number of passing criteria / total criteria in category) * 100, rounded to nearest integer.
-Overall score = weighted average using these weights:
-  Messaging Clarity: 30%, Trust Signals: 20%, CTA Strength: 25%, Mobile Layout: 15%, SEO Meta-data: 10%
-
-Be binary -- either evidence exists on the page or it does not. Do not use partial credit.
-
-For each category that scores below 80, provide a specific actionable fix based on the criteria above.
-Also identify the top 3 "quick wins" — the highest-impact, easiest-to-implement changes.`;
+SCORING INSTRUCTIONS:
+1. For each of the 5 categories, count how many criteria PASS vs FAIL based on evidence found in the page data.
+2. Calculate each category score as a PERCENTAGE from 0 to 100: (passing_count / total_criteria_in_category) * 100, rounded to nearest integer.
+   - Example: if a category has 8 criteria and 6 pass, the score is round(6/8 * 100) = 75.
+   - Scores MUST be integers between 0 and 100. Never return raw counts like 0, 1, 2, etc.
+3. Calculate overall_score as the weighted average: Messaging Clarity 30% + CTA Strength 25% + Trust Signals 20% + Mobile Layout 15% + SEO Meta-data 10%.
+4. For the breakdown, set status: "pass" if score >= 80, "warning" if score >= 50, "fail" if score < 50.
+5. For each category's recommendation, write 2-4 sentences of specific, actionable advice referencing actual elements found (or missing) on the page. Mention specific text, buttons, sections by name. Do NOT write generic advice.
+6. For quick_wins, identify the top 3 highest-impact, easiest-to-implement changes. Each must have a specific title, a detailed description (2-3 sentences referencing the actual page content), and an impact level.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -60,36 +59,39 @@ Also identify the top 3 "quick wins" — the highest-impact, easiest-to-implemen
         model: "google/gemini-3-flash-preview",
         temperature: 0,
         messages: [
-          { role: "system", content: "You are a landing page conversion optimization expert. Score strictly using the provided rubric. Be deterministic: identical page data must always produce identical scores. Use binary pass/fail per criterion -- no partial credit. Always respond with valid JSON only, no markdown fences." },
+          { role: "system", content: "You are a landing page conversion optimization expert. You must return scores as percentages (0-100), NOT as raw criterion counts. Write detailed, page-specific recommendations that reference actual elements on the page." },
+          { role: "user", content: prompt },
         ],
         tools: [
           {
             type: "function",
             function: {
               name: "submit_audit_results",
-              description: "Submit the complete audit results with scores and recommendations",
+              description: "Submit the complete audit results with percentage scores (0-100) and detailed recommendations",
               parameters: {
                 type: "object",
                 properties: {
-                  overall_score: { type: "number", description: "Overall weighted score 0-100" },
+                  overall_score: { type: "number", description: "Overall weighted percentage score from 0 to 100" },
                   scores: {
                     type: "object",
+                    description: "Each score is a percentage from 0 to 100, NOT a raw count",
                     properties: {
-                      messaging_clarity: { type: "number" },
-                      trust_signals: { type: "number" },
-                      cta_strength: { type: "number" },
-                      mobile_layout: { type: "number" },
-                      seo_metadata: { type: "number" },
+                      messaging_clarity: { type: "number", description: "Percentage score 0-100" },
+                      trust_signals: { type: "number", description: "Percentage score 0-100" },
+                      cta_strength: { type: "number", description: "Percentage score 0-100" },
+                      mobile_layout: { type: "number", description: "Percentage score 0-100" },
+                      seo_metadata: { type: "number", description: "Percentage score 0-100" },
                     },
                     required: ["messaging_clarity", "trust_signals", "cta_strength", "mobile_layout", "seo_metadata"],
                   },
                   quick_wins: {
                     type: "array",
+                    description: "Top 3 highest-impact changes with detailed descriptions",
                     items: {
                       type: "object",
                       properties: {
-                        title: { type: "string" },
-                        description: { type: "string" },
+                        title: { type: "string", description: "Short actionable title" },
+                        description: { type: "string", description: "2-3 sentences of specific advice referencing actual page elements" },
                         impact: { type: "string", enum: ["high", "medium", "low"] },
                       },
                       required: ["title", "description", "impact"],
@@ -97,13 +99,14 @@ Also identify the top 3 "quick wins" — the highest-impact, easiest-to-implemen
                   },
                   breakdown: {
                     type: "array",
+                    description: "One entry per category with percentage score and detailed recommendation",
                     items: {
                       type: "object",
                       properties: {
                         category: { type: "string" },
-                        score: { type: "number" },
+                        score: { type: "number", description: "Percentage score 0-100" },
                         status: { type: "string", enum: ["pass", "warning", "fail"] },
-                        recommendation: { type: "string" },
+                        recommendation: { type: "string", description: "2-4 sentences of specific, actionable advice referencing actual page content" },
                       },
                       required: ["category", "score", "status", "recommendation"],
                     },
@@ -139,6 +142,29 @@ Also identify the top 3 "quick wins" — the highest-impact, easiest-to-implemen
     if (!toolCall) throw new Error("No tool call in AI response");
 
     const results = JSON.parse(toolCall.function.arguments);
+
+    // Validate scores are percentages, not raw counts
+    const scoreKeys = ["messaging_clarity", "trust_signals", "cta_strength", "mobile_layout", "seo_metadata"];
+    for (const key of scoreKeys) {
+      if (results.scores[key] !== undefined && results.scores[key] <= 8) {
+        // Likely a raw count out of 8 criteria — convert to percentage
+        results.scores[key] = Math.round((results.scores[key] / 8) * 100);
+      }
+    }
+    // Recalculate overall if individual scores were fixed
+    const weights = { messaging_clarity: 0.30, trust_signals: 0.20, cta_strength: 0.25, mobile_layout: 0.15, seo_metadata: 0.10 };
+    results.overall_score = Math.round(
+      scoreKeys.reduce((sum, k) => sum + (results.scores[k] || 0) * weights[k], 0)
+    );
+    // Fix breakdown scores too
+    if (Array.isArray(results.breakdown)) {
+      for (const item of results.breakdown) {
+        if (item.score !== undefined && item.score <= 8) {
+          item.score = Math.round((item.score / 8) * 100);
+        }
+        item.status = item.score >= 80 ? "pass" : item.score >= 50 ? "warning" : "fail";
+      }
+    }
 
     // Update audit in database
     const { error: updateError } = await supabase
