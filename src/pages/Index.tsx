@@ -14,8 +14,8 @@ const Index = () => {
       </header>
 
       {/* Hero */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-20">
-        <div className="max-w-2xl mx-auto text-center space-y-6 mb-10">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+        <div className="max-w-2xl mx-auto text-center space-y-4 mb-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/30 px-4 py-1.5 text-xs text-muted-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             AI-Powered Conversion Auditor
@@ -31,7 +31,7 @@ const Index = () => {
         <AuditForm />
 
         {/* Pillars */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mt-16 max-w-2xl mx-auto w-full">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-10 max-w-2xl mx-auto w-full">
           {[
             { name: "Messaging", emoji: "💬" },
             { name: "Trust", emoji: "🛡️" },
