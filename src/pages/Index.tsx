@@ -1,4 +1,5 @@
 import AuditForm from "@/components/AuditForm";
+import TrustedByStripe from "@/components/TrustedByStripe";
 import { Activity } from "lucide-react";
 
 const Index = () => {
@@ -44,6 +45,8 @@ const Index = () => {
             </div>
           ))}
         </div>
+
+        <TrustedByStripe />
       </main>
 
       {/* Footer */}
