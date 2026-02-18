@@ -98,7 +98,7 @@ const companies = [
 
 const TrustedByStripe = () => {
   return (
-    <div className="w-full overflow-hidden py-8 mt-12 border-t border-border/50">
+    <div className="w-full overflow-hidden py-4 mt-8 border-t border-border/50">
       <p className="text-center text-xs font-medium text-muted-foreground/50 uppercase tracking-widest mb-6">
         Trusted by teams at
       </p>
@@ -112,7 +112,7 @@ const TrustedByStripe = () => {
               {companies.map((c) => (
                 <div
                   key={`${copy}-${c.name}`}
-                  className="inline-flex items-center justify-center px-10 text-muted-foreground/25 hover:text-muted-foreground/40 transition-colors"
+                  className="inline-flex items-center justify-center px-10 text-muted-foreground/15 hover:text-muted-foreground/25 transition-colors"
                 >
                   {c.svg}
                 </div>
