@@ -112,7 +112,7 @@ const TrustedByStripe = () => {
               {companies.map((c) => (
                 <div
                   key={`${copy}-${c.name}`}
-                  className="inline-flex items-center justify-center px-10 text-muted-foreground/15 hover:text-muted-foreground/25 transition-colors"
+                  className="inline-flex items-center justify-center px-10 text-muted-foreground/30 hover:text-muted-foreground/45 transition-colors"
                 >
                   {c.svg}
                 </div>
