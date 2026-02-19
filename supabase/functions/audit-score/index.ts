@@ -27,6 +27,14 @@ serve(async (req) => {
 
     const prompt = `You are an expert landing page conversion auditor. Analyze the following page data against the criteria below.
 
+CRITICAL LIMITATIONS OF SCRAPED DATA:
+- The scraper captures only a PARTIAL view of the page. It extracts some CTA texts, headers, and body text, but it does NOT capture the full page layout, element positions, or every button/link on the page.
+- You can see SOME CTA texts in the data, but the list is NOT exhaustive. The page almost certainly has MORE buttons and CTAs than what appears in the scraped data.
+- NEVER claim that a CTA, button, or element is "missing" or "not present" unless you have very strong evidence. The absence of an element from scraped data does NOT mean it's absent from the page.
+- NEVER recommend "adding" or "inserting" CTAs in specific page sections — you cannot see where CTAs are positioned on the page.
+- Instead of recommendations about CTA placement/frequency, focus on CTA copy quality, contrast, urgency, and microcopy based on what you CAN observe.
+- Similarly, do NOT make claims about element ordering, spacing, or visual layout that the text-based scrape cannot reveal.
+
 AUDIT CRITERIA:
 ${criteriaText}
 
@@ -36,7 +44,7 @@ PAGE DATA:
 - Meta Description: ${scrapeData.metaDescription || "MISSING"}
 - OG Tags: ${JSON.stringify(scrapeData.ogTags || {})}
 - Headers: ${JSON.stringify(scrapeData.headers || [])}
-- CTA Texts Found: ${JSON.stringify(scrapeData.ctaTexts || [])}
+- CTA Texts Found (partial list, page may have more): ${JSON.stringify(scrapeData.ctaTexts || [])}
 - Body Text (excerpt): ${(scrapeData.bodyText || "").substring(0, 3000)}
 
 SCORING INSTRUCTIONS:
@@ -46,8 +54,8 @@ SCORING INSTRUCTIONS:
    - Scores MUST be integers between 0 and 100. Never return raw counts like 0, 1, 2, etc.
 3. Calculate overall_score as the weighted average: Messaging Clarity 30% + CTA Strength 25% + Trust Signals 20% + Mobile Layout 15% + SEO Meta-data 10%.
 4. For the breakdown, set status: "pass" if score >= 80, "warning" if score >= 50, "fail" if score < 50.
-5. For each category's recommendation, write 2-4 sentences of specific, actionable advice referencing actual elements found (or missing) on the page. Mention specific text, buttons, sections by name. Do NOT write generic advice.
-6. For quick_wins, identify the top 3 highest-impact, easiest-to-implement changes. Each must have a specific title, a detailed description (2-3 sentences referencing the actual page content), and an impact level.`;
+5. For each category's recommendation, write 2-4 sentences of specific, actionable advice referencing actual elements found (or missing) on the page. Mention specific text, buttons, sections by name. Do NOT write generic advice. NEVER claim a CTA or element is missing if it could simply be outside the scraped excerpt.
+6. For quick_wins, identify the top 3 highest-impact, easiest-to-implement changes. Each must have a specific title, a detailed description (2-3 sentences referencing the actual page content), and an impact level. NEVER suggest adding CTAs to specific sections since you cannot verify their absence.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -59,7 +67,7 @@ SCORING INSTRUCTIONS:
         model: "google/gemini-3-flash-preview",
         temperature: 0,
         messages: [
-          { role: "system", content: "You are a landing page conversion optimization expert. You must return scores as percentages (0-100), NOT as raw criterion counts. Write detailed, page-specific recommendations that reference actual elements on the page." },
+          { role: "system", content: "You are a landing page conversion optimization expert. You must return scores as percentages (0-100), NOT as raw criterion counts. Write detailed, page-specific recommendations that reference actual elements on the page. CRITICAL: The scraped data is INCOMPLETE — never claim CTAs or elements are missing just because they don't appear in the partial scrape. Focus recommendations on copy quality, trust signals, and verifiable issues rather than element placement or frequency." },
           { role: "user", content: prompt },
         ],
         tools: [
