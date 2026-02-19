@@ -84,6 +84,55 @@ serve(async (req) => {
     // Truncate body text for AI processing
     const bodyText = markdown.substring(0, 5000);
 
+    // Extract mobile layout signals from HTML
+    const mobileSignals: Record<string, any> = {};
+
+    // Viewport meta tag
+    const viewportMatch = html.match(/<meta[^>]*name=["']viewport["'][^>]*content=["']([^"']+)["']/i);
+    mobileSignals.viewportMeta = viewportMatch ? viewportMatch[1] : null;
+
+    // Check for responsive CSS (media queries in inline styles)
+    const mediaQueryCount = (html.match(/@media/gi) || []).length;
+    mobileSignals.mediaQueryCount = mediaQueryCount;
+
+    // Check for responsive meta tags / frameworks
+    mobileSignals.hasResponsiveFramework = /bootstrap|tailwind|foundation|bulma/i.test(html);
+
+    // Check for touch-friendly elements (large tap targets)
+    const inputCount = (html.match(/<input/gi) || []).length;
+    const selectCount = (html.match(/<select/gi) || []).length;
+    const textareaCount = (html.match(/<textarea/gi) || []).length;
+    mobileSignals.formElements = { inputs: inputCount, selects: selectCount, textareas: textareaCount };
+
+    // Check for sticky/fixed elements (likely sticky nav or CTA)
+    mobileSignals.hasStickyElements = /position:\s*(?:sticky|fixed)/i.test(html);
+
+    // Check for lazy loading images
+    const totalImages = (html.match(/<img/gi) || []).length;
+    const lazyImages = (html.match(/loading=["']lazy["']/gi) || []).length;
+    mobileSignals.images = { total: totalImages, lazyLoaded: lazyImages };
+
+    // Check for font-size declarations (readable typography)
+    const smallFontMatches = html.match(/font-size:\s*(\d+)px/gi) || [];
+    const smallFonts = smallFontMatches.filter(f => {
+      const size = parseInt(f.match(/(\d+)/)?.[1] || "16");
+      return size < 14;
+    });
+    mobileSignals.smallFontCount = smallFonts.length;
+
+    // Check for horizontal scroll risks (fixed widths)
+    const fixedWidths = (html.match(/width:\s*\d{4,}px/gi) || []).length;
+    mobileSignals.fixedWidthElements = fixedWidths;
+
+    // Check for mobile-specific link attributes (tel:, mailto:)
+    mobileSignals.hasTelLinks = /href=["']tel:/i.test(html);
+    mobileSignals.hasMailtoLinks = /href=["']mailto:/i.test(html);
+
+    // Check for PWA / mobile app hints
+    mobileSignals.hasManifest = /rel=["']manifest["']/i.test(html);
+    mobileSignals.hasAppleTouchIcon = /apple-touch-icon/i.test(html);
+    mobileSignals.hasThemeColor = /<meta[^>]*name=["']theme-color["']/i.test(html);
+
     return new Response(JSON.stringify({
       success: true,
       data: {
@@ -98,6 +147,7 @@ serve(async (req) => {
           description: metadata.ogDescription || metadata["og:description"] || "",
           image: metadata.ogImage || metadata["og:image"] || "",
         },
+        mobileSignals,
       },
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
