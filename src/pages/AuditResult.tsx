@@ -3,7 +3,9 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import ScoreRing from "@/components/ScoreRing";
 import QuickWins from "@/components/QuickWins";
-import AuditBreakdown from "@/components/AuditBreakdown";
+import ContentOptimizations from "@/components/ContentOptimizations";
+import PerformanceAnalysis from "@/components/PerformanceAnalysis";
+import OverallSummary from "@/components/OverallSummary";
 import { ArrowLeft, ExternalLink, Copy, Check, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,6 +18,7 @@ interface AuditData {
   scores: any;
   quick_wins: any;
   breakdown: any;
+  raw_ai_response: string | null;
   status: string;
   created_at: string;
 }
@@ -81,9 +84,18 @@ const AuditResult = () => {
     );
   }
 
+  // Parse raw AI response for new fields
+  let rawResults: any = {};
+  try {
+    rawResults = audit.raw_ai_response ? JSON.parse(audit.raw_ai_response) : {};
+  } catch {
+    rawResults = {};
+  }
+
+  const contentOptimizations = Array.isArray(rawResults.content_optimizations) ? rawResults.content_optimizations : [];
+  const performanceAnalysis = Array.isArray(rawResults.performance_analysis) ? rawResults.performance_analysis : [];
+  const overallSummary = rawResults.overall_summary || null;
   const quickWins = Array.isArray(audit.quick_wins) ? audit.quick_wins : [];
-  const breakdown = Array.isArray(audit.breakdown) ? audit.breakdown : [];
-  const scores = audit.scores && typeof audit.scores === "object" ? audit.scores : {};
 
   return (
     <div className="min-h-screen bg-background">
@@ -115,7 +127,7 @@ const AuditResult = () => {
         </div>
       </header>
 
-      <main className="container max-w-6xl mx-auto px-4 py-8 space-y-8">
+      <main className="container max-w-6xl mx-auto px-4 py-8 space-y-10">
         {/* Page Info */}
         <div className="text-center space-y-2 animate-fade-up">
           <h1 className="text-2xl font-bold">{audit.page_title || audit.url}</h1>
@@ -125,47 +137,36 @@ const AuditResult = () => {
           </p>
         </div>
 
-        {/* Score + Screenshot */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card p-8 glow-score animate-fade-up">
-            <ScoreRing score={audit.overall_score || 0} />
-            {/* Category mini scores */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-6 w-full">
-              {Object.entries(scores as Record<string, number>).map(([key, val]) => (
-                <div key={key} className="text-center p-2 rounded-lg bg-muted/30">
-                  <p className="text-xs text-muted-foreground capitalize">{key.replace(/_/g, " ")}</p>
-                  <p className="text-lg font-bold">{val}</p>
-                </div>
-              ))}
+        {/* Screenshot */}
+        {audit.screenshot_url && (
+          <div className="rounded-xl border border-border overflow-hidden animate-fade-up max-w-4xl mx-auto">
+            <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 border-b border-border">
+              <Image className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Page Screenshot</span>
             </div>
-          </div>
-
-          {audit.screenshot_url ? (
-            <div className="rounded-xl border border-border overflow-hidden animate-fade-up" style={{ animationDelay: "200ms" }}>
-              <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 border-b border-border">
-                <Image className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Page Screenshot</span>
-              </div>
-              <img src={audit.screenshot_url} alt="Page screenshot" className="w-full" />
-            </div>
-          ) : (
-            <div className="rounded-xl border border-border bg-card p-12 flex items-center justify-center text-muted-foreground text-sm animate-fade-up">
-              No screenshot available
-            </div>
-          )}
-        </div>
-
-        {/* Quick Wins */}
-        {quickWins.length > 0 && (
-          <div className="rounded-xl border border-border bg-card p-6 animate-fade-up" style={{ animationDelay: "300ms" }}>
-            <QuickWins wins={quickWins} />
+            <img src={audit.screenshot_url} alt="Page screenshot" className="w-full" />
           </div>
         )}
 
-        {/* Breakdown */}
-        {breakdown.length > 0 && (
-          <div className="animate-fade-up" style={{ animationDelay: "400ms" }}>
-            <AuditBreakdown items={breakdown} />
+        {/* Content Optimization Recommendations */}
+        {contentOptimizations.length > 0 && (
+          <ContentOptimizations items={contentOptimizations} />
+        )}
+
+        {/* Detailed Performance Analysis */}
+        {performanceAnalysis.length > 0 && (
+          <PerformanceAnalysis items={performanceAnalysis} />
+        )}
+
+        {/* Overall Performance Score */}
+        {overallSummary && (
+          <OverallSummary summary={overallSummary} />
+        )}
+
+        {/* Quick Wins (legacy fallback) */}
+        {quickWins.length > 0 && contentOptimizations.length === 0 && (
+          <div className="rounded-xl border border-border bg-card p-6 animate-fade-up">
+            <QuickWins wins={quickWins} />
           </div>
         )}
       </main>
