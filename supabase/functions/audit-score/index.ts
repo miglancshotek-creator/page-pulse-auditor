@@ -47,6 +47,20 @@ PAGE DATA:
 - CTA Texts Found (partial list, page may have more): ${JSON.stringify(scrapeData.ctaTexts || [])}
 - Body Text (excerpt): ${(scrapeData.bodyText || "").substring(0, 3000)}
 
+MOBILE LAYOUT SIGNALS:
+${JSON.stringify(scrapeData.mobileSignals || {}, null, 2)}
+
+Use the Mobile Layout Signals above to score the Mobile Layout category. Key indicators:
+- viewportMeta: Should be present with "width=device-width"
+- mediaQueryCount: Higher = more responsive design
+- hasResponsiveFramework: Whether a responsive CSS framework is detected
+- hasStickyElements: Sticky nav/CTA is good for mobile UX
+- images.lazyLoaded vs images.total: Lazy loading improves mobile performance
+- smallFontCount: Fewer small fonts = better mobile readability
+- fixedWidthElements: Should be 0 for good mobile layout
+- hasTelLinks: Click-to-call links are mobile-friendly
+- hasManifest/hasAppleTouchIcon/hasThemeColor: PWA/mobile-app readiness
+
 SCORING INSTRUCTIONS:
 1. For each of the 5 categories, count how many criteria PASS vs FAIL based on evidence found in the page data.
 2. Calculate each category score as a PERCENTAGE from 0 to 100: (passing_count / total_criteria_in_category) * 100, rounded to nearest integer.
