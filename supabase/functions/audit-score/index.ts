@@ -25,15 +25,12 @@ serve(async (req) => {
       .map((c) => `[${c.category}] ${c.criterion} (weight: ${c.weight}): ${c.description}`)
       .join("\n");
 
-    const prompt = `You are an expert landing page conversion auditor. Analyze the following page data against the criteria below.
+    const prompt = `You are an expert landing page conversion auditor. Analyze the following page data and provide a comprehensive audit.
 
 CRITICAL LIMITATIONS OF SCRAPED DATA:
-- The scraper captures only a PARTIAL view of the page. It extracts some CTA texts, headers, and body text, but it does NOT capture the full page layout, element positions, or every button/link on the page.
-- You can see SOME CTA texts in the data, but the list is NOT exhaustive. The page almost certainly has MORE buttons and CTAs than what appears in the scraped data.
-- NEVER claim that a CTA, button, or element is "missing" or "not present" unless you have very strong evidence. The absence of an element from scraped data does NOT mean it's absent from the page.
-- NEVER recommend "adding" or "inserting" CTAs in specific page sections — you cannot see where CTAs are positioned on the page.
-- Instead of recommendations about CTA placement/frequency, focus on CTA copy quality, contrast, urgency, and microcopy based on what you CAN observe.
-- Similarly, do NOT make claims about element ordering, spacing, or visual layout that the text-based scrape cannot reveal.
+- The scraper captures only a PARTIAL view of the page. It extracts some CTA texts, headers, and body text, but NOT the full page layout.
+- NEVER claim that a CTA, button, or element is "missing" — the absence from scraped data does NOT mean absence from the page.
+- Focus on copy quality, trust signals, and verifiable issues rather than element placement or frequency.
 
 AUDIT CRITERIA:
 ${criteriaText}
@@ -44,32 +41,20 @@ PAGE DATA:
 - Meta Description: ${scrapeData.metaDescription || "MISSING"}
 - OG Tags: ${JSON.stringify(scrapeData.ogTags || {})}
 - Headers: ${JSON.stringify(scrapeData.headers || [])}
-- CTA Texts Found (partial list, page may have more): ${JSON.stringify(scrapeData.ctaTexts || [])}
+- CTA Texts Found (partial list): ${JSON.stringify(scrapeData.ctaTexts || [])}
 - Body Text (excerpt): ${(scrapeData.bodyText || "").substring(0, 3000)}
 
 MOBILE LAYOUT SIGNALS:
 ${JSON.stringify(scrapeData.mobileSignals || {}, null, 2)}
 
-Use the Mobile Layout Signals above to score the Mobile Layout category. Key indicators:
-- viewportMeta: Should be present with "width=device-width"
-- mediaQueryCount: Higher = more responsive design
-- hasResponsiveFramework: Whether a responsive CSS framework is detected
-- hasStickyElements: Sticky nav/CTA is good for mobile UX
-- images.lazyLoaded vs images.total: Lazy loading improves mobile performance
-- smallFontCount: Fewer small fonts = better mobile readability
-- fixedWidthElements: Should be 0 for good mobile layout
-- hasTelLinks: Click-to-call links are mobile-friendly
-- hasManifest/hasAppleTouchIcon/hasThemeColor: PWA/mobile-app readiness
+YOUR TASK:
+1. Provide CONTENT OPTIMIZATION RECOMMENDATIONS for the page's key text elements (heading, subheadline, CTA). For each, show the current version you found, write an optimized version, and explain why it's better with specific bullet points.
 
-SCORING INSTRUCTIONS:
-1. For each of the 5 categories, count how many criteria PASS vs FAIL based on evidence found in the page data.
-2. Calculate each category score as a PERCENTAGE from 0 to 100: (passing_count / total_criteria_in_category) * 100, rounded to nearest integer.
-   - Example: if a category has 8 criteria and 6 pass, the score is round(6/8 * 100) = 75.
-   - Scores MUST be integers between 0 and 100. Never return raw counts like 0, 1, 2, etc.
-3. Calculate overall_score as the weighted average: Messaging Clarity 30% + CTA Strength 25% + Trust Signals 20% + Mobile Layout 15% + SEO Meta-data 10%.
-4. For the breakdown, set status: "pass" if score >= 80, "warning" if score >= 50, "fail" if score < 50.
-5. For each category's recommendation, write 2-4 sentences of specific, actionable advice referencing actual elements found (or missing) on the page. Mention specific text, buttons, sections by name. Do NOT write generic advice. NEVER claim a CTA or element is missing if it could simply be outside the scraped excerpt.
-6. For quick_wins, identify the top 3 highest-impact, easiest-to-implement changes. Each must have a specific title, a detailed description (2-3 sentences referencing the actual page content), and an impact level. NEVER suggest adding CTAs to specific sections since you cannot verify their absence.`;
+2. Provide DETAILED PERFORMANCE ANALYSIS across 5 dimensions: Relevance, Propensity To Take Action, Persuasiveness, Motivation, Focus On The Goal. For each, give a score (1-10), a description of what it measures, an expert insight specific to this page, and 3 action items.
+
+3. Provide an OVERALL PERFORMANCE SCORE (1-10) with a detailed narrative summary and next steps.
+
+4. Also provide the legacy scores for backward compatibility.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -81,7 +66,7 @@ SCORING INSTRUCTIONS:
         model: "google/gemini-2.5-flash",
         temperature: 0,
         messages: [
-          { role: "system", content: "You are a landing page conversion optimization expert. You must return scores as percentages (0-100), NOT as raw criterion counts. Write detailed, page-specific recommendations that reference actual elements on the page. CRITICAL: The scraped data is INCOMPLETE — never claim CTAs or elements are missing just because they don't appear in the partial scrape. Focus recommendations on copy quality, trust signals, and verifiable issues rather than element placement or frequency." },
+          { role: "system", content: "You are a landing page conversion optimization expert. Provide detailed, page-specific analysis. The scraped data is INCOMPLETE — never claim CTAs or elements are missing." },
           { role: "user", content: prompt },
         ],
         tools: [
@@ -89,14 +74,13 @@ SCORING INSTRUCTIONS:
             type: "function",
             function: {
               name: "submit_audit_results",
-              description: "Submit the complete audit results with percentage scores (0-100) and detailed recommendations",
+              description: "Submit the complete audit results",
               parameters: {
                 type: "object",
                 properties: {
-                  overall_score: { type: "number", description: "Overall weighted percentage score from 0 to 100" },
+                  overall_score: { type: "number", description: "Overall weighted percentage score 0-100 for legacy compatibility" },
                   scores: {
                     type: "object",
-                    description: "Each score is a percentage from 0 to 100, NOT a raw count",
                     properties: {
                       messaging_clarity: { type: "number", description: "Percentage score 0-100" },
                       trust_signals: { type: "number", description: "Percentage score 0-100" },
@@ -106,14 +90,66 @@ SCORING INSTRUCTIONS:
                     },
                     required: ["messaging_clarity", "trust_signals", "cta_strength", "mobile_layout", "seo_metadata"],
                   },
-                  quick_wins: {
+                  content_optimizations: {
                     type: "array",
-                    description: "Top 3 highest-impact changes with detailed descriptions",
+                    description: "Content optimization cards for key text elements (heading, subheadline, CTA)",
                     items: {
                       type: "object",
                       properties: {
-                        title: { type: "string", description: "Short actionable title" },
-                        description: { type: "string", description: "2-3 sentences of specific advice referencing actual page elements" },
+                        element: { type: "string", description: "Element name e.g. 'Heading', 'Subheadline', 'CTA'" },
+                        impact_score: { type: "number", description: "Impact score 1-10" },
+                        current_version: { type: "string", description: "The current text found on the page" },
+                        optimized_version: { type: "string", description: "Your optimized version of the text" },
+                        reasons: {
+                          type: "array",
+                          description: "List of reasons why the optimized version is better",
+                          items: { type: "string" },
+                        },
+                      },
+                      required: ["element", "impact_score", "current_version", "optimized_version", "reasons"],
+                    },
+                  },
+                  performance_analysis: {
+                    type: "array",
+                    description: "5 performance dimensions: Relevance, Propensity To Take Action, Persuasiveness, Motivation, Focus On The Goal",
+                    items: {
+                      type: "object",
+                      properties: {
+                        dimension: { type: "string", description: "Dimension name" },
+                        score: { type: "number", description: "Score 1-10" },
+                        description: { type: "string", description: "What this dimension measures (1 sentence)" },
+                        expert_insight: { type: "string", description: "Expert insight specific to this page (1-2 sentences)" },
+                        action_items: {
+                          type: "array",
+                          description: "3 specific action items",
+                          items: { type: "string" },
+                        },
+                      },
+                      required: ["dimension", "score", "description", "expert_insight", "action_items"],
+                    },
+                  },
+                  overall_summary: {
+                    type: "object",
+                    description: "Overall performance summary",
+                    properties: {
+                      score: { type: "number", description: "Overall score 1-10" },
+                      narrative: { type: "string", description: "Detailed summary paragraph about the page's performance" },
+                      next_steps: {
+                        type: "array",
+                        description: "5 recommended next steps",
+                        items: { type: "string" },
+                      },
+                    },
+                    required: ["score", "narrative", "next_steps"],
+                  },
+                  quick_wins: {
+                    type: "array",
+                    description: "Top 3 highest-impact changes",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        description: { type: "string" },
                         impact: { type: "string", enum: ["high", "medium", "low"] },
                       },
                       required: ["title", "description", "impact"],
@@ -121,20 +157,20 @@ SCORING INSTRUCTIONS:
                   },
                   breakdown: {
                     type: "array",
-                    description: "One entry per category with percentage score and detailed recommendation",
+                    description: "Legacy breakdown by category",
                     items: {
                       type: "object",
                       properties: {
                         category: { type: "string" },
-                        score: { type: "number", description: "Percentage score 0-100" },
+                        score: { type: "number" },
                         status: { type: "string", enum: ["pass", "warning", "fail"] },
-                        recommendation: { type: "string", description: "2-4 sentences of specific, actionable advice referencing actual page content" },
+                        recommendation: { type: "string" },
                       },
                       required: ["category", "score", "status", "recommendation"],
                     },
                   },
                 },
-                required: ["overall_score", "scores", "quick_wins", "breakdown"],
+                required: ["overall_score", "scores", "content_optimizations", "performance_analysis", "overall_summary", "quick_wins", "breakdown"],
               },
             },
           },
@@ -165,20 +201,17 @@ SCORING INSTRUCTIONS:
 
     const results = JSON.parse(toolCall.function.arguments);
 
-    // Validate scores are percentages, not raw counts
+    // Validate scores are percentages
     const scoreKeys = ["messaging_clarity", "trust_signals", "cta_strength", "mobile_layout", "seo_metadata"];
     for (const key of scoreKeys) {
       if (results.scores[key] !== undefined && results.scores[key] <= 8) {
-        // Likely a raw count out of 8 criteria — convert to percentage
         results.scores[key] = Math.round((results.scores[key] / 8) * 100);
       }
     }
-    // Recalculate overall if individual scores were fixed
     const weights = { messaging_clarity: 0.30, trust_signals: 0.20, cta_strength: 0.25, mobile_layout: 0.15, seo_metadata: 0.10 };
     results.overall_score = Math.round(
       scoreKeys.reduce((sum, k) => sum + (results.scores[k] || 0) * weights[k], 0)
     );
-    // Fix breakdown scores too
     if (Array.isArray(results.breakdown)) {
       for (const item of results.breakdown) {
         if (item.score !== undefined && item.score <= 8) {
