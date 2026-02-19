@@ -64,7 +64,7 @@ SCORING INSTRUCTIONS:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         temperature: 0,
         messages: [
           { role: "system", content: "You are a landing page conversion optimization expert. You must return scores as percentages (0-100), NOT as raw criterion counts. Write detailed, page-specific recommendations that reference actual elements on the page. CRITICAL: The scraped data is INCOMPLETE — never claim CTAs or elements are missing just because they don't appear in the partial scrape. Focus recommendations on copy quality, trust signals, and verifiable issues rather than element placement or frequency." },
