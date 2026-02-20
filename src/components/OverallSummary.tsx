@@ -1,3 +1,5 @@
+import { useLanguage } from "@/contexts/LanguageContext";
+
 interface OverallSummaryProps {
   summary: {
     score: number;
@@ -14,21 +16,18 @@ const getScoreColor = (score: number) => {
 };
 
 const OverallSummary = ({ summary }: OverallSummaryProps) => {
+  const { t } = useLanguage();
   if (!summary) return null;
 
   return (
     <div className="rounded-xl border border-border bg-card p-6 space-y-4 animate-fade-up">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Celkové hodnocení výkonu</h2>
-        <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-lg font-bold ${getScoreColor(summary.score)}`}>
-          {summary.score}
-        </div>
+        <h2 className="text-xl font-bold">{t("summary.title")}</h2>
+        <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-lg font-bold ${getScoreColor(summary.score)}`}>{summary.score}</div>
       </div>
-
       <p className="text-sm text-muted-foreground leading-relaxed">{summary.narrative}</p>
-
       <div className="rounded-lg bg-primary/10 border border-primary/20 p-4">
-        <p className="text-sm font-semibold text-primary mb-2">Další kroky:</p>
+        <p className="text-sm font-semibold text-primary mb-2">{t("summary.nextSteps")}</p>
         <ul className="space-y-1.5">
           {summary.next_steps.map((step, i) => (
             <li key={i} className="flex items-start gap-1.5 text-sm text-primary">

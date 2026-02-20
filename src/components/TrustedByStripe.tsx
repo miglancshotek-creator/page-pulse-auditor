@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const companies = [
   {
@@ -99,23 +99,21 @@ const companies = [
 ];
 
 const TrustedByStripe = () => {
+  const { t } = useLanguage();
+
   return (
     <div className="w-full overflow-hidden py-4 mt-8 border-t border-border/50">
       <p className="text-center text-xs font-medium text-muted-foreground/50 uppercase tracking-widest mb-6">
-        Důvěřují nám týmy z
+        {t("trusted.label")}
       </p>
       <div className="relative w-full">
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-background to-transparent" />
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-background to-transparent" />
-
         <div className="flex animate-marquee">
           {[0, 1].map((copy) => (
             <div key={copy} className="flex shrink-0 items-center">
               {companies.map((c) => (
-                <div
-                  key={`${copy}-${c.name}`}
-                  className="inline-flex items-center justify-center px-10 text-muted-foreground/30 hover:text-muted-foreground/45 transition-colors"
-                >
+                <div key={`${copy}-${c.name}`} className="inline-flex items-center justify-center px-10 text-muted-foreground/30 hover:text-muted-foreground/45 transition-colors">
                   {c.svg}
                 </div>
               ))}
