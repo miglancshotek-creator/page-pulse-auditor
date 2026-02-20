@@ -19,27 +19,24 @@ const AuditForm = () => {
     setStep("scraping");
 
     try {
-      // Create audit record
       const { data: audit, error: insertErr } = await supabase
         .from("audits")
         .insert({ url: url.trim(), status: "scraping" })
         .select()
         .single();
 
-      if (insertErr || !audit) throw new Error("Failed to create audit");
+      if (insertErr || !audit) throw new Error("Nepodařilo se vytvořit audit");
 
-      // Step 1: Scrape the page
       const { data: scrapeResult, error: scrapeErr } = await supabase.functions.invoke("scrape-page", {
         body: { url: url.trim() },
       });
 
       if (scrapeErr || !scrapeResult?.success) {
-        throw new Error(scrapeResult?.error || "Failed to scrape page");
+        throw new Error(scrapeResult?.error || "Nepodařilo se načíst stránku");
       }
 
       const scrapeData = scrapeResult.data;
 
-      // Update audit with scraped data
       await supabase.from("audits").update({
         page_title: scrapeData.pageTitle,
         headers: scrapeData.headers,
@@ -49,7 +46,6 @@ const AuditForm = () => {
         status: "scoring",
       }).eq("id", audit.id);
 
-      // Step 2: AI Scoring
       setStep("scoring");
       const { data: scoreResult, error: scoreErr } = await supabase.functions.invoke("audit-score", {
         body: {
@@ -59,7 +55,7 @@ const AuditForm = () => {
       });
 
       if (scoreErr) {
-        throw new Error("AI scoring failed");
+        throw new Error("Hodnocení AI selhalo");
       }
 
       if (scoreResult?.error) {
@@ -70,8 +66,8 @@ const AuditForm = () => {
     } catch (err: any) {
       console.error("Audit error:", err);
       toast({
-        title: "Audit Failed",
-        description: err.message || "Something went wrong. Please try again.",
+        title: "Audit selhal",
+        description: err.message || "Něco se pokazilo. Zkuste to prosím znovu.",
         variant: "destructive",
       });
       setStep("idle");
@@ -90,7 +86,7 @@ const AuditForm = () => {
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="Enter a landing page URL..."
+            placeholder="Zadejte URL landing page..."
             className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-sm py-2"
             disabled={loading}
           />
@@ -102,11 +98,11 @@ const AuditForm = () => {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>{step === "scraping" ? "Scanning..." : "Analyzing..."}</span>
+                <span>{step === "scraping" ? "Načítám..." : "Analyzuji..."}</span>
               </>
             ) : (
               <>
-                <span>Run Audit</span>
+                <span>Spustit audit</span>
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
@@ -119,7 +115,7 @@ const AuditForm = () => {
             <div className={`h-2 w-2 rounded-full ${step === "scraping" ? "bg-primary animate-pulse" : "bg-primary"}`} />
             <div className={`h-2 w-2 rounded-full ${step === "scoring" ? "bg-primary animate-pulse" : step === "scraping" ? "bg-muted" : "bg-primary"}`} />
           </div>
-          <span>{step === "scraping" ? "Crawling page with Firecrawl..." : "AI is analyzing your page..."}</span>
+          <span>{step === "scraping" ? "Procházím stránku pomocí Firecrawl..." : "AI analyzuje vaši stránku..."}</span>
         </div>
       )}
     </form>
