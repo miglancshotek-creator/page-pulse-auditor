@@ -40,12 +40,12 @@ const AuditResult = () => {
         .maybeSingle();
 
       if (error) {
-        toast({ title: "Error", description: "Failed to load audit", variant: "destructive" });
+        toast({ title: "Chyba", description: "Nepodařilo se načíst audit", variant: "destructive" });
         setLoading(false);
         return;
       }
       if (!data) {
-        toast({ title: "Not found", description: "Audit not found", variant: "destructive" });
+        toast({ title: "Nenalezeno", description: "Audit nebyl nalezen", variant: "destructive" });
         setLoading(false);
         return;
       }
@@ -58,7 +58,7 @@ const AuditResult = () => {
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
-    toast({ title: "Link copied!" });
+    toast({ title: "Odkaz zkopírován!" });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -67,7 +67,7 @@ const AuditResult = () => {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground">Loading audit results...</p>
+          <p className="text-sm text-muted-foreground">Načítám výsledky auditu...</p>
         </div>
       </div>
     );
@@ -77,14 +77,13 @@ const AuditResult = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
-          <p className="text-muted-foreground">This audit is still processing or was not found.</p>
-          <Link to="/" className="text-primary hover:underline text-sm">← Back to home</Link>
+          <p className="text-muted-foreground">Tento audit se stále zpracovává nebo nebyl nalezen.</p>
+          <Link to="/" className="text-primary hover:underline text-sm">← Zpět na úvodní stránku</Link>
         </div>
       </div>
     );
   }
 
-  // Parse raw AI response for new fields
   let rawResults: any = {};
   try {
     rawResults = audit.raw_ai_response ? JSON.parse(audit.raw_ai_response) : {};
@@ -104,7 +103,7 @@ const AuditResult = () => {
         <div className="container max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />
-            New Audit
+            Nový audit
           </Link>
           <div className="flex items-center gap-3">
             <button
@@ -112,7 +111,7 @@ const AuditResult = () => {
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg px-3 py-1.5"
             >
               {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              {copied ? "Copied!" : "Share"}
+              {copied ? "Zkopírováno!" : "Sdílet"}
             </button>
             <a
               href={audit.url}
@@ -121,7 +120,7 @@ const AuditResult = () => {
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <ExternalLink className="h-3.5 w-3.5" />
-              Visit Page
+              Navštívit stránku
             </a>
           </div>
         </div>
@@ -133,7 +132,7 @@ const AuditResult = () => {
           <h1 className="text-2xl font-bold">{audit.page_title || audit.url}</h1>
           <p className="text-sm text-muted-foreground font-mono">{audit.url}</p>
           <p className="text-xs text-muted-foreground">
-            Audited on {new Date(audit.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+            Auditováno {new Date(audit.created_at).toLocaleDateString("cs-CZ", { day: "numeric", month: "long", year: "numeric" })}
           </p>
         </div>
 
@@ -142,9 +141,9 @@ const AuditResult = () => {
           <div className="rounded-xl border border-border overflow-hidden animate-fade-up max-w-4xl mx-auto">
             <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 border-b border-border">
               <Image className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Page Screenshot</span>
+              <span className="text-xs text-muted-foreground">Snímek stránky</span>
             </div>
-            <img src={audit.screenshot_url} alt="Page screenshot" className="w-full" />
+            <img src={audit.screenshot_url} alt="Snímek stránky" className="w-full" />
           </div>
         )}
 

@@ -12,10 +12,10 @@ const getScoreColor = (score: number) => {
 };
 
 const getScoreLabel = (score: number) => {
-  if (score >= 80) return "Excellent";
-  if (score >= 60) return "Good";
-  if (score >= 40) return "Needs Work";
-  return "Critical";
+  if (score >= 80) return "Výborné";
+  if (score >= 60) return "Dobré";
+  if (score >= 40) return "Ke zlepšení";
+  return "Kritické";
 };
 
 const ScoreRing = ({ score, size = 200, strokeWidth = 12 }: ScoreRingProps) => {
@@ -28,7 +28,6 @@ const ScoreRing = ({ score, size = 200, strokeWidth = 12 }: ScoreRingProps) => {
     <div className="relative flex flex-col items-center gap-3">
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90" style={{ overflow: 'visible' }}>
-          {/* Background ring */}
           <circle
             cx={size / 2}
             cy={size / 2}
@@ -37,7 +36,6 @@ const ScoreRing = ({ score, size = 200, strokeWidth = 12 }: ScoreRingProps) => {
             stroke="hsl(220, 14%, 14%)"
             strokeWidth={strokeWidth}
           />
-          {/* Score ring */}
           <circle
             cx={size / 2}
             cy={size / 2}
@@ -52,7 +50,6 @@ const ScoreRing = ({ score, size = 200, strokeWidth = 12 }: ScoreRingProps) => {
             style={{ filter: `drop-shadow(0 0 8px ${color})` }}
           />
         </svg>
-        {/* Center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-5xl font-bold tracking-tight" style={{ color }}>
             {score}
@@ -66,7 +63,7 @@ const ScoreRing = ({ score, size = 200, strokeWidth = 12 }: ScoreRingProps) => {
         <p className="text-sm font-semibold" style={{ color }}>
           {getScoreLabel(score)}
         </p>
-        <p className="text-xs text-muted-foreground">Conversion Health Score</p>
+        <p className="text-xs text-muted-foreground">Skóre konverzního zdraví</p>
       </div>
     </div>
   );

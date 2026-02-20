@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const companies = [
   {
     name: "Google",
@@ -100,7 +102,7 @@ const TrustedByStripe = () => {
   return (
     <div className="w-full overflow-hidden py-4 mt-8 border-t border-border/50">
       <p className="text-center text-xs font-medium text-muted-foreground/50 uppercase tracking-widest mb-6">
-        Trusted by teams at
+        Důvěřují nám týmy z
       </p>
       <div className="relative w-full">
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-background to-transparent" />

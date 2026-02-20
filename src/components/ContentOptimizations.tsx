@@ -24,7 +24,7 @@ const ContentOptimizations = ({ items }: ContentOptimizationsProps) => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold">Content Optimization Recommendations</h2>
+      <h2 className="text-xl font-bold">Doporučení pro optimalizaci obsahu</h2>
       <div className="border-t border-border" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {items.map((item, i) => (
@@ -37,7 +37,7 @@ const ContentOptimizations = ({ items }: ContentOptimizationsProps) => {
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold">{item.element}</h3>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Impact Score:</span>
+                <span className="text-xs text-muted-foreground">Dopad:</span>
                 <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ${getScoreColor(item.impact_score)}`}>
                   {item.impact_score}
                 </div>
@@ -46,16 +46,16 @@ const ContentOptimizations = ({ items }: ContentOptimizationsProps) => {
 
             {/* Current Version */}
             <div className="rounded-lg bg-muted/30 border border-border p-3">
-              <p className="text-xs font-semibold text-muted-foreground mb-1">Current Version:</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-1">Aktuální verze:</p>
               <p className="text-sm">{item.current_version}</p>
             </div>
 
             {/* Optimized Version */}
             <div className="rounded-lg bg-primary/10 border border-primary/20 p-3">
-              <p className="text-xs font-semibold text-primary mb-1">Optimized Version:</p>
+              <p className="text-xs font-semibold text-primary mb-1">Optimalizovaná verze:</p>
               <p className="text-sm">{item.optimized_version}</p>
 
-              <p className="text-xs font-semibold text-primary mt-3 mb-1">Why this works better:</p>
+              <p className="text-xs font-semibold text-primary mt-3 mb-1">Proč je to lepší:</p>
               <ul className="space-y-1">
                 {item.reasons.map((reason, j) => (
                   <li key={j} className="flex items-start gap-1.5 text-xs text-primary">

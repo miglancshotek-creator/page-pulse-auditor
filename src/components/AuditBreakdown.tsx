@@ -20,15 +20,13 @@ const statusConfig = {
 const AuditBreakdown = ({ items }: AuditBreakdownProps) => {
   return (
     <div className="space-y-3">
-      <h3 className="text-lg font-semibold mb-4">Audit Breakdown</h3>
+      <h3 className="text-lg font-semibold mb-4">Rozpis auditu</h3>
       <div className="rounded-lg border border-border overflow-hidden">
-        {/* Header */}
         <div className="grid grid-cols-[1fr_80px_1fr] gap-4 p-3 bg-muted/50 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          <span>Category</span>
-          <span className="text-center">Score</span>
-          <span>Recommendation</span>
+          <span>Kategorie</span>
+          <span className="text-center">Skóre</span>
+          <span>Doporučení</span>
         </div>
-        {/* Rows */}
         {items.map((item, i) => {
           const config = statusConfig[item.status as keyof typeof statusConfig] || statusConfig.warning;
           const Icon = config.icon;

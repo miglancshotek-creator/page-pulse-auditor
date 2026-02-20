@@ -22,7 +22,7 @@ const PerformanceAnalysis = ({ items }: PerformanceAnalysisProps) => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold">Detailed Performance Analysis</h2>
+      <h2 className="text-xl font-bold">Podrobná analýza výkonu</h2>
       <div className="border-t border-border" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {items.map((item, i) => (
@@ -45,14 +45,14 @@ const PerformanceAnalysis = ({ items }: PerformanceAnalysisProps) => {
             {/* Expert Insight */}
             <div className="rounded-lg bg-primary/10 border-l-4 border-primary p-3">
               <p className="text-sm">
-                <span className="font-semibold text-primary">Expert Insight: </span>
+                <span className="font-semibold text-primary">Expertní vhled: </span>
                 <span className="text-foreground/80">{item.expert_insight}</span>
               </p>
             </div>
 
             {/* Action Items */}
             <div className="rounded-lg bg-muted/30 border border-border p-3">
-              <p className="text-xs font-semibold text-muted-foreground mb-2">Action Items:</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-2">Akční kroky:</p>
               <ul className="space-y-1">
                 {item.action_items.map((action, j) => (
                   <li key={j} className="flex items-start gap-1.5 text-sm text-muted-foreground">

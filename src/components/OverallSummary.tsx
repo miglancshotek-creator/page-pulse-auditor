@@ -18,20 +18,17 @@ const OverallSummary = ({ summary }: OverallSummaryProps) => {
 
   return (
     <div className="rounded-xl border border-border bg-card p-6 space-y-4 animate-fade-up">
-      {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Overall Performance Score</h2>
+        <h2 className="text-xl font-bold">Celkové hodnocení výkonu</h2>
         <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-lg font-bold ${getScoreColor(summary.score)}`}>
           {summary.score}
         </div>
       </div>
 
-      {/* Narrative */}
       <p className="text-sm text-muted-foreground leading-relaxed">{summary.narrative}</p>
 
-      {/* Next Steps */}
       <div className="rounded-lg bg-primary/10 border border-primary/20 p-4">
-        <p className="text-sm font-semibold text-primary mb-2">Next Steps:</p>
+        <p className="text-sm font-semibold text-primary mb-2">Další kroky:</p>
         <ul className="space-y-1.5">
           {summary.next_steps.map((step, i) => (
             <li key={i} className="flex items-start gap-1.5 text-sm text-primary">
