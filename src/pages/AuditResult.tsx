@@ -6,8 +6,10 @@ import QuickWins from "@/components/QuickWins";
 import ContentOptimizations from "@/components/ContentOptimizations";
 import PerformanceAnalysis from "@/components/PerformanceAnalysis";
 import OverallSummary from "@/components/OverallSummary";
+import LanguageToggle from "@/components/LanguageToggle";
 import { ArrowLeft, ExternalLink, Copy, Check, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AuditData {
   id: string;
@@ -29,6 +31,7 @@ const AuditResult = () => {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { t, lang } = useLanguage();
 
   useEffect(() => {
     const fetchAudit = async () => {
@@ -40,12 +43,12 @@ const AuditResult = () => {
         .maybeSingle();
 
       if (error) {
-        toast({ title: "Chyba", description: "Nepodařilo se načíst audit", variant: "destructive" });
+        toast({ title: t("result.error.title"), description: t("result.error.load"), variant: "destructive" });
         setLoading(false);
         return;
       }
       if (!data) {
-        toast({ title: "Nenalezeno", description: "Audit nebyl nalezen", variant: "destructive" });
+        toast({ title: t("result.error.notFoundTitle"), description: t("result.error.notFound"), variant: "destructive" });
         setLoading(false);
         return;
       }
@@ -58,16 +61,18 @@ const AuditResult = () => {
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
-    toast({ title: "Odkaz zkopírován!" });
+    toast({ title: t("result.linkCopied") });
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const dateLang = lang === "cs" ? "cs-CZ" : "en-US";
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground">Načítám výsledky auditu...</p>
+          <p className="text-sm text-muted-foreground">{t("result.loading")}</p>
         </div>
       </div>
     );
@@ -77,8 +82,8 @@ const AuditResult = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
-          <p className="text-muted-foreground">Tento audit se stále zpracovává nebo nebyl nalezen.</p>
-          <Link to="/" className="text-primary hover:underline text-sm">← Zpět na úvodní stránku</Link>
+          <p className="text-muted-foreground">{t("result.processing")}</p>
+          <Link to="/" className="text-primary hover:underline text-sm">{t("result.back")}</Link>
         </div>
       </div>
     );
@@ -98,20 +103,20 @@ const AuditResult = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border">
         <div className="container max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />
-            Nový audit
+            {t("result.newAudit")}
           </Link>
           <div className="flex items-center gap-3">
+            <LanguageToggle />
             <button
               onClick={copyLink}
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg px-3 py-1.5"
             >
               {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              {copied ? "Zkopírováno!" : "Sdílet"}
+              {copied ? t("result.copied") : t("result.share")}
             </button>
             <a
               href={audit.url}
@@ -120,49 +125,35 @@ const AuditResult = () => {
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <ExternalLink className="h-3.5 w-3.5" />
-              Navštívit stránku
+              {t("result.visit")}
             </a>
           </div>
         </div>
       </header>
 
       <main className="container max-w-6xl mx-auto px-4 py-8 space-y-10">
-        {/* Page Info */}
         <div className="text-center space-y-2 animate-fade-up">
           <h1 className="text-2xl font-bold">{audit.page_title || audit.url}</h1>
           <p className="text-sm text-muted-foreground font-mono">{audit.url}</p>
           <p className="text-xs text-muted-foreground">
-            Auditováno {new Date(audit.created_at).toLocaleDateString("cs-CZ", { day: "numeric", month: "long", year: "numeric" })}
+            {t("result.audited")} {new Date(audit.created_at).toLocaleDateString(dateLang, { day: "numeric", month: "long", year: "numeric" })}
           </p>
         </div>
 
-        {/* Screenshot */}
         {audit.screenshot_url && (
           <div className="rounded-xl border border-border overflow-hidden animate-fade-up max-w-4xl mx-auto">
             <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 border-b border-border">
               <Image className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Snímek stránky</span>
+              <span className="text-xs text-muted-foreground">{t("result.screenshot")}</span>
             </div>
-            <img src={audit.screenshot_url} alt="Snímek stránky" className="w-full" />
+            <img src={audit.screenshot_url} alt={t("result.screenshot")} className="w-full" />
           </div>
         )}
 
-        {/* Content Optimization Recommendations */}
-        {contentOptimizations.length > 0 && (
-          <ContentOptimizations items={contentOptimizations} />
-        )}
+        {contentOptimizations.length > 0 && <ContentOptimizations items={contentOptimizations} />}
+        {performanceAnalysis.length > 0 && <PerformanceAnalysis items={performanceAnalysis} />}
+        {overallSummary && <OverallSummary summary={overallSummary} />}
 
-        {/* Detailed Performance Analysis */}
-        {performanceAnalysis.length > 0 && (
-          <PerformanceAnalysis items={performanceAnalysis} />
-        )}
-
-        {/* Overall Performance Score */}
-        {overallSummary && (
-          <OverallSummary summary={overallSummary} />
-        )}
-
-        {/* Quick Wins (legacy fallback) */}
         {quickWins.length > 0 && contentOptimizations.length === 0 && (
           <div className="rounded-xl border border-border bg-card p-6 animate-fade-up">
             <QuickWins wins={quickWins} />

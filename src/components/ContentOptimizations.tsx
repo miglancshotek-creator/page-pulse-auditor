@@ -1,4 +1,4 @@
-import { CheckCircle } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ContentOptimization {
   element: string;
@@ -20,42 +20,31 @@ const getScoreColor = (score: number) => {
 };
 
 const ContentOptimizations = ({ items }: ContentOptimizationsProps) => {
+  const { t } = useLanguage();
   if (!items || items.length === 0) return null;
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold">Doporučení pro optimalizaci obsahu</h2>
+      <h2 className="text-xl font-bold">{t("content.title")}</h2>
       <div className="border-t border-border" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {items.map((item, i) => (
-          <div
-            key={i}
-            className="rounded-xl border border-border bg-card p-5 space-y-4 animate-fade-up"
-            style={{ animationDelay: `${i * 100}ms` }}
-          >
-            {/* Header */}
+          <div key={i} className="rounded-xl border border-border bg-card p-5 space-y-4 animate-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold">{item.element}</h3>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Dopad:</span>
-                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ${getScoreColor(item.impact_score)}`}>
-                  {item.impact_score}
-                </div>
+                <span className="text-xs text-muted-foreground">{t("content.impact")}</span>
+                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ${getScoreColor(item.impact_score)}`}>{item.impact_score}</div>
               </div>
             </div>
-
-            {/* Current Version */}
             <div className="rounded-lg bg-muted/30 border border-border p-3">
-              <p className="text-xs font-semibold text-muted-foreground mb-1">Aktuální verze:</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-1">{t("content.current")}</p>
               <p className="text-sm">{item.current_version}</p>
             </div>
-
-            {/* Optimized Version */}
             <div className="rounded-lg bg-primary/10 border border-primary/20 p-3">
-              <p className="text-xs font-semibold text-primary mb-1">Optimalizovaná verze:</p>
+              <p className="text-xs font-semibold text-primary mb-1">{t("content.optimized")}</p>
               <p className="text-sm">{item.optimized_version}</p>
-
-              <p className="text-xs font-semibold text-primary mt-3 mb-1">Proč je to lepší:</p>
+              <p className="text-xs font-semibold text-primary mt-3 mb-1">{t("content.why")}</p>
               <ul className="space-y-1">
                 {item.reasons.map((reason, j) => (
                   <li key={j} className="flex items-start gap-1.5 text-xs text-primary">

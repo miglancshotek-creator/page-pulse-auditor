@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Globe, ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const AuditForm = () => {
   const [url, setUrl] = useState("");
@@ -10,6 +11,7 @@ const AuditForm = () => {
   const [step, setStep] = useState<"idle" | "scraping" | "scoring">("idle");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t, lang } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,14 +27,14 @@ const AuditForm = () => {
         .select()
         .single();
 
-      if (insertErr || !audit) throw new Error("Nepodařilo se vytvořit audit");
+      if (insertErr || !audit) throw new Error(t("form.error.create"));
 
       const { data: scrapeResult, error: scrapeErr } = await supabase.functions.invoke("scrape-page", {
         body: { url: url.trim() },
       });
 
       if (scrapeErr || !scrapeResult?.success) {
-        throw new Error(scrapeResult?.error || "Nepodařilo se načíst stránku");
+        throw new Error(scrapeResult?.error || t("form.error.scrape"));
       }
 
       const scrapeData = scrapeResult.data;
@@ -51,23 +53,19 @@ const AuditForm = () => {
         body: {
           auditId: audit.id,
           scrapeData: { ...scrapeData, url: url.trim() },
+          language: lang,
         },
       });
 
-      if (scoreErr) {
-        throw new Error("Hodnocení AI selhalo");
-      }
-
-      if (scoreResult?.error) {
-        throw new Error(scoreResult.error);
-      }
+      if (scoreErr) throw new Error(t("form.error.score"));
+      if (scoreResult?.error) throw new Error(scoreResult.error);
 
       navigate(`/audit/${audit.id}`);
     } catch (err: any) {
       console.error("Audit error:", err);
       toast({
-        title: "Audit selhal",
-        description: err.message || "Něco se pokazilo. Zkuste to prosím znovu.",
+        title: t("form.error.title"),
+        description: err.message || t("form.error.generic"),
         variant: "destructive",
       });
       setStep("idle");
@@ -86,7 +84,7 @@ const AuditForm = () => {
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="Zadejte URL landing page..."
+            placeholder={t("form.placeholder")}
             className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-sm py-2"
             disabled={loading}
           />
@@ -98,11 +96,11 @@ const AuditForm = () => {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>{step === "scraping" ? "Načítám..." : "Analyzuji..."}</span>
+                <span>{step === "scraping" ? t("form.scraping") : t("form.scoring")}</span>
               </>
             ) : (
               <>
-                <span>Spustit audit</span>
+                <span>{t("form.submit")}</span>
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
@@ -115,7 +113,7 @@ const AuditForm = () => {
             <div className={`h-2 w-2 rounded-full ${step === "scraping" ? "bg-primary animate-pulse" : "bg-primary"}`} />
             <div className={`h-2 w-2 rounded-full ${step === "scoring" ? "bg-primary animate-pulse" : step === "scraping" ? "bg-muted" : "bg-primary"}`} />
           </div>
-          <span>{step === "scraping" ? "Procházím stránku pomocí Firecrawl..." : "AI analyzuje vaši stránku..."}</span>
+          <span>{step === "scraping" ? t("form.step.scraping") : t("form.step.scoring")}</span>
         </div>
       )}
     </form>

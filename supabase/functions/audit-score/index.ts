@@ -10,7 +10,8 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { auditId, scrapeData } = await req.json();
+    const { auditId, scrapeData, language = "cs" } = await req.json();
+    const isEn = language === "en";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
@@ -25,36 +26,40 @@ serve(async (req) => {
       .map((c) => `[${c.category}] ${c.criterion} (weight: ${c.weight}): ${c.description}`)
       .join("\n");
 
-    const prompt = `Jsi expert na konverzní optimalizaci landing page. Analyzuj následující data stránky a poskytni komplexní audit. VEŠKERÝ VÝSTUP PIŠ V ČEŠTINĚ. Používej správnou češtinu bez anglicismů a podivných formulací.
+    const langInstruction = isEn
+      ? "You are a landing page conversion optimization expert. Write ALL output in English."
+      : "Jsi expert na konverzní optimalizaci landing page. VEŠKERÝ VÝSTUP PIŠ V ČEŠTINĚ. Používej správnou češtinu bez anglicismů a podivných formulací.";
 
-KRITICKÁ OMEZENÍ EXTRAHOVANÝCH DAT:
-- Scraper zachycuje pouze ČÁSTEČNÝ pohled na stránku. Extrahuje některé texty CTA, nadpisy a text, ale NE celý layout stránky.
-- NIKDY netvrd, že CTA, tlačítko nebo prvek „chybí" — absence v extrahovaných datech NEZNAMENÁ absenci na stránce.
-- Zaměř se na kvalitu textů, signály důvěryhodnosti a ověřitelné problémy, nikoli na umístění či četnost prvků.
+    const prompt = `${langInstruction} Analyze the following page data and provide a comprehensive audit.
 
-KRITÉRIA AUDITU:
+CRITICAL LIMITATIONS OF EXTRACTED DATA:
+- The scraper captures only a PARTIAL view of the page. It extracts some CTA texts, headings and text, but NOT the entire page layout.
+- NEVER claim that a CTA, button or element is "missing" — absence in extracted data DOES NOT mean absence on the page.
+- Focus on text quality, trust signals and verifiable issues, not placement or frequency of elements.
+
+AUDIT CRITERIA:
 ${criteriaText}
 
-DATA STRÁNKY:
+PAGE DATA:
 - URL: ${scrapeData.url}
-- Titulek: ${scrapeData.pageTitle}
-- Meta popis: ${scrapeData.metaDescription || "CHYBÍ"}
-- OG tagy: ${JSON.stringify(scrapeData.ogTags || {})}
-- Nadpisy: ${JSON.stringify(scrapeData.headers || [])}
-- Nalezené texty CTA (částečný seznam): ${JSON.stringify(scrapeData.ctaTexts || [])}
-- Text stránky (úryvek): ${(scrapeData.bodyText || "").substring(0, 3000)}
+- Title: ${scrapeData.pageTitle}
+- Meta description: ${scrapeData.metaDescription || (isEn ? "MISSING" : "CHYBÍ")}
+- OG tags: ${JSON.stringify(scrapeData.ogTags || {})}
+- Headers: ${JSON.stringify(scrapeData.headers || [])}
+- Found CTA texts (partial list): ${JSON.stringify(scrapeData.ctaTexts || [])}
+- Page text (excerpt): ${(scrapeData.bodyText || "").substring(0, 3000)}
 
-SIGNÁLY MOBILNÍHO ROZLOŽENÍ:
+MOBILE LAYOUT SIGNALS:
 ${JSON.stringify(scrapeData.mobileSignals || {}, null, 2)}
 
-TVŮJ ÚKOL (vše piš česky):
-1. Poskytni DOPORUČENÍ PRO OPTIMALIZACI OBSAHU klíčových textových prvků stránky (nadpis, podnadpis, CTA). U každého ukaž aktuální verzi, napiš optimalizovanou verzi a vysvětli, proč je lepší, pomocí konkrétních bodů.
+YOUR TASK:
+1. Provide CONTENT OPTIMIZATION RECOMMENDATIONS for key text elements (heading, subheadline, CTA). For each show current version, write optimized version and explain why it's better with specific points.
 
-2. Poskytni PODROBNOU ANALÝZU VÝKONU v 5 dimenzích: Relevance, Sklon k akci, Přesvědčivost, Motivace, Zaměření na cíl. U každé uveď skóre (1–10), popis toho, co měří, expertní vhled specifický pro tuto stránku a 3 akční kroky.
+2. Provide DETAILED PERFORMANCE ANALYSIS in 5 dimensions: ${isEn ? "Relevance, Propensity To Take Action, Persuasiveness, Motivation, Focus On The Goal" : "Relevance, Sklon k akci, Přesvědčivost, Motivace, Zaměření na cíl"}. For each provide score (1-10), description, expert insight specific to this page and 3 action items.
 
-3. Poskytni CELKOVÉ SKÓRE VÝKONU (1–10) s podrobným narativním shrnutím a dalšími kroky.
+3. Provide OVERALL PERFORMANCE SCORE (1-10) with detailed narrative summary and next steps.
 
-4. Poskytni také legacy skóre pro zpětnou kompatibilitu.`;
+4. Also provide legacy scores for backward compatibility.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -66,7 +71,7 @@ TVŮJ ÚKOL (vše piš česky):
         model: "google/gemini-2.5-flash",
         temperature: 0,
         messages: [
-          { role: "system", content: "Jsi expert na konverzní optimalizaci landing page. Poskytuj podrobnou analýzu specifickou pro danou stránku. Extrahovaná data jsou NEÚPLNÁ — nikdy netvrd, že CTA nebo prvky chybí. VEŠKERÝ VÝSTUP PIŠ V ČEŠTINĚ. Používej správnou spisovnou češtinu." },
+          { role: "system", content: isEn ? "You are a landing page conversion optimization expert. Provide detailed page-specific analysis. Extracted data is INCOMPLETE — never claim CTAs or elements are missing. Write ALL output in English." : "Jsi expert na konverzní optimalizaci landing page. Poskytuj podrobnou analýzu specifickou pro danou stránku. Extrahovaná data jsou NEÚPLNÁ — nikdy netvrd, že CTA nebo prvky chybí. VEŠKERÝ VÝSTUP PIŠ V ČEŠTINĚ. Používej správnou spisovnou češtinu." },
           { role: "user", content: prompt },
         ],
         tools: [
