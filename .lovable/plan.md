@@ -1,61 +1,63 @@
 
+# Fix Knowledge Base: Store Full Guidelines + Clean Parsing
 
 ## Problem
-
-The AI scoring produces inconsistent results (75%, 76%, 78%) for the same page because:
-
-1. **No temperature control** -- the API call lacks a `temperature` parameter, defaulting to ~1.0 which introduces randomness
-2. **Vague scoring instructions** -- the prompt says "score 0-100" but lacks a strict rubric tying specific evidence to specific point values, leaving room for interpretation
+The uploaded `.txt` file contains two types of content:
+1. **Structured criteria** (40 items across 5 categories) -- these ARE being extracted, but with garbage Unicode characters in the names
+2. **General guidelines** (Scoring Philosophy, No Copy Rewriting rule, Scoring Output Format) -- these are LOST because there's no place to store them
 
 ## Solution
 
-Update `supabase/functions/audit-score/index.ts` with two changes:
+### 1. Add a `raw_guidelines` column to `knowledge_base` config
+Create a new table `audit_guidelines` with a single row to store the raw guidelines text (the non-criteria sections of the uploaded document).
 
-### 1. Set temperature to 0
+**New table: `audit_guidelines`**
+- `id` (uuid, primary key)
+- `content` (text) -- the raw guidelines text
+- `created_at` (timestamptz)
+- RLS: publicly readable (same as knowledge_base)
 
-Add `temperature: 0` to the AI request body. This makes the model deterministic -- given the same input, it will produce the same output every time.
+### 2. Update the `admin-kb` edge function
+- Modify the AI extraction prompt to:
+  - Extract **general guidelines** separately (Scoring Philosophy, No Copy Rewriting, Scoring Output Format)
+  - Add a `general_guidelines` field to the tool schema (a single string with all non-criteria instructions)
+  - Clean criterion names -- explicitly instruct the AI to use plain ASCII names only, no special characters
+- After parsing, store the general guidelines in the `audit_guidelines` table
+- Clear and re-insert criteria as before (but with clean names)
 
-### 2. Add a strict, evidence-based scoring rubric to the prompt
+### 3. Update the `audit-score` edge function
+- Fetch from `audit_guidelines` table alongside `knowledge_base`
+- Prepend the raw guidelines text to the AI prompt before the structured criteria section, so the audit AI sees instructions like "Score ruthlessly", "No Copy Rewriting", and the output format requirements
 
-Replace the vague "score on these 5 categories" instruction with a precise rubric that tells the AI exactly how to calculate each category score:
+### 4. Re-upload the document
+After deploying, delete all existing entries (to clear garbage characters) and re-upload the `.txt` file through the admin UI.
 
-- Each category has 8 criteria from the knowledge base
-- Each criterion is scored as **present (full points)** or **absent (0 points)**
-- The category score = sum of earned points, normalized to 0-100
-- The overall score = weighted average of the 5 categories
-- Explicit weights for each category are defined in the prompt
+## Technical Details
 
-This removes subjective "feel" from scoring and turns it into a checklist-based calculation.
-
----
-
-### Technical Details
-
-**File changed:** `supabase/functions/audit-score/index.ts`
-
-**Changes:**
-
-1. Add `temperature: 0` to the fetch request body (alongside `model`, `messages`, `tools`)
-
-2. Update the prompt to include a deterministic scoring methodology:
-
-```text
-SCORING METHODOLOGY (follow exactly):
-For each category, evaluate each criterion as PASS (1) or FAIL (0).
-Category score = (number of passing criteria / total criteria in category) * 100, rounded to nearest integer.
-Overall score = weighted average using these weights:
-  Messaging Clarity: 30%, Trust Signals: 20%, CTA Strength: 25%, Mobile Layout: 15%, SEO Meta-data: 10%
-
-Be binary -- either evidence exists on the page or it does not. Do not use partial credit.
+**Database migration:**
+```sql
+CREATE TABLE audit_guidelines (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  content text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE audit_guidelines ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Guidelines are publicly readable"
+  ON audit_guidelines FOR SELECT USING (true);
 ```
 
-3. Update the system message to reinforce determinism:
+**admin-kb changes (parse_pdf action):**
+- Add `general_guidelines` string field to the AI tool schema
+- Instruct AI: "Also extract any general scoring rules, philosophy, or output format instructions that are NOT specific criteria. Return them as a single `general_guidelines` text block."
+- Instruct AI: "Use plain English names only for criterion names. No special characters, no Unicode symbols."
+- After extraction: clear `audit_guidelines` table, insert the general_guidelines text
+- Clear `knowledge_base`, insert clean criteria as before
 
-```text
-You are a landing page conversion optimization expert. Score strictly using the provided rubric. 
-Be deterministic: identical page data must always produce identical scores. 
-Use binary pass/fail per criterion -- no partial credit.
-```
+**audit-score changes:**
+- Add: `const { data: guidelines } = await supabase.from("audit_guidelines").select("content").limit(1).single();`
+- Prepend `guidelines?.content` to the prompt before the `AUDIT CRITERIA:` section
 
-These changes together will make the audit produce the same score for the same page data every time.
-
+## Files to modify
+- **New migration** -- create `audit_guidelines` table
+- `supabase/functions/admin-kb/index.ts` -- extract and store general guidelines, fix criterion name cleanup
+- `supabase/functions/audit-score/index.ts` -- fetch and include guidelines in prompt
