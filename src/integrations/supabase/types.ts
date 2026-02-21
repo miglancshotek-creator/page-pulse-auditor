@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_guidelines: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       audits: {
         Row: {
           body_text: string | null

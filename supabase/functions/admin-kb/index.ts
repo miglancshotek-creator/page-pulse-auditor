@@ -53,11 +53,11 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: "You are a data extraction expert. Extract audit criteria from the provided document text. Each criterion must belong to one of these 5 categories: Messaging Clarity, Trust Signals, CTA Strength, Mobile Layout, SEO Meta-data. Extract as many specific, actionable criteria as you can find.",
+              content: "You are a data extraction expert. Extract audit criteria AND general guidelines from the provided document text. Each criterion must belong to one of these 5 categories: Messaging Clarity, Trust Signals, CTA Strength, Mobile Layout, SEO Meta-data. Extract as many specific, actionable criteria as you can find. IMPORTANT: Use plain ASCII English names only for criterion names. No special characters, no Unicode symbols, no emojis. Also extract any general scoring rules, philosophy, output format instructions, or meta-rules that are NOT specific criteria (e.g. 'Score ruthlessly', 'No Copy Rewriting', scoring output format). Return them as a single general_guidelines text block preserving the original wording as much as possible.",
             },
             {
               role: "user",
-              content: `Extract all audit criteria from this document:\n\n${pdfText.substring(0, 15000)}`,
+              content: `Extract all audit criteria AND general guidelines from this document:\n\n${pdfText.substring(0, 15000)}`,
             },
           ],
           tools: [
@@ -65,7 +65,7 @@ serve(async (req) => {
               type: "function",
               function: {
                 name: "submit_criteria",
-                description: "Submit extracted audit criteria",
+                description: "Submit extracted audit criteria and general guidelines",
                 parameters: {
                   type: "object",
                   properties: {
@@ -75,15 +75,19 @@ serve(async (req) => {
                         type: "object",
                         properties: {
                           category: { type: "string", enum: ["Messaging Clarity", "Trust Signals", "CTA Strength", "Mobile Layout", "SEO Meta-data"] },
-                          criterion: { type: "string", description: "Short name of the criterion" },
+                          criterion: { type: "string", description: "Short plain ASCII English name of the criterion. No special characters or Unicode." },
                           description: { type: "string", description: "Detailed description of what to check" },
                           weight: { type: "number", description: "Importance weight 1-3" },
                         },
                         required: ["category", "criterion", "description", "weight"],
                       },
                     },
+                    general_guidelines: {
+                      type: "string",
+                      description: "All general scoring rules, philosophy, meta-rules, and output format instructions from the document that are NOT specific criteria. Preserve original wording. Include sections like Scoring Philosophy, No Copy Rewriting rules, Scoring Output Format, etc.",
+                    },
                   },
-                  required: ["criteria"],
+                  required: ["criteria", "general_guidelines"],
                 },
               },
             },
@@ -107,7 +111,7 @@ serve(async (req) => {
       const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
       if (!toolCall) throw new Error("No tool call in AI response");
 
-      const { criteria } = JSON.parse(toolCall.function.arguments);
+      const { criteria, general_guidelines } = JSON.parse(toolCall.function.arguments);
 
       if (!criteria || criteria.length === 0) {
         return new Response(JSON.stringify({ error: "No criteria could be extracted from the document" }), {
@@ -125,7 +129,7 @@ serve(async (req) => {
       const { error: insertErr } = await supabase.from("knowledge_base").insert(
         criteria.map((c: any) => ({
           category: c.category,
-          criterion: c.criterion,
+          criterion: c.criterion.replace(/[^\x20-\x7E]/g, ""),
           description: c.description,
           weight: c.weight,
         }))
@@ -136,7 +140,16 @@ serve(async (req) => {
         throw new Error("Failed to save criteria");
       }
 
-      return new Response(JSON.stringify({ success: true, count: criteria.length }), {
+      // Store general guidelines
+      if (general_guidelines && general_guidelines.trim().length > 0) {
+        await supabase.from("audit_guidelines").delete().gte("created_at", "1970-01-01");
+        const { error: guidelinesErr } = await supabase.from("audit_guidelines").insert({ content: general_guidelines.trim() });
+        if (guidelinesErr) {
+          console.error("Guidelines insert error:", guidelinesErr);
+        }
+      }
+
+      return new Response(JSON.stringify({ success: true, count: criteria.length, has_guidelines: !!general_guidelines }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
