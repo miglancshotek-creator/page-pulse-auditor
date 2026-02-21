@@ -26,12 +26,17 @@ serve(async (req) => {
       .map((c) => `[${c.category}] ${c.criterion} (weight: ${c.weight}): ${c.description}`)
       .join("\n");
 
+    // Fetch general guidelines
+    const { data: guidelinesData } = await supabase.from("audit_guidelines").select("content").limit(1).single();
+    const guidelinesText = guidelinesData?.content || "";
+
     const langInstruction = isEn
       ? "You are a landing page conversion optimization expert. Write ALL output in English."
       : "Jsi expert na konverzní optimalizaci landing page. VEŠKERÝ VÝSTUP PIŠ V ČEŠTINĚ. Používej správnou češtinu bez anglicismů a podivných formulací.";
 
     const prompt = `${langInstruction} Analyze the following page data and provide a comprehensive audit.
 
+${guidelinesText ? `GENERAL GUIDELINES:\n${guidelinesText}\n` : ""}
 CRITICAL LIMITATIONS OF EXTRACTED DATA:
 - The scraper captures only a PARTIAL view of the page. It extracts some CTA texts, headings and text, but NOT the entire page layout.
 - NEVER claim that a CTA, button or element is "missing" — absence in extracted data DOES NOT mean absence on the page.
