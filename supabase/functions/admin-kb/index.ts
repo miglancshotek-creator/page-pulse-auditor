@@ -116,7 +116,11 @@ serve(async (req) => {
       }
 
       // Clear existing knowledge base and insert new criteria
-      await supabase.from("knowledge_base").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      const { error: deleteErr } = await supabase.from("knowledge_base").delete().gte("created_at", "1970-01-01");
+      if (deleteErr) {
+        console.error("Delete error:", deleteErr);
+        throw new Error("Failed to clear existing knowledge base");
+      }
 
       const { error: insertErr } = await supabase.from("knowledge_base").insert(
         criteria.map((c: any) => ({
@@ -149,6 +153,15 @@ serve(async (req) => {
     // Action: delete entry
     if (action === "delete_entry") {
       const { error } = await supabase.from("knowledge_base").delete().eq("id", entry.id);
+      if (error) throw error;
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Action: delete all entries
+    if (action === "delete_all") {
+      const { error } = await supabase.from("knowledge_base").delete().gte("created_at", "1970-01-01");
       if (error) throw error;
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

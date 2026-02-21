@@ -132,7 +132,21 @@ const Admin = () => {
       });
       if (error || data?.error) throw new Error(data?.error || "Failed");
       toast({ title: "Entry deleted" });
-      fetchEntries();
+      await fetchEntries();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!confirm("Are you sure you want to delete ALL knowledge base entries?")) return;
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-kb", {
+        body: { password, action: "delete_all" },
+      });
+      if (error || data?.error) throw new Error(data?.error || "Failed");
+      toast({ title: "Knowledge base cleared" });
+      await fetchEntries();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
@@ -210,7 +224,15 @@ const Admin = () => {
             <Plus className="h-4 w-4" />
             Add Entry
           </button>
-          <div className="flex-1" />
+          {entries.length > 0 && (
+            <button
+              onClick={handleDeleteAll}
+              className="flex items-center gap-2 rounded-lg border border-destructive/30 px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete All
+            </button>
+          )}
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <FileText className="h-3.5 w-3.5" />
             {entries.length} criteria
