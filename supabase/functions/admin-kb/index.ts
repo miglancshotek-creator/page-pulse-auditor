@@ -57,7 +57,7 @@ serve(async (req) => {
             },
             {
               role: "user",
-              content: `Extract all audit criteria AND general guidelines from this document:\n\n${pdfText.substring(0, 15000)}`,
+              content: `Extract all audit criteria AND general guidelines from this document:\n\n${pdfText.substring(0, 50000)}`,
             },
           ],
           tools: [
@@ -140,12 +140,69 @@ serve(async (req) => {
         throw new Error("Failed to save criteria");
       }
 
-      // Store general guidelines
+      // Store general guidelines + condensed educational content
+      await supabase.from("audit_guidelines").delete().gte("created_at", "1970-01-01");
+
+      // Store extracted general guidelines (scoring philosophy, output format, etc.)
       if (general_guidelines && general_guidelines.trim().length > 0) {
-        await supabase.from("audit_guidelines").delete().gte("created_at", "1970-01-01");
         const { error: guidelinesErr } = await supabase.from("audit_guidelines").insert({ content: general_guidelines.trim() });
-        if (guidelinesErr) {
-          console.error("Guidelines insert error:", guidelinesErr);
+        if (guidelinesErr) console.error("Guidelines insert error:", guidelinesErr);
+      }
+
+      // Condense the educational content (psychological frameworks, CRO methodology)
+      // into an actionable audit reference guide
+      const reciprocityIdx = pdfText.indexOf("Reciprocity");
+      const educationalContent = pdfText.substring(
+        reciprocityIdx > 0 ? reciprocityIdx : Math.min(15000, pdfText.length)
+      );
+
+      if (educationalContent.length > 200) {
+        console.log("Condensing educational content:", educationalContent.length, "chars");
+        const condenseResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-3-flash-preview",
+            messages: [
+              {
+                role: "system",
+                content: `You are a CRO/landing page audit expert. Extract ONLY actionable evaluation principles from the educational content below. These principles will be used by an AI auditor to score landing pages.
+
+Rules:
+- Extract concrete, actionable scoring rules (e.g. "A page with no social proof cannot score above 6 on Trust Signals")
+- Include all psychological frameworks with their landing page applications (Cialdini, System 1/2, Loss Aversion, Anchoring, Peak-End, WYSIATI, etc.)
+- Include JTBD, Pain/Gain/Fear, 5 Awareness Stages, Objection Mapping
+- Include Trust Architecture, Headline frameworks, Hero Section formula, CTA psychology
+- Include Features→Benefits→Desires, Social Proof architecture, Pricing Psychology
+- Include LIFT Model components
+- Do NOT include exercises, end-of-day tasks, course scheduling, or meta-learning instructions
+- Output ~2000 words maximum
+- Use bullet points for clarity
+- Every principle must be phrased as an evaluation criterion the auditor can check against a real page`,
+              },
+              {
+                role: "user",
+                content: `Extract actionable audit evaluation principles from this educational content:\n\n${educationalContent.substring(0, 40000)}`,
+              },
+            ],
+          }),
+        });
+
+        if (condenseResponse.ok) {
+          const condenseData = await condenseResponse.json();
+          const condensedText = condenseData.choices?.[0]?.message?.content;
+          if (condensedText && condensedText.trim().length > 100) {
+            const { error: condensedErr } = await supabase.from("audit_guidelines").insert({
+              content: `## AUDIT REFERENCE GUIDE - Psychological & CRO Frameworks\n\n${condensedText.trim()}`,
+            });
+            if (condensedErr) console.error("Condensed guide insert error:", condensedErr);
+            else console.log("Stored condensed audit reference guide:", condensedText.length, "chars");
+          }
+        } else {
+          console.error("Condense AI call failed:", condenseResponse.status, await condenseResponse.text());
         }
       }
 
