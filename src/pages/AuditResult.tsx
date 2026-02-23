@@ -119,7 +119,7 @@ const AuditResult = () => {
               {copied ? t("result.copied") : t("result.share")}
             </button>
             <a
-              href={audit.url}
+              href={audit.url.startsWith("http") ? audit.url : `https://${audit.url}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
