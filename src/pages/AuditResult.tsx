@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import ScoreRing from "@/components/ScoreRing";
@@ -7,9 +7,11 @@ import ContentOptimizations from "@/components/ContentOptimizations";
 import PerformanceAnalysis from "@/components/PerformanceAnalysis";
 import OverallSummary from "@/components/OverallSummary";
 import LanguageToggle from "@/components/LanguageToggle";
-import { ArrowLeft, ExternalLink, Copy, Check, Image } from "lucide-react";
+import { ArrowLeft, ExternalLink, Copy, Check, Image, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 interface AuditData {
   id: string;
@@ -30,6 +32,8 @@ const AuditResult = () => {
   const [audit, setAudit] = useState<AuditData | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { t, lang } = useLanguage();
 
@@ -63,6 +67,44 @@ const AuditResult = () => {
     setCopied(true);
     toast({ title: t("result.linkCopied") });
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const exportPDF = async () => {
+    if (!reportRef.current || !audit) return;
+    setExporting(true);
+    try {
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pdf = new jsPDF("p", "mm", "a4");
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position -= pageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const fileName = `audit-${(audit.page_title || audit.url).replace(/[^a-zA-Z0-9]/g, "-").substring(0, 40)}.pdf`;
+      pdf.save(fileName);
+      toast({ title: t("result.pdfExported") || "PDF exported successfully" });
+    } catch {
+      toast({ title: "Export failed", variant: "destructive" });
+    }
+    setExporting(false);
   };
 
   const dateLang = lang === "cs" ? "cs-CZ" : "en-US";
@@ -112,6 +154,14 @@ const AuditResult = () => {
           <div className="flex items-center gap-3">
             <LanguageToggle />
             <button
+              onClick={exportPDF}
+              disabled={exporting}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg px-3 py-1.5 disabled:opacity-50"
+            >
+              <Download className="h-3.5 w-3.5" />
+              {exporting ? (t("result.exporting") || "Exporting…") : (t("result.downloadPdf") || "Download PDF")}
+            </button>
+            <button
               onClick={copyLink}
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg px-3 py-1.5"
             >
@@ -131,7 +181,7 @@ const AuditResult = () => {
         </div>
       </header>
 
-      <main className="container max-w-6xl mx-auto px-4 py-8 space-y-10">
+      <main ref={reportRef} className="container max-w-6xl mx-auto px-4 py-8 space-y-10">
         <div className="text-center space-y-2 animate-fade-up">
           <h1 className="text-2xl font-bold">{audit.page_title || audit.url}</h1>
           <p className="text-sm text-muted-foreground font-mono">{audit.url}</p>
