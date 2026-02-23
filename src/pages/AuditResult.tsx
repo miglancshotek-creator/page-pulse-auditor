@@ -76,7 +76,7 @@ const AuditResult = () => {
       const canvas = await html2canvas(reportRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: "#ffffff",
+        backgroundColor: "#09090b",
         logging: false,
       });
       const imgData = canvas.toDataURL("image/png");
