@@ -24,7 +24,7 @@ const ContentOptimizations = ({ items }: ContentOptimizationsProps) => {
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-pdf-section>
       <h2 className="text-xl font-bold">{t("content.title")}</h2>
       <div className="border-t border-border" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
