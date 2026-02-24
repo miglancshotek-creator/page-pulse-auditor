@@ -23,7 +23,7 @@ const OverallSummary = ({ summary }: OverallSummaryProps) => {
     <div data-pdf-section className="rounded-xl border border-border bg-card p-6 space-y-4 animate-fade-up">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">{t("summary.title")}</h2>
-        <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-lg font-bold ${getScoreColor(summary.score)}`} style={{ lineHeight: '48px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{summary.score}</div>
+        <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-lg font-bold ${getScoreColor(summary.score)}`}>{summary.score}</div>
       </div>
       <p className="text-sm text-muted-foreground leading-relaxed">{summary.narrative}</p>
       <div className="rounded-lg bg-primary/10 border border-primary/20 p-4">

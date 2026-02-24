@@ -32,7 +32,7 @@ const PerformanceAnalysis = ({ items }: PerformanceAnalysisProps) => {
           <div key={i} className="rounded-xl border border-border bg-card p-5 space-y-3 animate-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold">{item.dimension}</h3>
-              <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold ${getScoreColor(item.score)}`} style={{ lineHeight: '36px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.score}</div>
+              <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold ${getScoreColor(item.score)}`}>{item.score}</div>
             </div>
             <p className="text-sm text-muted-foreground">{item.description}</p>
             <div className="rounded-lg bg-primary/10 border-l-4 border-primary p-3">

@@ -34,7 +34,7 @@ const ContentOptimizations = ({ items }: ContentOptimizationsProps) => {
               <h3 className="text-lg font-bold">{item.element}</h3>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">{t("content.impact")}</span>
-                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ${getScoreColor(item.impact_score)}`} style={{ lineHeight: '32px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.impact_score}</div>
+                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ${getScoreColor(item.impact_score)}`}>{item.impact_score}</div>
               </div>
             </div>
             <div className="rounded-lg bg-muted/30 border border-border p-3">
