@@ -90,6 +90,14 @@ const AuditResult = () => {
         reportRef.current.querySelectorAll("[data-pdf-section]")
       ) as HTMLElement[];
 
+      // Temporarily disable animations so elements render at full opacity
+      reportRef.current.style.setProperty("animation", "none", "important");
+      reportRef.current.querySelectorAll("*").forEach((el) => {
+        const htmlEl = el as HTMLElement;
+        htmlEl.style.setProperty("animation", "none", "important");
+        htmlEl.style.setProperty("opacity", "1", "important");
+      });
+
       for (const section of sections) {
         const canvas = await html2canvas(section, {
           scale: 2,
@@ -119,8 +127,24 @@ const AuditResult = () => {
 
       const fileName = `audit-${(audit.page_title || audit.url).replace(/[^a-zA-Z0-9]/g, "-").substring(0, 40)}.pdf`;
       pdf.save(fileName);
+      // Restore animations
+      reportRef.current.style.removeProperty("animation");
+      reportRef.current.querySelectorAll("*").forEach((el) => {
+        const htmlEl = el as HTMLElement;
+        htmlEl.style.removeProperty("animation");
+        htmlEl.style.removeProperty("opacity");
+      });
       toast({ title: t("result.pdfExported") || "PDF exported successfully" });
     } catch {
+      // Restore animations on error too
+      if (reportRef.current) {
+        reportRef.current.style.removeProperty("animation");
+        reportRef.current.querySelectorAll("*").forEach((el) => {
+          const htmlEl = el as HTMLElement;
+          htmlEl.style.removeProperty("animation");
+          htmlEl.style.removeProperty("opacity");
+        });
+      }
       toast({ title: "Export failed", variant: "destructive" });
     }
     setExporting(false);
