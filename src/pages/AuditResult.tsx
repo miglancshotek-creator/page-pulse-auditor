@@ -73,29 +73,48 @@ const AuditResult = () => {
     if (!reportRef.current || !audit) return;
     setExporting(true);
     try {
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#09090b",
-        logging: false,
-      });
-      const imgData = canvas.toDataURL("image/png");
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const A4_WIDTH_MM = 210;
+      const A4_HEIGHT_MM = 297;
+      const MARGIN_MM = 10;
+      const CONTENT_WIDTH_MM = A4_WIDTH_MM - MARGIN_MM * 2;
+      const SECTION_GAP_MM = 4;
+
       const pdf = new jsPDF("p", "mm", "a4");
+      // Fill first page background
+      pdf.setFillColor(9, 9, 11);
+      pdf.rect(0, 0, A4_WIDTH_MM, A4_HEIGHT_MM, "F");
 
-      let heightLeft = imgHeight;
-      let position = 0;
+      let currentY = MARGIN_MM;
 
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+      const sections = Array.from(
+        reportRef.current.querySelectorAll("[data-pdf-section]")
+      ) as HTMLElement[];
 
-      while (heightLeft > 0) {
-        position -= pageHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+      for (const section of sections) {
+        const canvas = await html2canvas(section, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#09090b",
+          logging: false,
+        });
+
+        const widthPx = canvas.width / 2;
+        const heightPx = canvas.height / 2;
+        const scaleFactor = CONTENT_WIDTH_MM / widthPx;
+        const heightMM = heightPx * scaleFactor;
+
+        const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
+
+        if (heightMM > remainingSpace && currentY > MARGIN_MM) {
+          pdf.addPage();
+          pdf.setFillColor(9, 9, 11);
+          pdf.rect(0, 0, A4_WIDTH_MM, A4_HEIGHT_MM, "F");
+          currentY = MARGIN_MM;
+        }
+
+        const imgData = canvas.toDataURL("image/png");
+        pdf.addImage(imgData, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
+        currentY += heightMM + SECTION_GAP_MM;
       }
 
       const fileName = `audit-${(audit.page_title || audit.url).replace(/[^a-zA-Z0-9]/g, "-").substring(0, 40)}.pdf`;
@@ -182,7 +201,7 @@ const AuditResult = () => {
       </header>
 
       <main ref={reportRef} className="container max-w-6xl mx-auto px-4 py-8 space-y-10">
-        <div className="text-center space-y-2 animate-fade-up">
+        <div data-pdf-section className="text-center space-y-2 animate-fade-up">
           <h1 className="text-2xl font-bold">{audit.page_title || audit.url}</h1>
           <p className="text-sm text-muted-foreground font-mono">{audit.url}</p>
           <p className="text-xs text-muted-foreground">
@@ -191,7 +210,7 @@ const AuditResult = () => {
         </div>
 
         {audit.screenshot_url && (
-          <div className="rounded-xl border border-border overflow-hidden animate-fade-up max-w-4xl mx-auto">
+          <div data-pdf-section className="rounded-xl border border-border overflow-hidden animate-fade-up max-w-4xl mx-auto">
             <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 border-b border-border">
               <Image className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="text-xs text-muted-foreground">{t("result.screenshot")}</span>
@@ -205,7 +224,7 @@ const AuditResult = () => {
         {overallSummary && <OverallSummary summary={overallSummary} />}
 
         {quickWins.length > 0 && contentOptimizations.length === 0 && (
-          <div className="rounded-xl border border-border bg-card p-6 animate-fade-up">
+          <div data-pdf-section className="rounded-xl border border-border bg-card p-6 animate-fade-up">
             <QuickWins wins={quickWins} />
           </div>
         )}
