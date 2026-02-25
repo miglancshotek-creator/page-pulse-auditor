@@ -228,8 +228,8 @@ const AuditResult = () => {
 
       <main ref={reportRef} className="container max-w-6xl mx-auto px-4 py-8 space-y-10">
         <div data-pdf-section className="text-center space-y-2 animate-fade-up">
-          <h1 className="text-2xl font-bold">{audit.page_title || audit.url}</h1>
-          <p className="text-sm text-muted-foreground font-mono">{audit.url}</p>
+          <h1 className="text-3xl font-bold">{audit.page_title || audit.url}</h1>
+          <p className="text-base text-muted-foreground font-mono">{audit.url}</p>
           <p className="text-xs text-muted-foreground">
             {t("result.audited")} {new Date(audit.created_at).toLocaleDateString(dateLang, { day: "numeric", month: "long", year: "numeric" })}
           </p>

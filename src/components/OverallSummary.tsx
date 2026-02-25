@@ -25,12 +25,12 @@ const OverallSummary = ({ summary }: OverallSummaryProps) => {
         <h2 className="text-xl font-bold">{t("summary.title")}</h2>
         <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-lg font-bold ${getScoreColor(summary.score)}`}>{summary.score}</div>
       </div>
-      <p className="text-sm text-muted-foreground leading-relaxed">{summary.narrative}</p>
+      <p className="text-base text-muted-foreground leading-relaxed">{summary.narrative}</p>
       <div className="rounded-lg bg-primary/10 border border-primary/20 p-4">
-        <p className="text-sm font-semibold text-primary mb-2">{t("summary.nextSteps")}</p>
+        <p className="text-base font-semibold text-primary mb-2">{t("summary.nextSteps")}</p>
         <ul className="space-y-1.5">
           {summary.next_steps.map((step, i) => (
-            <li key={i} className="flex items-start gap-1.5 text-sm text-primary">
+            <li key={i} className="flex items-start gap-1.5 text-base text-primary">
               <span className="mt-0.5">•</span>
               <span>{step}</span>
             </li>
