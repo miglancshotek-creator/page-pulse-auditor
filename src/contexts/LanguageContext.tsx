@@ -100,6 +100,24 @@ const translations: Record<string, Record<Lang, string>> = {
   "summary.title": { cs: "Celkové hodnocení výkonu", en: "Overall performance rating" },
   "summary.nextSteps": { cs: "Další kroky:", en: "Next steps:" },
 
+  // Form - Business Context
+  "form.adSpend": { cs: "Měsíční útrata za reklamu", en: "Monthly ad spend" },
+  "form.trafficSource": { cs: "Hlavní zdroj návštěvnosti", en: "Primary traffic source" },
+  "form.conversionRate": { cs: "Aktuální konverzní poměr", en: "Current conversion rate" },
+  "form.conversionRatePlaceholder": { cs: "např. 2.3% (nebo nechte prázdné)", en: "e.g. 2.3% (or leave blank)" },
+  "form.businessType": { cs: "Typ podnikání", en: "Business type" },
+
+  // Revenue Loss
+  "revenue.title": { cs: "Odhad ušlých příjmů", en: "Estimated revenue loss" },
+  "revenue.monthlyLoss": { cs: "Měsíční ztráta", en: "Monthly loss" },
+  "revenue.annualLoss": { cs: "Roční ztráta", en: "Annual loss" },
+  "revenue.perMonth": { cs: "/měsíc", en: "/month" },
+
+  // PDF
+  "result.pdfExported": { cs: "PDF exportováno", en: "PDF exported successfully" },
+  "result.exporting": { cs: "Exportuji…", en: "Exporting…" },
+  "result.downloadPdf": { cs: "Stáhnout PDF", en: "Download PDF" },
+
   // 404
   "notfound.title": { cs: "Stránka nebyla nalezena", en: "Page not found" },
   "notfound.back": { cs: "Zpět na úvodní stránku", en: "Back to home" },
