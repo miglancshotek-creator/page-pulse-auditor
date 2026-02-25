@@ -6,6 +6,7 @@ import QuickWins from "@/components/QuickWins";
 import ContentOptimizations from "@/components/ContentOptimizations";
 import PerformanceAnalysis from "@/components/PerformanceAnalysis";
 import OverallSummary from "@/components/OverallSummary";
+import RevenueLoss from "@/components/RevenueLoss";
 import LanguageToggle from "@/components/LanguageToggle";
 import { ArrowLeft, ExternalLink, Copy, Check, Image, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -184,6 +185,7 @@ const AuditResult = () => {
   const contentOptimizations = Array.isArray(rawResults.content_optimizations) ? rawResults.content_optimizations : [];
   const performanceAnalysis = Array.isArray(rawResults.performance_analysis) ? rawResults.performance_analysis : [];
   const overallSummary = rawResults.overall_summary || null;
+  const revenueLoss = rawResults.revenue_loss || null;
   const quickWins = Array.isArray(audit.quick_wins) ? audit.quick_wins : [];
 
   return (
@@ -243,6 +245,13 @@ const AuditResult = () => {
           </div>
         )}
 
+        {revenueLoss && revenueLoss.items?.length > 0 && (
+          <RevenueLoss
+            items={revenueLoss.items}
+            totalMonthlyLoss={revenueLoss.total_monthly_loss}
+            totalAnnualLoss={revenueLoss.total_annual_loss}
+          />
+        )}
         {contentOptimizations.length > 0 && <ContentOptimizations items={contentOptimizations} />}
         {performanceAnalysis.length > 0 && <PerformanceAnalysis items={performanceAnalysis} />}
         {overallSummary && <OverallSummary summary={overallSummary} />}

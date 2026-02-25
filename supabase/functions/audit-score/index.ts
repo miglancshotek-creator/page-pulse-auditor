@@ -10,7 +10,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { auditId, scrapeData, language = "cs" } = await req.json();
+    const { auditId, scrapeData, language = "cs", businessContext } = await req.json();
     const isEn = language === "en";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -20,15 +20,28 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch knowledge base criteria
     const { data: criteria } = await supabase.from("knowledge_base").select("*");
     const criteriaText = (criteria || [])
       .map((c) => `[${c.category}] ${c.criterion} (weight: ${c.weight}): ${c.description}`)
       .join("\n");
 
-    // Fetch general guidelines
     const { data: guidelinesData } = await supabase.from("audit_guidelines").select("content").limit(1).single();
     const guidelinesText = guidelinesData?.content || "";
+
+    // Build business context section
+    const bc = businessContext || {};
+    const businessContextText = bc.monthlyAdSpend ? `
+BUSINESS CONTEXT:
+- Monthly Ad Spend: €${bc.monthlyAdSpend}
+- Traffic Source: ${bc.trafficSourceLabel || bc.trafficSource || "Unknown"}
+- Current Conversion Rate: ${bc.conversionRate ? bc.conversionRate + "%" : "Not provided (use industry average for " + (bc.businessTypeLabel || "this business type") + ")"}
+- Business Type: ${bc.businessTypeLabel || bc.businessType || "Unknown"}
+
+REVENUE LOSS CALCULATION INSTRUCTIONS:
+Based on the monthly ad spend and conversion rate, estimate the revenue being lost due to each identified conversion issue.
+- If conversion rate is not provided, use industry averages: E-commerce ~2.5%, SaaS ~3-5%, Lead Gen ~5-10%, Agency ~3-7%, Local ~5-8%.
+- For each issue, estimate what % of conversions it costs and calculate the monthly € loss.
+- Be specific and realistic with estimates. Consider the traffic source quality.` : "";
 
     const langInstruction = isEn
       ? "You are a landing page conversion optimization expert. Write ALL output in English."
@@ -44,6 +57,7 @@ CRITICAL LIMITATIONS OF EXTRACTED DATA:
 
 AUDIT CRITERIA:
 ${criteriaText}
+${businessContextText}
 
 PAGE DATA:
 - URL: ${scrapeData.url}
@@ -64,7 +78,39 @@ YOUR TASK:
 
 3. Provide OVERALL PERFORMANCE SCORE (1-10) with detailed narrative summary and next steps.
 
-4. Also provide legacy scores for backward compatibility.`;
+4. Also provide legacy scores for backward compatibility.
+
+${bc.monthlyAdSpend ? `5. Provide REVENUE LOSS ESTIMATION: For each major conversion issue found, estimate the monthly revenue loss in euros based on the business context provided. List 3-5 specific issues with their estimated monthly loss.` : ""}`;
+
+    // Build tools array
+    const revenueLossProperties = bc.monthlyAdSpend ? {
+      revenue_loss: {
+        type: "object",
+        description: "Revenue loss estimation based on business context",
+        properties: {
+          total_monthly_loss: { type: "number", description: "Total estimated monthly revenue loss in euros" },
+          total_annual_loss: { type: "number", description: "Total estimated annual revenue loss in euros" },
+          items: {
+            type: "array",
+            description: "3-5 specific conversion issues with estimated revenue impact",
+            items: {
+              type: "object",
+              properties: {
+                issue: { type: "string", description: "The specific conversion issue" },
+                estimated_monthly_loss: { type: "number", description: "Estimated monthly loss in euros" },
+                severity: { type: "string", enum: ["high", "medium", "low"] },
+                explanation: { type: "string", description: "Why this issue causes revenue loss and how the estimate was calculated" },
+              },
+              required: ["issue", "estimated_monthly_loss", "severity", "explanation"],
+            },
+          },
+        },
+        required: ["total_monthly_loss", "total_annual_loss", "items"],
+      },
+    } : {};
+
+    const requiredFields = ["overall_score", "scores", "content_optimizations", "performance_analysis", "overall_summary", "quick_wins", "breakdown"];
+    if (bc.monthlyAdSpend) requiredFields.push("revenue_loss");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -102,59 +148,45 @@ YOUR TASK:
                   },
                   content_optimizations: {
                     type: "array",
-                    description: "Content optimization cards for key text elements (heading, subheadline, CTA)",
+                    description: "Content optimization cards for key text elements",
                     items: {
                       type: "object",
                       properties: {
-                        element: { type: "string", description: "Element name e.g. 'Heading', 'Subheadline', 'CTA'" },
-                        impact_score: { type: "number", description: "Impact score 1-10" },
-                        current_version: { type: "string", description: "The current text found on the page" },
-                        optimized_version: { type: "string", description: "Your optimized version of the text" },
-                        reasons: {
-                          type: "array",
-                          description: "List of reasons why the optimized version is better",
-                          items: { type: "string" },
-                        },
+                        element: { type: "string" },
+                        impact_score: { type: "number" },
+                        current_version: { type: "string" },
+                        optimized_version: { type: "string" },
+                        reasons: { type: "array", items: { type: "string" } },
                       },
                       required: ["element", "impact_score", "current_version", "optimized_version", "reasons"],
                     },
                   },
                   performance_analysis: {
                     type: "array",
-                    description: "5 performance dimensions: Relevance, Propensity To Take Action, Persuasiveness, Motivation, Focus On The Goal",
+                    description: "5 performance dimensions",
                     items: {
                       type: "object",
                       properties: {
-                        dimension: { type: "string", description: "Dimension name" },
-                        score: { type: "number", description: "Score 1-10" },
-                        description: { type: "string", description: "What this dimension measures (1 sentence)" },
-                        expert_insight: { type: "string", description: "Expert insight specific to this page (1-2 sentences)" },
-                        action_items: {
-                          type: "array",
-                          description: "3 specific action items",
-                          items: { type: "string" },
-                        },
+                        dimension: { type: "string" },
+                        score: { type: "number" },
+                        description: { type: "string" },
+                        expert_insight: { type: "string" },
+                        action_items: { type: "array", items: { type: "string" } },
                       },
                       required: ["dimension", "score", "description", "expert_insight", "action_items"],
                     },
                   },
                   overall_summary: {
                     type: "object",
-                    description: "Overall performance summary",
                     properties: {
-                      score: { type: "number", description: "Overall score 1-10" },
-                      narrative: { type: "string", description: "Detailed summary paragraph about the page's performance" },
-                      next_steps: {
-                        type: "array",
-                        description: "5 recommended next steps",
-                        items: { type: "string" },
-                      },
+                      score: { type: "number" },
+                      narrative: { type: "string" },
+                      next_steps: { type: "array", items: { type: "string" } },
                     },
                     required: ["score", "narrative", "next_steps"],
                   },
                   quick_wins: {
                     type: "array",
-                    description: "Top 3 highest-impact changes",
                     items: {
                       type: "object",
                       properties: {
@@ -167,7 +199,6 @@ YOUR TASK:
                   },
                   breakdown: {
                     type: "array",
-                    description: "Legacy breakdown by category",
                     items: {
                       type: "object",
                       properties: {
@@ -179,8 +210,9 @@ YOUR TASK:
                       required: ["category", "score", "status", "recommendation"],
                     },
                   },
+                  ...revenueLossProperties,
                 },
-                required: ["overall_score", "scores", "content_optimizations", "performance_analysis", "overall_summary", "quick_wins", "breakdown"],
+                required: requiredFields,
               },
             },
           },
@@ -231,7 +263,6 @@ YOUR TASK:
       }
     }
 
-    // Update audit in database
     const { error: updateError } = await supabase
       .from("audits")
       .update({
