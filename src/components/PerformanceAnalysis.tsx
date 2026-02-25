@@ -25,7 +25,7 @@ const PerformanceAnalysis = ({ items }: PerformanceAnalysisProps) => {
 
   return (
     <div className="space-y-4" data-pdf-section>
-      <h2 className="text-xl font-bold">{t("perf.title")}</h2>
+      <h2 className="text-2xl font-bold">{t("perf.title")}</h2>
       <div className="border-t border-border" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {items.map((item, i) => (
@@ -34,7 +34,7 @@ const PerformanceAnalysis = ({ items }: PerformanceAnalysisProps) => {
               <h3 className="text-lg font-bold">{item.dimension}</h3>
               <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold ${getScoreColor(item.score)}`}>{item.score}</div>
             </div>
-            <p className="text-sm text-muted-foreground">{item.description}</p>
+            <p className="text-base text-muted-foreground">{item.description}</p>
             <div className="rounded-lg bg-primary/10 border-l-4 border-primary p-3">
               <p className="text-sm">
                 <span className="font-semibold text-primary">{t("perf.insight")}</span>
@@ -42,7 +42,7 @@ const PerformanceAnalysis = ({ items }: PerformanceAnalysisProps) => {
               </p>
             </div>
             <div className="rounded-lg bg-muted/30 border border-border p-3">
-              <p className="text-xs font-semibold text-muted-foreground mb-2">{t("perf.actions")}</p>
+              <p className="text-sm font-semibold text-muted-foreground mb-2">{t("perf.actions")}</p>
               <ul className="space-y-1">
                 {item.action_items.map((action, j) => (
                   <li key={j} className="flex items-start gap-1.5 text-sm text-muted-foreground">

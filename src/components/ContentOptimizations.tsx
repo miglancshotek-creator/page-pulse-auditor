@@ -25,7 +25,7 @@ const ContentOptimizations = ({ items }: ContentOptimizationsProps) => {
 
   return (
     <div className="space-y-4" data-pdf-section>
-      <h2 className="text-xl font-bold">{t("content.title")}</h2>
+      <h2 className="text-2xl font-bold">{t("content.title")}</h2>
       <div className="border-t border-border" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {items.map((item, i) => (
@@ -38,16 +38,16 @@ const ContentOptimizations = ({ items }: ContentOptimizationsProps) => {
               </div>
             </div>
             <div className="rounded-lg bg-muted/30 border border-border p-3">
-              <p className="text-xs font-semibold text-muted-foreground mb-1">{t("content.current")}</p>
-              <p className="text-sm">{item.current_version}</p>
+              <p className="text-sm font-semibold text-muted-foreground mb-1">{t("content.current")}</p>
+              <p className="text-base">{item.current_version}</p>
             </div>
             <div className="rounded-lg bg-primary/10 border border-primary/20 p-3">
-              <p className="text-xs font-semibold text-primary mb-1">{t("content.optimized")}</p>
-              <p className="text-sm">{item.optimized_version}</p>
-              <p className="text-xs font-semibold text-primary mt-3 mb-1">{t("content.why")}</p>
+              <p className="text-sm font-semibold text-primary mb-1">{t("content.optimized")}</p>
+              <p className="text-base">{item.optimized_version}</p>
+              <p className="text-sm font-semibold text-primary mt-3 mb-1">{t("content.why")}</p>
               <ul className="space-y-1">
                 {item.reasons.map((reason, j) => (
-                  <li key={j} className="flex items-start gap-1.5 text-xs text-primary">
+                  <li key={j} className="flex items-start gap-1.5 text-sm text-primary">
                     <span className="mt-0.5">•</span>
                     <span>{reason}</span>
                   </li>
