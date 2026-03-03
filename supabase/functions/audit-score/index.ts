@@ -67,11 +67,17 @@ Step 5: For EACH conversion issue found:
   a. State the estimated RELATIVE conversion rate drop (e.g., "8% relative drop means CR goes from 2.5% to 2.3%")
   b. Lost Conversions = Monthly Visitors × (Conversion Rate × relative_drop_percentage)
   c. Monthly Loss = Lost Conversions × Revenue per Conversion
+  d. Do NOT round the result to match the percentage drop. Use the exact calculated value.
 
-Step 6: SHOW ALL MATH in the explanation field for each item. Example:
-  "CPC est. €1.50 → ${bc.monthlyAdSpend}/1.50 = X visitors/mo. CR 2.5%, relative drop 10% → X × 0.25% = Y lost conversions. At €65/conv → €Z/mo lost."
+Step 6: FORMAT the explanation field for each item as follows:
+  FIRST: Write 1-2 sentences describing WHY this issue hurts conversions (the business impact, user psychology).
+  THEN: Show the math on a new line starting with "Výpočet:" (or "Calculation:" in English).
+  Example: "Absence konkrétních referencí a případových studií snižuje důvěru návštěvníků. Bez sociálních důkazů uživatelé váhají s konverzí, protože nemají potvrzení od jiných zákazníků.\\nVýpočet: CPC est. €1.50 → ${bc.monthlyAdSpend}/1.50 = X návštěvníků/měsíc. CR 2.5%, relativní pokles 10% → X × 0.0025 = Y ztracených konverzí. Při €65/konverzi → €Z/měsíc ztráta."
 
-CRITICAL: Do NOT confuse ad spend with traffic volume. Ad spend ÷ CPC = visitors. Never say "€7500 ad spend = 225 conversions".` : "";
+CRITICAL RULES:
+- Do NOT add rounding notes like "(Zaokrouhleno na €X pro Y% pokles)". The math already accounts for the drop.
+- Do NOT confuse ad spend with traffic volume. Ad spend ÷ CPC = visitors.
+- Use the EXACT calculated monthly loss value as estimated_monthly_loss, do not round to a "nice" number.` : "";
 
     const langInstruction = isEn
       ? "You are a landing page conversion optimization expert. Write ALL output in English."
