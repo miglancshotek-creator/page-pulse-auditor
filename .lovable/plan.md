@@ -1,95 +1,78 @@
 
-
-# Include Full Knowledge Document in Audits
+# Fix Revenue Loss Calculation Logic
 
 ## Problem
-The uploaded `.txt` file is 743 lines long, but the `admin-kb` edge function only sends the first 15,000 characters to the AI extractor -- roughly the first 158 lines. This means ~75% of the document (all the psychological frameworks, copywriting principles, CRO methodology) is completely ignored during extraction and never used in audits.
+The AI prompt provides no concrete formula for calculating revenue loss. It just says "estimate the revenue being lost," which causes the AI to conflate ad spend with traffic volume (e.g., "€7500 ad spend = 225 conversions" — nonsensical).
 
-## What's Missing
-The following knowledge is in the document but never reaches the audit AI:
-- Cialdini's 7 Principles (detailed explanations with landing page applications)
-- System 1 vs System 2 / Cognitive Ease / Anchoring / Loss Aversion / Peak-End Rule / WYSIATI
-- Jobs-to-be-Done theory and Pain/Gain/Fear framework
-- Schwartz's 5 Stages of Customer Awareness
-- Objection Mapping (6 universal categories)
-- Trust Architecture (design quality, transparency, trust destroyers)
-- Headline frameworks, Hero Section formula, CTA psychology
-- Features to Benefits to Desires chain
-- Social Proof architecture and placement
-- Pricing Psychology (decoy effect, value framing, anchoring)
-- LIFT Model for heuristic analysis
-- CRO testing methodology
+## Correct Calculation Model
 
-## Solution
+The proper chain is:
 
-### 1. Store the raw document text directly as guidelines
-Instead of relying on the AI to summarize the educational content (which loses detail), store the full document text (lines 148-743, the non-criteria sections) directly in the `audit_guidelines` table. The structured criteria (lines 1-147) are already handled well by the extraction logic.
+```text
+Ad Spend (EUR) / CPC (EUR) = Monthly Visitors
+Monthly Visitors x Conversion Rate (%) = Current Conversions
+Current Conversions x Avg. Revenue per Conversion = Current Revenue
 
-### 2. Increase extraction limit in `admin-kb`
-Change `pdfText.substring(0, 15000)` to `pdfText.substring(0, 50000)` so the AI extractor can see the entire document for criteria extraction.
+For each issue:
+  Issue causes X% relative drop in conversion rate
+  Lost Conversions = Monthly Visitors x (CR x X%)
+  Lost Revenue = Lost Conversions x Avg. Revenue per Conversion
+```
 
-### 3. Store full educational content separately
-After AI extraction of structured criteria, take the remaining document text (everything after the criteria/output format sections) and store it in `audit_guidelines` alongside the extracted general guidelines.
+## Changes
 
-### 4. Feed a condensed version to the audit AI
-The full educational content (~600 lines) is too large to include verbatim in every audit prompt. Instead:
-- During the `admin-kb` parse step, use a second AI call to condense the educational content into a ~2000-word "audit reference guide" -- extracting only the actionable evaluation principles (not the exercises, not the "End-of-Day Tasks", not the course scheduling)
-- Store this condensed version in `audit_guidelines`
-- The `audit-score` function already prepends this to the prompt, so no changes needed there
+### 1. Add new form field: Average Order Value / Deal Value
+**File:** `src/components/AuditForm.tsx`
 
-### 5. What the condensed guide will contain
-The AI will be instructed to extract actionable audit principles such as:
-- "A page with no social proof cannot score above 6 on Trust Signals"
-- "System 1 decides within 50-200ms -- hero must trigger positive emotional response immediately"
-- "Cognitive fluency: difficult-to-read = untrustworthy. Simple words beat clever words"
-- "Anchoring: show expensive option or cost-of-inaction before price"
-- "Loss framing outperforms gain framing (losses feel 2x as powerful)"
-- "Peak-End Rule: invest disproportionately in hero and final CTA"
-- "WYSIATI: fewer strong signals beat more weak ones"
-- "JTBD: address functional, emotional, AND social jobs"
-- "Pain/Gain/Fear: use all three, lead with loss frame"
-- "5 Awareness Stages: copy must match traffic awareness level"
-- "6 Objection Categories: check all are addressed"
-- "Trust destroyers: stock photos, fake timers, vague testimonials, slow load, broken links"
-- "Headline 4 U's: Useful, Urgent, Unique, Ultra-specific"
-- "Hero must answer: What is this? Who is it for? What does it do for me? Why believe you?"
-- "Features to Benefits to Desires: never lead with features"
-- "CTA 'I Want To' test: button must complete visitor's sentence"
-- "Social proof hierarchy and strategic placement at different page sections"
-- "LIFT Model: Value Proposition, Relevance, Clarity, Urgency, Distraction, Anxiety"
+Add an optional input field for "Average order/deal value (EUR)" so the AI can calculate actual revenue loss, not just lost conversions. Without this, the AI has to guess revenue per conversion.
+
+### 2. Rewrite the revenue loss prompt instructions
+**File:** `supabase/functions/audit-score/index.ts`
+
+Replace the vague "REVENUE LOSS CALCULATION INSTRUCTIONS" block (lines 40-44) with a precise, step-by-step formula:
+
+- Provide estimated CPC benchmarks by traffic source (Google Ads ~EUR 0.50-3.00, Meta ~EUR 0.30-1.50, etc.)
+- Instruct: Estimated Visitors = Ad Spend / estimated CPC
+- Instruct: Current Conversions = Visitors x Conversion Rate
+- Instruct: For each issue, state the estimated % relative conversion rate drop, then compute lost conversions and lost EUR
+- If average order value is provided, use it; otherwise use industry benchmarks (e-commerce ~EUR 50-80, SaaS ~EUR 30-100/mo, lead gen ~EUR 50-200, etc.)
+- Require the AI to show its math in the `explanation` field so the user can verify
+
+### 3. Update the tool schema for revenue loss items
+**File:** `supabase/functions/audit-score/index.ts`
+
+Add a `calculation_details` property to each revenue loss item schema so the AI is forced to output the intermediate values (estimated CPC used, visitors, CR drop %, lost conversions, revenue per conversion). This makes the math transparent and auditable.
+
+### 4. Display calculation transparency in the UI
+**File:** `src/components/RevenueLoss.tsx`
+
+The `explanation` field already displays in each issue card. No major UI change needed, but the explanations will now contain actual math instead of hand-waving, because the prompt forces it.
+
+### 5. Update translations
+**File:** `src/contexts/LanguageContext.tsx`
+
+Add translations for the new "Average order value" form field label and placeholder.
 
 ## Technical Details
 
-**Changes to `supabase/functions/admin-kb/index.ts`:**
+The key change is in the edge function prompt. The new `REVENUE LOSS CALCULATION INSTRUCTIONS` block will look roughly like:
 
-1. Increase text limit:
 ```
-pdfText.substring(0, 50000)
+REVENUE LOSS CALCULATION - FOLLOW THIS FORMULA EXACTLY:
+1. Estimate CPC for the traffic source:
+   - Google Search Ads: €1.00-3.00
+   - Google Display: €0.30-0.80
+   - Meta/Facebook: €0.40-1.50
+   - LinkedIn: €3.00-8.00
+   - Organic/SEO: use €0 CPC, estimate monthly organic visitors at ~1000-5000
+2. Monthly Visitors = Monthly Ad Spend / estimated CPC
+3. Current Conversions = Monthly Visitors x Conversion Rate
+4. Revenue per Conversion = [user-provided value] or industry benchmark
+5. For each conversion issue:
+   - State the estimated relative CR drop (e.g., "10% relative drop")
+   - Lost Conversions = Monthly Visitors x (CR x relative_drop%)
+   - Monthly Loss = Lost Conversions x Revenue per Conversion
+6. Show ALL math steps in the explanation field.
 ```
 
-2. After criteria extraction, make a second AI call:
-```
-// Condense educational content into audit reference guide
-const educationalContent = pdfText.substring(
-  pdfText.indexOf("Reciprocity") > 0 ? pdfText.indexOf("Reciprocity") : 15000
-);
-
-const condenseResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-  // Ask AI to extract ONLY actionable evaluation principles
-  // from the educational content, max ~2000 words
-  // No exercises, no tasks, no course scheduling
-});
-```
-
-3. Combine extracted `general_guidelines` with the condensed educational principles and store both in `audit_guidelines`
-
-**No changes needed to `audit-score/index.ts`** -- it already reads from `audit_guidelines` and prepends to the prompt.
-
-## Files to Modify
-- `supabase/functions/admin-kb/index.ts` -- increase text limit, add second AI call to condense educational content, store combined guidelines
-
-## After Deployment
-Delete all existing entries via /admin and re-upload the `.txt` file. The knowledge base will then contain:
-- 40 structured criteria (same as now, clean names)
-- Full guidelines including scoring philosophy, output format, AND all psychological/CRO frameworks in condensed form
-
+This ensures the AI cannot mix up ad spend with traffic, and the user can verify every number.
