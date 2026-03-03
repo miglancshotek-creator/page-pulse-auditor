@@ -37,6 +37,7 @@ const AuditForm = () => {
   const [trafficSource, setTrafficSource] = useState("google_search");
   const [conversionRate, setConversionRate] = useState("");
   const [businessType, setBusinessType] = useState("ecommerce");
+  const [avgOrderValue, setAvgOrderValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"idle" | "scraping" | "scoring">("idle");
   const navigate = useNavigate();
@@ -95,6 +96,7 @@ const AuditForm = () => {
             conversionRate: conversionRate ? parseFloat(conversionRate) : null,
             businessType,
             businessTypeLabel: BUSINESS_TYPES.find(b => b.value === businessType)?.label[lang] || "",
+            avgOrderValue: avgOrderValue ? parseFloat(avgOrderValue) : null,
           },
         },
       });
@@ -173,6 +175,17 @@ const AuditForm = () => {
               <option key={o.value} value={o.value}>{o.label[lang]}</option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className={labelClass}>{t("form.avgOrderValue")}</label>
+          <input
+            type="text"
+            value={avgOrderValue}
+            onChange={e => setAvgOrderValue(e.target.value)}
+            placeholder={t("form.avgOrderValuePlaceholder")}
+            className={selectClass}
+            disabled={loading}
+          />
         </div>
       </div>
 
