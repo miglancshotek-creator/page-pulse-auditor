@@ -61,7 +61,7 @@ const RevenueLoss = ({ items, totalMonthlyLoss, totalAnnualLoss }: RevenueLossPr
                   <span className={`h-2 w-2 rounded-full ${severityDot[item.severity]}`} />
                   <h3 className="text-base font-semibold">{item.issue}</h3>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.explanation}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{item.explanation}</p>
               </div>
               <div className="text-right shrink-0">
                 <p className="text-base font-bold text-red-400">-{formatCurrency(item.estimated_monthly_loss)}</p>
