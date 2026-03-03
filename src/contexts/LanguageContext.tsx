@@ -106,6 +106,8 @@ const translations: Record<string, Record<Lang, string>> = {
   "form.conversionRate": { cs: "Aktuální konverzní poměr", en: "Current conversion rate" },
   "form.conversionRatePlaceholder": { cs: "např. 2.3% (nebo nechte prázdné)", en: "e.g. 2.3% (or leave blank)" },
   "form.businessType": { cs: "Typ podnikání", en: "Business type" },
+  "form.avgOrderValue": { cs: "Průměrná hodnota objednávky (€)", en: "Average order value (€)" },
+  "form.avgOrderValuePlaceholder": { cs: "např. 65 (nebo nechte prázdné)", en: "e.g. 65 (or leave blank)" },
 
   // Revenue Loss
   "revenue.title": { cs: "Odhad ušlých příjmů", en: "Estimated revenue loss" },

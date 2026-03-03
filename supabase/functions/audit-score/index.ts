@@ -36,12 +36,42 @@ BUSINESS CONTEXT:
 - Traffic Source: ${bc.trafficSourceLabel || bc.trafficSource || "Unknown"}
 - Current Conversion Rate: ${bc.conversionRate ? bc.conversionRate + "%" : "Not provided (use industry average for " + (bc.businessTypeLabel || "this business type") + ")"}
 - Business Type: ${bc.businessTypeLabel || bc.businessType || "Unknown"}
+- Average Revenue per Conversion: ${bc.avgOrderValue ? "€" + bc.avgOrderValue : "Not provided (use industry benchmark)"}
 
-REVENUE LOSS CALCULATION INSTRUCTIONS:
-Based on the monthly ad spend and conversion rate, estimate the revenue being lost due to each identified conversion issue.
-- If conversion rate is not provided, use industry averages: E-commerce ~2.5%, SaaS ~3-5%, Lead Gen ~5-10%, Agency ~3-7%, Local ~5-8%.
-- For each issue, estimate what % of conversions it costs and calculate the monthly € loss.
-- Be specific and realistic with estimates. Consider the traffic source quality.` : "";
+REVENUE LOSS CALCULATION — FOLLOW THIS FORMULA EXACTLY:
+
+Step 1: Estimate CPC (Cost Per Click) for the traffic source:
+  - Google Search Ads: €1.00–3.00
+  - Google Shopping: €0.50–1.50
+  - Google Display: €0.30–0.80
+  - Meta/Facebook/Instagram: €0.40–1.50
+  - LinkedIn Ads: €3.00–8.00
+  - Email Campaign: €0 CPC — estimate 5,000–20,000 recipients, 20% open rate, 3% CTR → visitors
+  - Organic/SEO: €0 CPC — estimate monthly organic visitors at 1,000–5,000
+  - Mixed Sources: use a blended CPC of €1.00–2.00
+  Pick a specific CPC value within the range and state it.
+
+Step 2: Calculate Monthly Visitors:
+  Monthly Visitors = Monthly Ad Spend (€${bc.monthlyAdSpend}) / estimated CPC
+  (For organic/email: use the visitor estimate directly, ignore ad spend for visitor calc)
+
+Step 3: Calculate Current Conversions:
+  If conversion rate is provided: use ${bc.conversionRate ? bc.conversionRate + "%" : "industry average"}
+  Industry averages if not provided: E-commerce ~2.5%, SaaS ~3-5%, Lead Gen ~5-10%, Agency ~3-7%, Local ~5-8%
+  Current Conversions = Monthly Visitors × Conversion Rate
+
+Step 4: Revenue per Conversion:
+  ${bc.avgOrderValue ? "Use the provided value: €" + bc.avgOrderValue : "Use industry benchmark: E-commerce €50-80, SaaS €30-100/mo, Lead Gen €50-200, Agency €100-300, Local €30-80"}
+
+Step 5: For EACH conversion issue found:
+  a. State the estimated RELATIVE conversion rate drop (e.g., "8% relative drop means CR goes from 2.5% to 2.3%")
+  b. Lost Conversions = Monthly Visitors × (Conversion Rate × relative_drop_percentage)
+  c. Monthly Loss = Lost Conversions × Revenue per Conversion
+
+Step 6: SHOW ALL MATH in the explanation field for each item. Example:
+  "CPC est. €1.50 → ${bc.monthlyAdSpend}/1.50 = X visitors/mo. CR 2.5%, relative drop 10% → X × 0.25% = Y lost conversions. At €65/conv → €Z/mo lost."
+
+CRITICAL: Do NOT confuse ad spend with traffic volume. Ad spend ÷ CPC = visitors. Never say "€7500 ad spend = 225 conversions".` : "";
 
     const langInstruction = isEn
       ? "You are a landing page conversion optimization expert. Write ALL output in English."
@@ -86,10 +116,14 @@ ${bc.monthlyAdSpend ? `5. Provide REVENUE LOSS ESTIMATION: For each major conver
     const revenueLossProperties = bc.monthlyAdSpend ? {
       revenue_loss: {
         type: "object",
-        description: "Revenue loss estimation based on business context",
+        description: "Revenue loss estimation based on business context. All math must be shown.",
         properties: {
+          estimated_cpc: { type: "number", description: "The CPC value used for calculation (in euros)" },
+          estimated_monthly_visitors: { type: "number", description: "Monthly visitors = ad spend / CPC" },
+          conversion_rate_used: { type: "number", description: "Conversion rate used (percentage, e.g. 2.5)" },
+          revenue_per_conversion: { type: "number", description: "Revenue per conversion in euros" },
           total_monthly_loss: { type: "number", description: "Total estimated monthly revenue loss in euros" },
-          total_annual_loss: { type: "number", description: "Total estimated annual revenue loss in euros" },
+          total_annual_loss: { type: "number", description: "Total estimated annual revenue loss (monthly × 12)" },
           items: {
             type: "array",
             description: "3-5 specific conversion issues with estimated revenue impact",
@@ -97,15 +131,17 @@ ${bc.monthlyAdSpend ? `5. Provide REVENUE LOSS ESTIMATION: For each major conver
               type: "object",
               properties: {
                 issue: { type: "string", description: "The specific conversion issue" },
-                estimated_monthly_loss: { type: "number", description: "Estimated monthly loss in euros" },
+                estimated_monthly_loss: { type: "number", description: "Estimated monthly loss in euros for this issue" },
                 severity: { type: "string", enum: ["high", "medium", "low"] },
-                explanation: { type: "string", description: "Why this issue causes revenue loss and how the estimate was calculated" },
+                relative_cr_drop_percent: { type: "number", description: "Estimated relative CR drop in % (e.g. 10 means 10% relative drop)" },
+                lost_conversions: { type: "number", description: "Number of lost conversions per month from this issue" },
+                explanation: { type: "string", description: "Full math breakdown: CPC used, visitors calculated, CR drop, lost conversions, revenue per conversion, final loss" },
               },
-              required: ["issue", "estimated_monthly_loss", "severity", "explanation"],
+              required: ["issue", "estimated_monthly_loss", "severity", "relative_cr_drop_percent", "lost_conversions", "explanation"],
             },
           },
         },
-        required: ["total_monthly_loss", "total_annual_loss", "items"],
+        required: ["estimated_cpc", "estimated_monthly_visitors", "conversion_rate_used", "revenue_per_conversion", "total_monthly_loss", "total_annual_loss", "items"],
       },
     } : {};
 
