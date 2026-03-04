@@ -25,7 +25,7 @@ const ScoreRing = ({ score, size = 200, strokeWidth = 12 }: ScoreRingProps) => {
     <div className="relative flex flex-col items-center gap-3">
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90" style={{ overflow: 'visible' }}>
-          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(220, 14%, 14%)" strokeWidth={strokeWidth} />
+          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(220, 13%, 90%)" strokeWidth={strokeWidth} />
           <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="transition-all duration-[1500ms] ease-out" style={{ filter: `drop-shadow(0 0 8px ${color})` }} />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">

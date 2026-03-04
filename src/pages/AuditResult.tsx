@@ -78,7 +78,7 @@ const AuditResult = () => {
       const SECTION_GAP_MM = 4;
 
       const pdf = new jsPDF("p", "mm", "a4");
-      pdf.setFillColor(9, 9, 11);
+      pdf.setFillColor(252, 252, 252);
       pdf.rect(0, 0, A4_WIDTH_MM, A4_HEIGHT_MM, "F");
 
       let currentY = MARGIN_MM;
@@ -96,7 +96,7 @@ const AuditResult = () => {
 
       for (const section of sections) {
         const canvas = await html2canvas(section, {
-          scale: 2, useCORS: true, backgroundColor: "#09090b", logging: false,
+          scale: 2, useCORS: true, backgroundColor: "#fcfcfc", logging: false,
         });
 
         const widthPx = canvas.width / 2;
@@ -107,7 +107,7 @@ const AuditResult = () => {
 
         if (heightMM > remainingSpace && currentY > MARGIN_MM) {
           pdf.addPage();
-          pdf.setFillColor(9, 9, 11);
+          pdf.setFillColor(252, 252, 252);
           pdf.rect(0, 0, A4_WIDTH_MM, A4_HEIGHT_MM, "F");
           currentY = MARGIN_MM;
         }
