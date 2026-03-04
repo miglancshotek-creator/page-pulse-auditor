@@ -192,10 +192,10 @@ YOUR TASK:
    For each critical issue provide:
    - The issue name (short, punchy — e.g. "Zero social proof on page")
    - Which framework category it belongs to (use exact framework name)
-   - Severity: "critical" (score ≤3), "high" (score 4-5), or "medium" (score 6-7)
-   - A concise problem description explaining WHY it hurts conversions
-   - A specific solution recommendation (NEVER "No action needed" unless score is 10/10)
-   ${estimatedVisitors > 0 ? "- Estimated monthly revenue loss (using the formula above)" : ""}
+    - Severity: "critical" (score ≤3), "high" (score 4-5), or "medium" (score 6-7)
+    - A DETAILED problem description (3-5 sentences) explaining WHY it hurts conversions, what psychological principle it violates, and what specific evidence from the page supports this finding
+    - A specific, actionable solution recommendation with concrete examples (NEVER "No action needed" unless score is 10/10)
+    ${estimatedVisitors > 0 ? "- Estimated monthly revenue loss (using the formula above)" : "- Even without revenue data, explain the BUSINESS IMPACT: how this issue causes visitor drop-off, reduces trust, or kills conversions. Be specific about the behavioral consequence."}
 
 3. Provide CONTENT OPTIMIZATION RECOMMENDATIONS for key text elements (heading, subheadline, CTA). For each show current version, write optimized version and explain why it's better.
 
@@ -214,8 +214,8 @@ SCORING RULES:
       issue: { type: "string", description: "Short punchy issue name" },
       category: { type: "string", description: "Which framework this belongs to" },
       severity: { type: "string", enum: ["critical", "high", "medium"] },
-      description: { type: "string", description: "Why this hurts conversions (1-2 sentences)" },
-      solution: { type: "string", description: "Specific actionable recommendation" },
+      description: { type: "string", description: "Detailed explanation (3-5 sentences) of WHY this hurts conversions, what psychological/behavioral principle it violates, and what specific page evidence supports this finding. Include the business impact even without revenue numbers." },
+      solution: { type: "string", description: "Specific actionable recommendation with concrete examples of what to change and why it will improve conversions" },
     };
 
     if (estimatedVisitors > 0) {
@@ -291,7 +291,7 @@ SCORING RULES:
                   },
                   critical_issues: {
                     type: "array",
-                    description: "MANDATORY: Return issues for ALL 7 frameworks with NO EXCEPTIONS. For each framework scoring 1-9 out of 10, you MUST find and describe REAL, SPECIFIC, ACTIONABLE issues — never use 'No action needed' for these scores. A score of 7/10 means there are clear problems to report. A score of 9/10 still requires at least 1 minor issue. The ONLY acceptable use of 'No action needed' is for a perfect 10/10 score (extremely rare). If you skip a framework or fail to provide issues for a score ≤9, the audit is INVALID.",
+                    description: "MANDATORY: Return issues for ALL 7 frameworks with NO EXCEPTIONS. Aim for 2-3 issues per framework (minimum 1). For each framework scoring 1-9 out of 10, you MUST find and describe REAL, SPECIFIC, ACTIONABLE issues with DETAILED descriptions (3-5 sentences each) — never use 'No action needed' for these scores. Every description must explain the psychological principle violated and the behavioral consequence. Every solution must include a concrete example. The ONLY acceptable use of 'No action needed' is for a perfect 10/10 score (extremely rare). If you skip a framework or provide shallow 1-sentence descriptions, the audit is INVALID.",
                     items: {
                       type: "object",
                       properties: criticalIssueProperties,
