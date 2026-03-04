@@ -183,7 +183,8 @@ ${JSON.stringify(scrapeData.mobileSignals || {}, null, 2)}
 YOUR TASK:
 1. Score each of the 7 frameworks on a scale of 1–10. For each framework, provide a short key_issue (the single biggest problem found) and a recommendation.
 
-2. Identify CRITICAL ISSUES for ALL 7 frameworks — EVERY framework MUST have at least one issue entry, NO EXCEPTIONS.
+2. Identify CRITICAL ISSUES for ALL 7 frameworks — EVERY single framework MUST have at least 1-3 issue entries, NO EXCEPTIONS, NO SKIPPING.
+   You MUST return issues for EACH of these 7 categories: "Value Proposition", "Relevance & Message Match", "Clarity & Cognitive Ease", "Anxiety Reduction & Trust", "Distraction & Focus", "CTA Quality", "Urgency & Momentum".
    - A score of 9/10 or below means there ARE real issues to find. Look harder. Be specific.
    - The ONLY case where you may write "No action needed" as solution is a PERFECT 10/10 score (truly flawless, almost never happens).
    - A score of 7/10 means significant room for improvement — find and describe 1-3 concrete issues.
