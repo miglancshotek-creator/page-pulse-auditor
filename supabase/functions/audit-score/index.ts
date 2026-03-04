@@ -162,7 +162,7 @@ SCORING RULES:
       solution: { type: "string", description: "Specific actionable recommendation" },
     };
 
-    if (bc.monthlyAdSpend) {
+    if (estimatedVisitors > 0) {
       criticalIssueProperties.estimated_monthly_loss = {
         type: "number",
         description: "The EXACT euro value from the last line of the explanation calculation (Line 7). Must match the calculated €{loss} exactly.",
