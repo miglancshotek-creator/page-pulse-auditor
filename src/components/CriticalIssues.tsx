@@ -162,7 +162,7 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
                 </div>
               ) : (
                 <div className="divide-y divide-border">
-                  {fwIssues.map((item, i) => {
+                  {fwIssues.map((item, i) => (
                       <div key={i} className="px-4 py-3">
                         <div className="flex items-start justify-between gap-3 mb-1.5">
                           <div className="flex items-center gap-2 flex-wrap">
