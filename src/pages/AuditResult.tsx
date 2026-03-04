@@ -268,9 +268,6 @@ const AuditResult = () => {
           </div>
         </div>
 
-        {/* Content optimizations */}
-        {contentOptimizations.length > 0 && <ContentOptimizations items={contentOptimizations} />}
-
         {/* Overall summary */}
         {overallSummary && <OverallSummary summary={{ ...overallSummary, score: overallSummary.score || Math.round(overallScore / 10) }} />}
       </main>
