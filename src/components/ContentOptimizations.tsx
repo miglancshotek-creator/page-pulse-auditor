@@ -1,4 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getScoreTextClass } from "@/lib/score-colors";
 
 interface ContentOptimization {
   element: string;
@@ -11,13 +12,6 @@ interface ContentOptimization {
 interface ContentOptimizationsProps {
   items: ContentOptimization[];
 }
-
-const getScoreColor = (score: number) => {
-  if (score >= 8) return "text-score-excellent border-score-excellent";
-  if (score >= 6) return "text-score-good border-score-good";
-  if (score >= 4) return "text-score-warning border-score-warning";
-  return "text-score-poor border-score-poor";
-};
 
 const ContentOptimizations = ({ items }: ContentOptimizationsProps) => {
   const { t } = useLanguage();
@@ -34,7 +28,7 @@ const ContentOptimizations = ({ items }: ContentOptimizationsProps) => {
               <h3 className="text-lg font-bold">{item.element}</h3>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">{t("content.impact")}</span>
-                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ${getScoreColor(item.impact_score)}`}>{item.impact_score}</div>
+                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ${getScoreTextClass(item.impact_score * 10)}`}>{item.impact_score}</div>
               </div>
             </div>
             <div className="rounded-lg bg-muted/30 border border-border p-3">

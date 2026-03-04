@@ -1,4 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getScoreBgClass, getScoreBadgeClass } from "@/lib/score-colors";
 
 interface FrameworkScore {
   key: string;
@@ -24,20 +25,6 @@ const FRAMEWORK_LABELS: Record<string, Record<string, string>> = {
   urgency_momentum: { cs: "Urgency", en: "Urgency" },
 };
 
-const getBarColor = (score: number) => {
-  if (score >= 8) return "bg-[hsl(172,66%,50%)]";
-  if (score >= 6) return "bg-[hsl(172,66%,50%)]";
-  if (score >= 4) return "bg-[hsl(38,92%,55%)]";
-  return "bg-[hsl(0,72%,55%)]";
-};
-
-const getScoreBarColor = (score: number) => {
-  if (score >= 80) return "bg-[hsl(152,69%,48%)]";
-  if (score >= 60) return "bg-[hsl(172,66%,50%)]";
-  if (score >= 40) return "bg-[hsl(38,92%,55%)]";
-  return "bg-[hsl(0,72%,55%)]";
-};
-
 const FrameworkScores = ({ scores, overallScore, criticalCount }: FrameworkScoresProps) => {
   const { t, lang } = useLanguage();
 
@@ -54,14 +41,14 @@ const FrameworkScores = ({ scores, overallScore, criticalCount }: FrameworkScore
             <span className="text-lg text-muted-foreground font-medium">/100</span>
           </div>
           {criticalCount > 0 && (
-            <span className="text-[10px] font-bold tracking-[0.1em] uppercase px-2.5 py-1 rounded-md bg-[hsl(0,72%,55%)]/15 text-[hsl(0,72%,55%)] border border-[hsl(0,72%,55%)]/30">
+            <span className={`text-[10px] font-bold tracking-[0.1em] uppercase px-2.5 py-1 rounded-md border ${getScoreBadgeClass(0)}`}>
               {criticalCount} {t("fw.criticalIssues")}
             </span>
           )}
         </div>
         <div className="h-1.5 rounded-full bg-muted/30 overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-1000 ${getScoreBarColor(overallScore)}`}
+            className={`h-full rounded-full transition-all duration-1000 ${getScoreBgClass(overallScore)}`}
             style={{ width: `${overallScore}%` }}
           />
         </div>
@@ -79,7 +66,7 @@ const FrameworkScores = ({ scores, overallScore, criticalCount }: FrameworkScore
               <span className="text-xs text-muted-foreground w-20 shrink-0 text-right">{label}</span>
               <div className="flex-1 h-2.5 rounded-full bg-muted/20 overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${getBarColor(fw.score)}`}
+                  className={`h-full rounded-full transition-all duration-700 ${getScoreBgClass(fw.score * 10)}`}
                   style={{ width: `${fw.score * 10}%` }}
                 />
               </div>

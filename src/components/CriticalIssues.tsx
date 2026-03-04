@@ -1,5 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AlertTriangle } from "lucide-react";
+import { getScoreBgClass, getScoreBadgeClass, getScoreSeverity } from "@/lib/score-colors";
 
 interface CriticalIssue {
   issue: string;
@@ -51,7 +52,8 @@ const categoryToFramework = (category: string): string => {
   return "value_proposition"; // fallback
 };
 
-const severityStyles: Record<string, { badge: string; dot: string }> = {
+// Issue-level severity styles (kept for individual issue badges)
+const issueSeverityStyles: Record<string, { badge: string; dot: string }> = {
   critical: {
     badge: "bg-[hsl(0,72%,55%)]/15 text-[hsl(0,72%,55%)] border-[hsl(0,72%,55%)]/30",
     dot: "bg-[hsl(0,72%,55%)]",
@@ -103,15 +105,18 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
           const fwIssues = grouped[fwKey] || [];
           const label = FRAMEWORK_LABELS[fwKey]?.[lang] || fwKey;
           const hasIssues = fwIssues.length > 0;
-          const worstSeverity = hasIssues ? getWorstSeverity(fwIssues) : "medium";
-          const worstStyle = severityStyles[worstSeverity];
+          // Derive framework-level color from actual score, not AI severity
+          const fwScore = frameworkScores?.find(s => s.key === fwKey)?.score || 0;
+          const fwScoreNormalized = Math.round(fwScore * 10);
+          const fwSeverity = getScoreSeverity(fwScoreNormalized);
+          const fwDotClass = getScoreBgClass(fwScoreNormalized);
+          const fwBadgeClass = getScoreBadgeClass(fwScoreNormalized);
           const frameworkLoss = fwIssues.reduce(
             (sum, item) => sum + (item.estimated_monthly_loss || 0),
             0
           );
 
           // Only show "Looks good" for scores strictly above 90/100 (i.e. > 9/10)
-          const fwScore = frameworkScores?.find(s => s.key === fwKey)?.score || 0;
           const isAllGood = fwScore > 9 && (!hasIssues || fwIssues.every(
             (i) => i.solution?.toLowerCase().includes("no action needed") || i.solution?.toLowerCase().includes("není potřeba")
           ));
@@ -127,21 +132,21 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
               {/* Framework header */}
               <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${isAllGood ? "bg-[hsl(172,66%,50%)]" : isMissingIssues ? "bg-[hsl(38,92%,55%)]" : worstStyle.dot}`} />
+                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${fwDotClass}`} />
                   <h3 className="text-base font-bold">{label}</h3>
                   {isAllGood ? (
-                    <span className="text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border bg-[hsl(172,66%,50%)]/15 text-[hsl(172,66%,50%)] border-[hsl(172,66%,50%)]/30">
+                    <span className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${fwBadgeClass}`}>
                       ✓ {lang === "cs" ? "V pořádku" : "Looks good"}
                     </span>
                   ) : isMissingIssues ? (
-                    <span className="text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border bg-[hsl(38,92%,55%)]/15 text-[hsl(38,92%,55%)] border-[hsl(38,92%,55%)]/30">
+                    <span className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${fwBadgeClass}`}>
                       {lang === "cs" ? "⚠ K revizi" : "⚠ Review"}
                     </span>
                   ) : (
                     <span
-                      className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${worstStyle.badge}`}
+                      className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${fwBadgeClass}`}
                     >
-                      {worstSeverity}
+                      {fwSeverity}
                     </span>
                   )}
                 </div>
@@ -172,14 +177,14 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
               ) : (
                 <div className="divide-y divide-border">
                   {fwIssues.map((item, i) => {
-                    const style = severityStyles[item.severity] || severityStyles.medium;
+                    const style = issueSeverityStyles[item.severity] || issueSeverityStyles.medium;
                     return (
                       <div key={i} className="px-4 py-3">
                         <div className="flex items-start justify-between gap-3 mb-1.5">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${style.dot}`} />
                             <h4 className="text-sm font-semibold">{item.issue}</h4>
-                            {item.severity !== worstSeverity && (
+                            {item.severity !== fwSeverity && (
                               <span
                                 className={`text-[8px] font-bold tracking-[0.08em] uppercase px-1.5 py-0.5 rounded border ${style.badge}`}
                               >
