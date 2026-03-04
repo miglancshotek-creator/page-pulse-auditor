@@ -179,7 +179,7 @@ const AuditResult = () => {
   const revenueLoss = rawResults.revenue_loss || null;
 
   const overallScore = audit.overall_score || rawResults.overall_score || 0;
-  const criticalCount = rawResults.critical_count || criticalIssues.filter((i: any) => i.severity === "critical").length;
+  const criticalCount = frameworkScores.filter((fw: any) => Math.round((fw.score || 0) * 10) < 50).length;
 
   const totalMonthlyLoss = revenueLoss?.total_monthly_loss || null;
   const totalAnnualLoss = revenueLoss?.total_annual_loss || null;
