@@ -74,7 +74,7 @@ const AuditForm = () => {
 
       setStep("scoring");
 
-      const spendOption = AD_SPEND_OPTIONS.find(o => o.value === adSpend);
+      const parsedVisitors = monthlyVisitors ? parseInt(monthlyVisitors, 10) : null;
 
       const { data: scoreResult, error: scoreErr } = await supabase.functions.invoke("audit-score", {
         body: {
@@ -82,8 +82,7 @@ const AuditForm = () => {
           scrapeData: { ...scrapeData, url: url.trim() },
           language: lang,
           businessContext: {
-            monthlyAdSpend: spendOption?.midpoint || 3000,
-            adSpendLabel: spendOption?.label[lang] || "",
+            monthlyVisitors: parsedVisitors && !isNaN(parsedVisitors) ? parsedVisitors : null,
             trafficSource,
             trafficSourceLabel: TRAFFIC_SOURCES.find(s => s.value === trafficSource)?.label[lang] || "",
             conversionRate: conversionRate ? parseFloat(conversionRate) : null,
