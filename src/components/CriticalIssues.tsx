@@ -17,6 +17,39 @@ interface CriticalIssuesProps {
   totalAnnualLoss?: number;
 }
 
+const FRAMEWORK_ORDER = [
+  "value_proposition",
+  "relevance",
+  "clarity",
+  "anxiety_trust",
+  "distraction_focus",
+  "cta_quality",
+  "urgency_momentum",
+];
+
+const FRAMEWORK_LABELS: Record<string, Record<string, string>> = {
+  value_proposition: { cs: "Value Proposition", en: "Value Proposition" },
+  relevance: { cs: "Relevance & Message Match", en: "Relevance & Message Match" },
+  clarity: { cs: "Clarity & Cognitive Ease", en: "Clarity & Cognitive Ease" },
+  anxiety_trust: { cs: "Anxiety Reduction & Trust", en: "Anxiety Reduction & Trust" },
+  distraction_focus: { cs: "Distraction & Focus", en: "Distraction & Focus" },
+  cta_quality: { cs: "CTA Quality", en: "CTA Quality" },
+  urgency_momentum: { cs: "Urgency & Momentum", en: "Urgency & Momentum" },
+};
+
+// Map various category strings from AI to framework keys
+const categoryToFramework = (category: string): string => {
+  const lower = category.toLowerCase().replace(/[^a-z]/g, "");
+  if (lower.includes("value") || lower.includes("proposition")) return "value_proposition";
+  if (lower.includes("relevance") || lower.includes("message") || lower.includes("match")) return "relevance";
+  if (lower.includes("clarity") || lower.includes("cognitive") || lower.includes("ease")) return "clarity";
+  if (lower.includes("anxiety") || lower.includes("trust") || lower.includes("reduction")) return "anxiety_trust";
+  if (lower.includes("distraction") || lower.includes("focus")) return "distraction_focus";
+  if (lower.includes("cta") || lower.includes("calltoaction")) return "cta_quality";
+  if (lower.includes("urgency") || lower.includes("momentum")) return "urgency_momentum";
+  return "value_proposition"; // fallback
+};
+
 const severityStyles: Record<string, { badge: string; dot: string }> = {
   critical: {
     badge: "bg-[hsl(0,72%,55%)]/15 text-[hsl(0,72%,55%)] border-[hsl(0,72%,55%)]/30",
@@ -35,10 +68,27 @@ const severityStyles: Record<string, { badge: string; dot: string }> = {
 const formatCurrency = (val: number) =>
   `€${val.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
+const getWorstSeverity = (issues: CriticalIssue[]): "critical" | "high" | "medium" => {
+  if (issues.some((i) => i.severity === "critical")) return "critical";
+  if (issues.some((i) => i.severity === "high")) return "high";
+  return "medium";
+};
+
 const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss }: CriticalIssuesProps) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   if (!issues || issues.length === 0) return null;
+
+  // Group issues by framework
+  const grouped: Record<string, CriticalIssue[]> = {};
+  for (const issue of issues) {
+    const fwKey = categoryToFramework(issue.category);
+    if (!grouped[fwKey]) grouped[fwKey] = [];
+    grouped[fwKey].push(issue);
+  }
+
+  // Only show frameworks that have issues, in the correct order
+  const orderedFrameworks = FRAMEWORK_ORDER.filter((key) => grouped[key] && grouped[key].length > 0);
 
   return (
     <div data-pdf-section className="space-y-4 animate-fade-up">
@@ -47,43 +97,88 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss }: CriticalI
         <h2 className="text-2xl font-bold">{t("issues.title")}</h2>
       </div>
 
-      <div className="space-y-3">
-        {issues.map((item, i) => {
-          const style = severityStyles[item.severity] || severityStyles.medium;
+      <div className="space-y-4">
+        {orderedFrameworks.map((fwKey, fwIndex) => {
+          const fwIssues = grouped[fwKey];
+          const label = FRAMEWORK_LABELS[fwKey]?.[lang] || fwKey;
+          const worstSeverity = getWorstSeverity(fwIssues);
+          const worstStyle = severityStyles[worstSeverity];
+          const frameworkLoss = fwIssues.reduce(
+            (sum, item) => sum + (item.estimated_monthly_loss || 0),
+            0
+          );
+
           return (
             <div
-              key={i}
-              className="rounded-xl border border-border bg-card p-4 animate-fade-up"
-              style={{ animationDelay: `${i * 80}ms` }}
+              key={fwKey}
+              className="rounded-xl border border-border bg-card overflow-hidden animate-fade-up"
+              style={{ animationDelay: `${fwIndex * 100}ms` }}
             >
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`h-2 w-2 rounded-full shrink-0 ${style.dot}`} />
-                  <h3 className="text-base font-semibold">{item.issue}</h3>
-                  <span className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${style.badge}`}>
-                    {item.severity}
+              {/* Framework header */}
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${worstStyle.dot}`} />
+                  <h3 className="text-base font-bold">{label}</h3>
+                  <span
+                    className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${worstStyle.badge}`}
+                  >
+                    {worstSeverity}
                   </span>
-                  <span className="text-[10px] text-muted-foreground font-medium">{item.category}</span>
                 </div>
-                {item.estimated_monthly_loss != null && item.estimated_monthly_loss > 0 && (
-                  <span className="text-sm font-bold text-[hsl(0,72%,55%)] shrink-0 tabular-nums">
-                    ~{formatCurrency(item.estimated_monthly_loss)}/mo
+                {frameworkLoss > 0 && (
+                  <span className="text-sm font-bold text-[hsl(0,72%,55%)] tabular-nums">
+                    ~{formatCurrency(frameworkLoss)}/mo
                   </span>
                 )}
               </div>
 
-              <p className="text-sm text-muted-foreground leading-relaxed mb-2">{item.description}</p>
+              {/* Issues within framework */}
+              <div className="divide-y divide-border">
+                {fwIssues.map((item, i) => {
+                  const style = severityStyles[item.severity] || severityStyles.medium;
+                  return (
+                    <div key={i} className="px-4 py-3">
+                      <div className="flex items-start justify-between gap-3 mb-1.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${style.dot}`} />
+                          <h4 className="text-sm font-semibold">{item.issue}</h4>
+                          {item.severity !== worstSeverity && (
+                            <span
+                              className={`text-[8px] font-bold tracking-[0.08em] uppercase px-1.5 py-0.5 rounded border ${style.badge}`}
+                            >
+                              {item.severity}
+                            </span>
+                          )}
+                        </div>
+                        {item.estimated_monthly_loss != null && item.estimated_monthly_loss > 0 && (
+                          <span className="text-xs font-bold text-[hsl(0,72%,55%)] shrink-0 tabular-nums">
+                            ~{formatCurrency(item.estimated_monthly_loss)}/mo
+                          </span>
+                        )}
+                      </div>
 
-              <div className="rounded-lg bg-primary/5 border border-primary/10 p-3">
-                <p className="text-sm">
-                  <span className="font-semibold text-primary">{t("issues.solution")}: </span>
-                  <span className="text-foreground/80">{item.solution}</span>
-                </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed mb-2">
+                        {item.description}
+                      </p>
+
+                      <div className="rounded-lg bg-primary/5 border border-primary/10 p-2.5">
+                        <p className="text-sm">
+                          <span className="font-semibold text-primary">
+                            {t("issues.solution")}:{" "}
+                          </span>
+                          <span className="text-foreground/80">{item.solution}</span>
+                        </p>
+                      </div>
+
+                      {item.explanation && (
+                        <p className="text-xs text-muted-foreground mt-2 whitespace-pre-line leading-relaxed">
+                          {item.explanation}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-
-              {item.explanation && (
-                <p className="text-xs text-muted-foreground mt-2 whitespace-pre-line leading-relaxed">{item.explanation}</p>
-              )}
             </div>
           );
         })}
@@ -101,7 +196,9 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss }: CriticalI
                 </p>
               )}
             </div>
-            <p className="text-3xl font-extrabold text-[hsl(0,72%,55%)]">{formatCurrency(totalMonthlyLoss)}</p>
+            <p className="text-3xl font-extrabold text-[hsl(0,72%,55%)]">
+              {formatCurrency(totalMonthlyLoss)}
+            </p>
           </div>
         </div>
       )}
