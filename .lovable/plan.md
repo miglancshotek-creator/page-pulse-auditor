@@ -1,78 +1,60 @@
 
-# Fix Revenue Loss Calculation Logic
 
-## Problem
-The AI prompt provides no concrete formula for calculating revenue loss. It just says "estimate the revenue being lost," which causes the AI to conflate ad spend with traffic volume (e.g., "€7500 ad spend = 225 conversions" — nonsensical).
+## Unify Score Colors Across the Entire Audit Report
 
-## Correct Calculation Model
+### Problem
+Each component defines its own color thresholds independently, causing mismatches. For example, `FrameworkScores` uses `score >= 8` (80/100) for green while `CriticalIssues` derives color from AI-provided severity labels (critical/high/medium) which may not match the actual score.
 
-The proper chain is:
+### New Color Scale (user-defined)
 
-```text
-Ad Spend (EUR) / CPC (EUR) = Monthly Visitors
-Monthly Visitors x Conversion Rate (%) = Current Conversions
-Current Conversions x Avg. Revenue per Conversion = Current Revenue
+| Range | Label | Color |
+|-------|-------|-------|
+| 0–49 | Critical | Red `hsl(0, 72%, 55%)` |
+| 50–74 | High | Orange `hsl(38, 92%, 55%)` |
+| 75–89 | Medium | Cyan `hsl(172, 66%, 50%)` |
+| 90–100 | No issues | Green `hsl(152, 69%, 48%)` |
 
-For each issue:
-  Issue causes X% relative drop in conversion rate
-  Lost Conversions = Monthly Visitors x (CR x X%)
-  Lost Revenue = Lost Conversions x Avg. Revenue per Conversion
-```
+### Plan
 
-## Changes
+**1. Create a shared utility** — `src/lib/score-colors.ts`
 
-### 1. Add new form field: Average Order Value / Deal Value
-**File:** `src/components/AuditForm.tsx`
+A single source of truth exporting:
+- `getScoreColor(score: number)` → returns HSL string (for inline `style`)
+- `getScoreColorClass(score: number)` → returns Tailwind `bg-` class
+- `getScoreTextClass(score: number)` → returns Tailwind `text-` + `border-` classes
+- `getScoreSeverity(score: number)` → returns `"critical" | "high" | "medium" | "good"`
 
-Add an optional input field for "Average order/deal value (EUR)" so the AI can calculate actual revenue loss, not just lost conversions. Without this, the AI has to guess revenue per conversion.
+All use the same 0–49/50–74/75–89/90–100 thresholds.
 
-### 2. Rewrite the revenue loss prompt instructions
-**File:** `supabase/functions/audit-score/index.ts`
+**2. Update `FrameworkScores.tsx`**
+- Remove local `getBarColor` and `getScoreBarColor` functions
+- Import shared utility; use it for both the overall health bar and per-framework bars
+- Framework scores come as 1–10 scale → multiply by 10 before passing to the color function
 
-Replace the vague "REVENUE LOSS CALCULATION INSTRUCTIONS" block (lines 40-44) with a precise, step-by-step formula:
+**3. Update `CriticalIssues.tsx`**
+- Instead of coloring framework headers by AI-provided severity strings, derive color from the actual framework score (score × 10) using the shared utility
+- Update dot, badge, and border colors to match
+- Keep individual issue severity badges as-is (those reflect per-issue severity, not framework-level)
 
-- Provide estimated CPC benchmarks by traffic source (Google Ads ~EUR 0.50-3.00, Meta ~EUR 0.30-1.50, etc.)
-- Instruct: Estimated Visitors = Ad Spend / estimated CPC
-- Instruct: Current Conversions = Visitors x Conversion Rate
-- Instruct: For each issue, state the estimated % relative conversion rate drop, then compute lost conversions and lost EUR
-- If average order value is provided, use it; otherwise use industry benchmarks (e-commerce ~EUR 50-80, SaaS ~EUR 30-100/mo, lead gen ~EUR 50-200, etc.)
-- Require the AI to show its math in the `explanation` field so the user can verify
+**4. Update `ScoreRing.tsx`**
+- Replace local `getScoreColor` with shared utility
+- Update label thresholds to match: 90+ "Excellent", 75–89 "Good", 50–74 "Needs work", 0–49 "Critical"
 
-### 3. Update the tool schema for revenue loss items
-**File:** `supabase/functions/audit-score/index.ts`
+**5. Update `OverallSummary.tsx`**
+- Replace local `getScoreColor` with shared utility
 
-Add a `calculation_details` property to each revenue loss item schema so the AI is forced to output the intermediate values (estimated CPC used, visitors, CR drop %, lost conversions, revenue per conversion). This makes the math transparent and auditable.
+**6. Update `ContentOptimizations.tsx`**
+- Replace local `getScoreColor` with shared utility (adjusting for its 1–10 scale → ×10)
 
-### 4. Display calculation transparency in the UI
-**File:** `src/components/RevenueLoss.tsx`
+**7. Update CSS custom properties** in `src/index.css`
+- Align `--score-excellent`, `--score-good`, `--score-warning`, `--score-poor` with the new thresholds for consistency with Tailwind token classes used in `AuditBreakdown.tsx`
 
-The `explanation` field already displays in each issue card. No major UI change needed, but the explanations will now contain actual math instead of hand-waving, because the prompt forces it.
+### Files changed
+- **New**: `src/lib/score-colors.ts`
+- **Edit**: `src/components/FrameworkScores.tsx`
+- **Edit**: `src/components/CriticalIssues.tsx`
+- **Edit**: `src/components/ScoreRing.tsx`
+- **Edit**: `src/components/OverallSummary.tsx`
+- **Edit**: `src/components/ContentOptimizations.tsx`
+- **Edit**: `src/contexts/LanguageContext.tsx` (score label thresholds)
 
-### 5. Update translations
-**File:** `src/contexts/LanguageContext.tsx`
-
-Add translations for the new "Average order value" form field label and placeholder.
-
-## Technical Details
-
-The key change is in the edge function prompt. The new `REVENUE LOSS CALCULATION INSTRUCTIONS` block will look roughly like:
-
-```
-REVENUE LOSS CALCULATION - FOLLOW THIS FORMULA EXACTLY:
-1. Estimate CPC for the traffic source:
-   - Google Search Ads: €1.00-3.00
-   - Google Display: €0.30-0.80
-   - Meta/Facebook: €0.40-1.50
-   - LinkedIn: €3.00-8.00
-   - Organic/SEO: use €0 CPC, estimate monthly organic visitors at ~1000-5000
-2. Monthly Visitors = Monthly Ad Spend / estimated CPC
-3. Current Conversions = Monthly Visitors x Conversion Rate
-4. Revenue per Conversion = [user-provided value] or industry benchmark
-5. For each conversion issue:
-   - State the estimated relative CR drop (e.g., "10% relative drop")
-   - Lost Conversions = Monthly Visitors x (CR x relative_drop%)
-   - Monthly Loss = Lost Conversions x Revenue per Conversion
-6. Show ALL math steps in the explanation field.
-```
-
-This ensures the AI cannot mix up ad spend with traffic, and the user can verify every number.
