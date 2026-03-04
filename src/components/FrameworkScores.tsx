@@ -41,7 +41,7 @@ const FrameworkScores = ({ scores, overallScore, criticalCount }: FrameworkScore
             <span className="text-lg text-muted-foreground font-medium">/100</span>
           </div>
           {criticalCount > 0 && (
-            <span className="text-[10px] font-bold tracking-[0.1em] uppercase px-2.5 py-1 rounded-md bg-[hsl(0,72%,55%)]/15 text-[hsl(0,72%,55%)] border border-[hsl(0,72%,55%)]/30">
+            <span className={`text-[10px] font-bold tracking-[0.1em] uppercase px-2.5 py-1 rounded-md border ${getScoreBadgeClass(0)}`}>
               {criticalCount} {t("fw.criticalIssues")}
             </span>
           )}
