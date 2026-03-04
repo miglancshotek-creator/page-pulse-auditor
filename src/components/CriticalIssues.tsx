@@ -105,8 +105,12 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
           const fwIssues = grouped[fwKey] || [];
           const label = FRAMEWORK_LABELS[fwKey]?.[lang] || fwKey;
           const hasIssues = fwIssues.length > 0;
-          const worstSeverity = hasIssues ? getWorstSeverity(fwIssues) : "medium";
-          const worstStyle = severityStyles[worstSeverity];
+          // Derive framework-level color from actual score, not AI severity
+          const fwScore = frameworkScores?.find(s => s.key === fwKey)?.score || 0;
+          const fwScoreNormalized = Math.round(fwScore * 10);
+          const fwSeverity = getScoreSeverity(fwScoreNormalized);
+          const fwDotClass = getScoreBgClass(fwScoreNormalized);
+          const fwBadgeClass = getScoreBadgeClass(fwScoreNormalized);
           const frameworkLoss = fwIssues.reduce(
             (sum, item) => sum + (item.estimated_monthly_loss || 0),
             0
