@@ -182,7 +182,6 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
                       <div key={i} className="px-4 py-3">
                         <div className="flex items-start justify-between gap-3 mb-1.5">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${style.dot}`} />
                             <h4 className="text-sm font-semibold">{item.issue}</h4>
                           </div>
                           {item.estimated_monthly_loss != null && item.estimated_monthly_loss > 0 && (
