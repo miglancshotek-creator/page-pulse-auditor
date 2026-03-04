@@ -269,7 +269,7 @@ const AuditResult = () => {
         </div>
 
         {/* Overall summary */}
-        {overallSummary && <OverallSummary summary={{ ...overallSummary, score: overallSummary.score || Math.round(overallScore / 10) }} />}
+        {overallSummary && <OverallSummary summary={{ ...overallSummary, score: overallSummary.score ? Math.round(overallSummary.score * 10) : overallScore }} />}
       </main>
     </div>
   );
