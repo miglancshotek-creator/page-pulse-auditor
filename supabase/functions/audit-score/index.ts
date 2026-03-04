@@ -349,14 +349,15 @@ SCORING RULES:
     }
 
     const aiData = await response.json();
-    console.log("AI response finish_reason:", aiData.choices?.[0]?.finish_reason);
-    let toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    
-    // Retry once if no tool call (model sometimes returns text instead)
-    if (!toolCall) {
-      console.warn("No tool call on first attempt, retrying...");
-      console.log("AI message content:", JSON.stringify(aiData.choices?.[0]?.message?.content)?.substring(0, 500));
-      
+    console.log("AI response finish_reason:", aiData?.choices?.[0]?.finish_reason);
+
+    let results = extractAuditResults(aiData);
+
+    // Retry once if extraction fails (model occasionally returns malformed tool payload)
+    if (!results) {
+      console.warn("No valid structured payload on first attempt, retrying...");
+      console.log("AI message content:", JSON.stringify(aiData?.choices?.[0]?.message?.content)?.substring(0, 500));
+
       const retryResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -436,22 +437,20 @@ SCORING RULES:
           tool_choice: { type: "function", function: { name: "submit_audit_results" } },
         }),
       });
-      
+
       if (!retryResponse.ok) {
         const t = await retryResponse.text();
         console.error("Retry AI error:", retryResponse.status, t);
         throw new Error("AI scoring failed on retry");
       }
-      
+
       const retryData = await retryResponse.json();
-      toolCall = retryData.choices?.[0]?.message?.tool_calls?.[0];
-      if (!toolCall) {
-        console.error("Retry also failed. Response:", JSON.stringify(retryData.choices?.[0]?.message)?.substring(0, 1000));
-        throw new Error("No tool call in AI response after retry");
+      results = extractAuditResults(retryData);
+      if (!results) {
+        console.error("Retry extraction failed. Message:", JSON.stringify(retryData?.choices?.[0]?.message)?.substring(0, 1200));
+        throw new Error("No structured audit results in AI response after retry");
       }
     }
-
-    const results = JSON.parse(toolCall.function.arguments);
 
     // Compute overall_score from framework_scores (weighted average, scale to 0-100)
     let overallScore = 0;
