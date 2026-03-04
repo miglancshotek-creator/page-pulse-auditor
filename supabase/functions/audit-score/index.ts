@@ -236,7 +236,7 @@ SCORING RULES:
                   },
                   critical_issues: {
                     type: "array",
-                    description: "You MUST return issues for ALL 7 frameworks. Every framework must have at least one entry. If a framework scores 9-10/10 and has no real issues, include one entry with severity 'medium', a positive description noting the section is well-optimized, and solution as 'No action needed'. Never skip a framework.",
+                    description: "You MUST return issues for ALL 7 frameworks. Every framework must have at least one entry. For ANY framework scoring 9/10 or below, you MUST find and describe real, specific issues that could be improved — never say 'No action needed' for these. Only if a framework scores a perfect 10/10 (truly flawless), include one entry with severity 'medium', a positive description, and solution 'No action needed'. Be critical and thorough — almost every framework should have actionable issues.",
                     items: {
                       type: "object",
                       properties: criticalIssueProperties,

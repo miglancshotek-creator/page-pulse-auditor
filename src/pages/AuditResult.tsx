@@ -263,6 +263,7 @@ const AuditResult = () => {
                 issues={criticalIssues}
                 totalMonthlyLoss={totalMonthlyLoss}
                 totalAnnualLoss={totalAnnualLoss}
+                frameworkScores={frameworkScores}
               />
             )}
           </div>
