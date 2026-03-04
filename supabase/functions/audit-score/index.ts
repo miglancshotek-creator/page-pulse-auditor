@@ -461,6 +461,60 @@ SCORING RULES:
     }
     results.overall_score = Math.round(overallScore);
 
+    // POST-PROCESSING: Ensure ALL 7 frameworks have at least one critical_issue entry
+    const criticalIssues: any[] = results.critical_issues || [];
+    const categoryToFramework = (category: string): string => {
+      const lower = category.toLowerCase().replace(/[^a-z]/g, "");
+      if (lower.includes("value") || lower.includes("proposition")) return "value_proposition";
+      if (lower.includes("relevance") || lower.includes("message") || lower.includes("match")) return "relevance";
+      if (lower.includes("clarity") || lower.includes("cognitive") || lower.includes("ease")) return "clarity";
+      if (lower.includes("anxiety") || lower.includes("trust") || lower.includes("reduction")) return "anxiety_trust";
+      if (lower.includes("distraction") || lower.includes("focus")) return "distraction_focus";
+      if (lower.includes("cta") || lower.includes("calltoaction")) return "cta_quality";
+      if (lower.includes("urgency") || lower.includes("momentum")) return "urgency_momentum";
+      return "";
+    };
+
+    const coveredFrameworks = new Set<string>();
+    for (const issue of criticalIssues) {
+      const fwKey = categoryToFramework(issue.category || "");
+      if (fwKey) coveredFrameworks.add(fwKey);
+    }
+
+    const FRAMEWORK_DISPLAY_NAMES: Record<string, string> = {
+      value_proposition: "Value Proposition",
+      relevance: "Relevance & Message Match",
+      clarity: "Clarity & Cognitive Ease",
+      anxiety_trust: "Anxiety Reduction & Trust",
+      distraction_focus: "Distraction & Focus",
+      cta_quality: "CTA Quality",
+      urgency_momentum: "Urgency & Momentum",
+    };
+
+    for (const fwKey of FRAMEWORK_KEYS) {
+      if (!coveredFrameworks.has(fwKey)) {
+        const fwScore = frameworkScores.find((fs: any) => fs.key === fwKey);
+        const score = fwScore?.score || 5;
+        const keyIssue = fwScore?.key_issue || (isEn ? "Needs improvement" : "Vyžaduje zlepšení");
+        const recommendation = fwScore?.recommendation || (isEn ? "Review and optimize this area" : "Zrevidujte a optimalizujte tuto oblast");
+        
+        if (score < 10) {
+          const severity = score <= 3 ? "critical" : score <= 5 ? "high" : "medium";
+          criticalIssues.push({
+            issue: keyIssue,
+            category: FRAMEWORK_DISPLAY_NAMES[fwKey],
+            severity,
+            description: recommendation + (isEn
+              ? `. This framework scored ${score}/10, indicating significant room for improvement. The page should be reviewed for specific weaknesses in this area to maximize conversion potential.`
+              : `. Toto kritérium získalo ${score}/10, což naznačuje značný prostor pro zlepšení. Stránka by měla být přezkoumána s ohledem na konkrétní slabiny v této oblasti.`),
+            solution: recommendation,
+          });
+          console.log(`Added fallback issue for missing framework: ${fwKey} (score: ${score}/10)`);
+        }
+      }
+    }
+    results.critical_issues = criticalIssues;
+
     // Count critical issues
     const criticalCount = (results.critical_issues || []).filter(
       (i: any) => i.severity === "critical"
