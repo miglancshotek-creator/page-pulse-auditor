@@ -15,6 +15,7 @@ interface CriticalIssuesProps {
   issues: CriticalIssue[];
   totalMonthlyLoss?: number;
   totalAnnualLoss?: number;
+  frameworkScores?: { key: string; score: number }[];
 }
 
 const FRAMEWORK_ORDER = [
