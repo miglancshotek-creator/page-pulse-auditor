@@ -242,7 +242,7 @@ SCORING RULES:
                   },
                   critical_issues: {
                     type: "array",
-                    description: "You MUST return issues for ALL 7 frameworks. Every framework must have at least one entry. For ANY framework scoring 9/10 or below, you MUST find and describe real, specific issues that could be improved — never say 'No action needed' for these. Only if a framework scores a perfect 10/10 (truly flawless), include one entry with severity 'medium', a positive description, and solution 'No action needed'. Be critical and thorough — almost every framework should have actionable issues.",
+                    description: "MANDATORY: Return issues for ALL 7 frameworks with NO EXCEPTIONS. For each framework scoring 1-9 out of 10, you MUST find and describe REAL, SPECIFIC, ACTIONABLE issues — never use 'No action needed' for these scores. A score of 7/10 means there are clear problems to report. A score of 9/10 still requires at least 1 minor issue. The ONLY acceptable use of 'No action needed' is for a perfect 10/10 score (extremely rare). If you skip a framework or fail to provide issues for a score ≤9, the audit is INVALID.",
                     items: {
                       type: "object",
                       properties: criticalIssueProperties,

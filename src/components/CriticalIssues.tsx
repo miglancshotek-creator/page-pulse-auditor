@@ -149,12 +149,20 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
               </div>
 
               {/* Issues within framework */}
-              {isAllGood || !hasIssues ? (
+              {isAllGood ? (
                 <div className="px-4 py-4">
                   <p className="text-sm text-muted-foreground">
                     {lang === "cs"
                       ? "Tato sekce je dobře optimalizovaná. Nebyly nalezeny žádné závažné problémy."
                       : "This section is well-optimized. No significant issues found."}
+                  </p>
+                </div>
+              ) : isMissingIssues ? (
+                <div className="px-4 py-4">
+                  <p className="text-sm text-[hsl(38,92%,55%)]">
+                    {lang === "cs"
+                      ? `Skóre ${Math.round(fwScore * 10)}/100 — problémy nebyly vráceny, ale doporučujeme revizi.`
+                      : `Score ${Math.round(fwScore * 10)}/100 — no specific issues returned, review recommended.`}
                   </p>
                 </div>
               ) : (
