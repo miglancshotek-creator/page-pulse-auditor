@@ -9,9 +9,9 @@ interface OverallSummaryProps {
 }
 
 const getScoreColor = (score: number) => {
-  if (score >= 8) return "text-score-excellent border-score-excellent";
-  if (score >= 6) return "text-score-good border-score-good";
-  if (score >= 4) return "text-score-warning border-score-warning";
+  if (score >= 80) return "text-score-excellent border-score-excellent";
+  if (score >= 60) return "text-score-good border-score-good";
+  if (score >= 40) return "text-score-warning border-score-warning";
   return "text-score-poor border-score-poor";
 };
 
