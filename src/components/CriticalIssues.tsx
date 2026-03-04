@@ -194,8 +194,8 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
                           </p>
                         )}
                       </div>
-                    );
-                  })}
+                  ))}
+                </div>
                 </div>
               )}
             </div>
