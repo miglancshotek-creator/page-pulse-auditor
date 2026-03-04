@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FUGOTO · PagePulse 70-Criteria Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #080A10;
+  --bg2:   #0D0F17;
+  --bg3:   #12151E;
+  --sur:   #181C27;
+  --sur2:  #1E2330;
+  --b1:    rgba(255,255,255,.07);
+  --b2:    rgba(255,255,255,.13);
+  --cyan:  #00E5FF;
+  --red:   #FF4444;
+  --amber: #FFB800;
+  --green: #00D084;
+  --t1:    rgba(255,255,255,.93);
+  --t2:    rgba(255,255,255,.56);
+  --t3:    rgba(255,255,255,.30);
+  --pad:   clamp(16px,4vw,48px);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--t1);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:15px;line-height:1.6;
+}
+
+/* ── HEADER ─────────────────────────────────────────── */
+header{
+  background:var(--bg2);
+  border-bottom:1px solid var(--b2);
+  padding:24px var(--pad);
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:20px;flex-wrap:wrap;
+  backdrop-filter:blur(20px);
+}
+.logo{
+  font-size:18px;font-weight:800;letter-spacing:-.02em;
+  color:var(--t1);display:flex;align-items:center;gap:8px;
+}
+.logo .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.doc-title{
+  font-family:'DM Mono',monospace;font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--t3);
+}
+.header-right{display:flex;align-items:center;gap:16px}
+.score-display{
+  font-family:'DM Mono',monospace;font-size:13px;
+  color:var(--cyan);font-weight:500;
+}
+.reset-btn{
+  font-family:'DM Mono',monospace;font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--t3);cursor:pointer;
+  padding:6px 14px;border-radius:6px;
+  border:1px solid var(--b2);background:none;
+  transition:color .2s,border-color .2s;
+}
+.reset-btn:hover{color:var(--t1);border-color:rgba(255,255,255,.25)}
+
+/* ── LAYOUT ─────────────────────────────────────────── */
+.wrap{max-width:1100px;margin:0 auto;padding:40px var(--pad) 80px}
+
+/* ── INTRO STRIP ────────────────────────────────────── */
+.intro{
+  background:var(--bg2);border:1px solid var(--b1);
+  border-radius:14px;padding:28px 32px;
+  margin-bottom:40px;
+  display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;
+}
+.intro-text h1{
+  font-size:22px;font-weight:800;letter-spacing:-.02em;
+  color:var(--t1);margin-bottom:6px;
+}
+.intro-text p{font-size:14px;color:var(--t2);line-height:1.7;max-width:580px}
+.intro-stats{display:flex;gap:24px;flex-shrink:0}
+.istat{text-align:center}
+.istat-n{
+  font-size:32px;font-weight:800;letter-spacing:-.03em;
+  color:var(--cyan);line-height:1;
+}
+.istat-l{
+  font-family:'DM Mono',monospace;font-size:9px;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--t3);margin-top:3px;
+}
+@media(max-width:600px){.intro{grid-template-columns:1fr}.intro-stats{display:none}}
+
+/* ── PROGRESS BAR ───────────────────────────────────── */
+.progress-wrap{
+  background:var(--bg2);border:1px solid var(--b1);
+  border-radius:12px;padding:20px 24px;margin-bottom:36px;
+}
+.progress-row{display:flex;align-items:center;gap:16px;margin-bottom:10px}
+.progress-label{font-size:13px;font-weight:600;color:var(--t2)}
+.progress-pct{
+  font-family:'DM Mono',monospace;font-size:14px;
+  color:var(--cyan);font-weight:500;margin-left:auto;
+}
+.prog-track{
+  height:6px;border-radius:3px;
+  background:rgba(255,255,255,.06);
+  overflow:hidden;
+}
+.prog-fill{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--cyan),#00B8CC);
+  width:0%;transition:width .4s ease;
+}
+.legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t3)}
+.leg-dot{width:8px;height:8px;border-radius:50%}
+
+/* ── FRAMEWORK SECTION ──────────────────────────────── */
+.fw-section{margin-bottom:32px}
+.fw-header{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 20px;
+  background:var(--bg2);
+  border:1px solid var(--b2);
+  border-radius:12px 12px 0 0;
+  cursor:pointer;
+  transition:background .2s;
+  user-select:none;
+}
+.fw-header:hover{background:var(--sur)}
+.fw-num{
+  font-family:'DM Mono',monospace;font-size:11px;
+  letter-spacing:.1em;color:var(--t3);flex-shrink:0;
+}
+.fw-name{font-size:16px;font-weight:700;color:var(--t1);flex:1}
+.fw-source{
+  font-family:'DM Mono',monospace;font-size:10px;
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--cyan);opacity:.7;flex-shrink:0;
+}
+.fw-score-badge{
+  font-family:'DM Mono',monospace;font-size:12px;
+  font-weight:500;color:var(--t2);
+  padding:3px 10px;border-radius:20px;
+  border:1px solid var(--b2);
+  flex-shrink:0;white-space:nowrap;
+}
+.fw-chevron{color:var(--t3);font-size:14px;transition:transform .25s;flex-shrink:0}
+.fw-header.open .fw-chevron{transform:rotate(180deg)}
+
+.fw-body{
+  border:1px solid var(--b1);border-top:none;
+  border-radius:0 0 12px 12px;
+  overflow:hidden;
+}
+.fw-desc{
+  padding:14px 20px;
+  font-size:13px;color:var(--t2);line-height:1.7;
+  background:rgba(0,229,255,.02);
+  border-bottom:1px solid var(--b1);
+}
+
+/* ── CRITERION ROW ──────────────────────────────────── */
+.crit{
+  display:grid;
+  grid-template-columns:32px 20px 1fr auto;
+  gap:12px;align-items:start;
+  padding:14px 20px;
+  border-bottom:1px solid var(--b1);
+  transition:background .15s;
+}
+.crit:last-child{border-bottom:none}
+.crit:hover{background:rgba(255,255,255,.02)}
+
+.crit-n{
+  font-family:'DM Mono',monospace;font-size:10px;
+  color:var(--t3);font-weight:500;
+  padding-top:2px;
+}
+/* Toggle checkbox */
+.crit-toggle{
+  width:20px;height:20px;
+  border-radius:5px;
+  border:1.5px solid var(--b2);
+  background:transparent;
+  cursor:pointer;
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s,border-color .15s;
+  font-size:11px;color:transparent;
+  margin-top:1px;
+}
+.crit-toggle.pass{background:rgba(0,208,132,.15);border-color:var(--green);color:var(--green)}
+.crit-toggle.fail{background:rgba(255,68,68,.12);border-color:var(--red);color:var(--red)}
+
+.crit-body{}
+.crit-title{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:3px}
+.crit-desc{font-size:12px;color:var(--t3);line-height:1.65}
+.crit-why{
+  display:none;
+  font-size:12px;color:var(--t2);line-height:1.75;
+  margin-top:8px;padding:12px 14px;
+  background:rgba(0,229,255,.04);
+  border:1px solid rgba(0,229,255,.1);
+  border-radius:6px;
+}
+.crit.expanded .crit-why{display:block}
+
+/* Severity badge */
+.sev{
+  font-family:'DM Mono',monospace;font-size:9px;
+  letter-spacing:.07em;text-transform:uppercase;
+  padding:3px 8px;border-radius:4px;
+  flex-shrink:0;white-space:nowrap;margin-top:2px;
+  cursor:default;
+}
+.sev-c{background:rgba(255,68,68,.1);color:var(--red);border:1px solid rgba(255,68,68,.2)}
+.sev-h{background:rgba(255,136,68,.08);color:#FF8844;border:1px solid rgba(255,136,68,.2)}
+.sev-m{background:rgba(255,184,0,.08);color:var(--amber);border:1px solid rgba(255,184,0,.2)}
+
+/* ── NOTES AREA ─────────────────────────────────────── */
+.crit-notes{
+  grid-column:3/5;
+  margin-top:6px;
+  display:none;
+}
+.crit.expanded .crit-notes{display:block}
+.notes-input{
+  width:100%;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--b1);
+  border-radius:6px;
+  color:var(--t2);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:12px;
+  padding:8px 12px;
+  resize:vertical;min-height:48px;
+  outline:none;
+  transition:border-color .2s;
+}
+.notes-input::placeholder{color:var(--t3)}
+.notes-input:focus{border-color:rgba(0,229,255,.3)}
+
+/* ── EXPAND BTN ─────────────────────────────────────── */
+.expand-btn{
+  grid-column:4/5;
+  font-size:10px;color:var(--t3);cursor:pointer;
+  padding:2px 6px;margin-top:1px;
+  transition:color .15s;
+  user-select:none;
+  white-space:nowrap;
+}
+.expand-btn:hover{color:var(--cyan)}
+.crit.expanded .expand-btn{color:var(--cyan)}
+
+/* ── EXPORT BTN ─────────────────────────────────────── */
+.export-bar{
+  position:fixed;bottom:24px;right:24px;z-index:200;
+  display:flex;gap:10px;
+}
+.export-btn{
+  font-family:'DM Mono',monospace;font-size:11px;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:11px 20px;border-radius:8px;
+  cursor:pointer;border:none;
+  transition:opacity .2s,transform .15s;
+  font-weight:500;
+}
+.export-btn:hover{opacity:.88;transform:translateY(-2px)}
+.export-primary{background:var(--cyan);color:var(--bg)}
+.export-secondary{background:var(--sur2);color:var(--t2);border:1px solid var(--b2)}
+
+/* ── EXAMPLES BLOCKS ─────────────────────────────────── */
+.crit-examples{
+  display:none;
+}
+.crit.expanded .crit-examples{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;
+}
+.ex-block{border-radius:6px;padding:10px 12px;font-size:11px;line-height:1.7}
+.ex-pass{background:rgba(0,208,132,.05);border:1px solid rgba(0,208,132,.15)}
+.ex-fail{background:rgba(255,68,68,.05);border:1px solid rgba(255,68,68,.15)}
+.ex-label{
+  font-family:'DM Mono',monospace;font-size:9px;
+  letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:5px;font-weight:600;
+}
+.ex-pass .ex-label{color:var(--green)}
+.ex-fail .ex-label{color:var(--red)}
+.ex-text{color:var(--t2);font-style:italic}
+.ex-note{color:var(--t3);font-style:normal;margin-top:4px;font-size:10px}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">FUGOTO<span class="dot"></span></div>
+    <div class="doc-title">PagePulse · 70-Criteria Audit Reference · Internal</div>
+  </div>
+  <div class="header-right">
+    <div class="score-display" id="globalScore">0 / 70 checked</div>
+    <button class="reset-btn" onclick="resetAll()">Reset all</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="intro">
+    <div class="intro-text">
+      <h1>70-Criteria Landing Page Audit</h1>
+      <p>Every criterion is binary: <strong>Pass</strong> or <strong>Fail</strong>. No partial credit. Click the checkbox to toggle state, click the criterion title to expand notes and rationale. Scope: paid traffic landing pages only.</p>
+    </div>
+    <div class="intro-stats">
+      <div class="istat"><div class="istat-n">70</div><div class="istat-l">Criteria</div></div>
+      <div class="istat"><div class="istat-n">7</div><div class="istat-l">Frameworks</div></div>
+      <div class="istat"><div class="istat-n">3</div><div class="istat-l">Severities</div></div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-row">
+      <span class="progress-label">Audit progress</span>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progBar"></div></div>
+    <div class="legend">
+      <div class="leg"><span class="leg-dot" style="background:var(--red)"></span>Critical — fix before running paid traffic</div>
+      <div class="leg"><span class="leg-dot" style="background:#FF8844"></span>High — fix within 30 days</div>
+      <div class="leg"><span class="leg-dot" style="background:var(--amber)"></span>Medium — A/B test or iterate</div>
+    </div>
+  </div>
+
+
+  <div class="fw-section" id="fw1">
+    <div class="fw-header open" onclick="toggleFW(this)">
+      <span class="fw-num">01/07</span>
+      <span class="fw-name">Value Proposition</span>
+      <span class="fw-source">LIFT-V · Schwartz · Ogilvy</span>
+      <span class="fw-score-badge" id="score-fw1">0/10</span>
+      <span class="fw-chevron">▼</span>
+    </div>
+    <div class="fw-body">
+      <div class="fw-desc">Is the core offer immediately clear, desirable, and differentiated? The value proposition is the single most important element — it determines whether the visitor decides to read further within the first 3 seconds. Most pages fail silently: the copy is accurate but not compelling, specific but not differentiated, or clear but not relevant to the visitor's actual emotional state.</div>
+      <div class="crit" data-fw="fw1" data-id="1">
+        <span class="crit-n">1</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Hero headline answers "what do you do?" in under 5 seconds</div>
+          <div class="crit-desc">A stranger with zero context can state back what the company does after reading only the headline.</div>
+          <div class="crit-why">The 5-second test from LIFT: cover everything below the headline. Read it cold. If the answer to "what is this?" requires scrolling or guessing, this fails. The grunt test: could a caveman understand the offer? This is the most commonly failed criterion on paid traffic pages — companies write for people who already know them, not for strangers arriving from an ad. The brain makes a stay-or-go decision in under 3 seconds; the headline is the only copy evaluated in that window.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass examples</div>
+              <div class="ex-text">"We audit your landing page across 70 criteria and show you exactly what it's costing you each month."</div>
+              <div class="ex-note">Clear: what (audit), scope (70 criteria), outcome (cost calculation) — all in one sentence.</div>
+              <div class="ex-text" style="margin-top:8px">"Turn your ad clicks into customers — without spending more on traffic."</div>
+              <div class="ex-note">Clear problem (wasted ad spend), clear outcome (more customers), clear mechanism (not more spend).</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail examples</div>
+              <div class="ex-text">"We help ambitious businesses grow."</div>
+              <div class="ex-note">Fails because it describes almost any company on earth. Zero specificity about what is actually done.</div>
+              <div class="ex-text" style="margin-top:8px">"Your partner in digital transformation."</div>
+              <div class="ex-note">Jargon that means nothing. "Digital transformation" is not an offer — it's a buzzword.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw1" data-id="2">
+        <span class="crit-n">2</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Headline leads with customer outcome, not company mechanism</div>
+          <div class="crit-desc">The headline names what the visitor gets or avoids — not what the company does to deliver it.</div>
+          <div class="crit-why">StoryBrand principle: the customer is the hero, not the brand. Most companies write about themselves — their process, their team, their approach — because that's what they know. The visitor only cares about what changes for them. "We build landing pages" describes the company. "Your ads will finally convert" describes the visitor's new reality. The first creates mild interest; the second creates desire. Ogilvy tested this for decades: outcome headlines consistently outperform feature headlines.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — outcome-first</div>
+              <div class="ex-text">"Stop losing €3,000/month to a landing page that doesn't convert."</div>
+              <div class="ex-note">Loss-framed, specific number. The visitor is the subject of every sentence.</div>
+              <div class="ex-text" style="margin-top:8px">"Find out exactly why your ads aren't converting — in 20 minutes."</div>
+              <div class="ex-note">What the visitor receives (knowledge), and how quickly. Company is invisible.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — mechanism-first</div>
+              <div class="ex-text">"We build high-converting landing pages using data-driven CRO methodology."</div>
+              <div class="ex-note">Every sentence starts with "We." The visitor's outcome is implied but never stated directly.</div>
+              <div class="ex-text" style="margin-top:8px">"Our proven 7-step audit process identifies conversion bottlenecks."</div>
+              <div class="ex-note">What does the visitor get? Revenue increase? Time saved? Not stated anywhere.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw1" data-id="3">
+        <span class="crit-n">3</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Value proposition is visible above the fold without scrolling</div>
+          <div class="crit-desc">The core offer — what, for whom, and why it matters — is readable on page load on both desktop and mobile.</div>
+          <div class="crit-why">The above-fold zone is the only section 100% of visitors see. On mobile, 50–80% of paid traffic visitors never scroll past the first screen. Test: load the page on a phone with the screen as it appears on first load. Can you read the full offer? Is there a CTA visible? If the answer is no to either, this fails. Common causes: hero image too tall pushing text below fold, large navigation consuming viewport space, hero video with no immediate text overlay.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass</div>
+              <div class="ex-text">Headline + sub-headline + CTA button all visible on a 375px mobile viewport without touching the screen.</div>
+              <div class="ex-note">Full value stack in guaranteed viewport. No scrolling required to understand and act.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail examples</div>
+              <div class="ex-text">Full-screen hero video plays for 8 seconds before text fades in. CTA appears at 12 seconds.</div>
+              <div class="ex-note">Visitor must wait 12 seconds before they can act. Most are gone within 3.</div>
+              <div class="ex-text" style="margin-top:8px">Large decorative hero image (600px tall on mobile) pushes headline below fold on all phone sizes.</div>
+              <div class="ex-note">The image contributes nothing to the value proposition but consumes the entire guaranteed viewport.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw1" data-id="4">
+        <span class="crit-n">4</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Headline passes the Bly 4 U's test: Useful, Ultra-specific, Unique, Urgent</div>
+          <div class="crit-desc">Score each U independently. The headline must pass at least 3 of 4 to qualify as passing.</div>
+          <div class="crit-why">Each U adds independent persuasive force: Useful (does it promise something the visitor wants?), Ultra-specific (does it include a number, timeframe, or concrete detail?), Unique (does it differentiate from competitor headlines?), Urgent (does it give a reason to care now?). A headline doing only one job — say, only "Useful" — is leaving three persuasive levers unpulled. Test: score each U as 0 or 1, total. Score of 2 or below = rewrite.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — scores 4/4</div>
+              <div class="ex-text">"Stop losing €3,200/month to a landing page your visitors can't navigate in 5 seconds."</div>
+              <div class="ex-note">Useful ✓ (stop losing money) · Ultra-specific ✓ (€3,200/mo, 5 seconds) · Unique ✓ (navigation framing) · Urgent ✓ (happening right now)</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — scores 1/4</div>
+              <div class="ex-text">"We help you grow your business online."</div>
+              <div class="ex-note">Useful ✓ (barely) · Ultra-specific ✗ · Unique ✗ (every agency says this) · Urgent ✗. Generic at maximum.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw1" data-id="5">
+        <span class="crit-n">5</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Sub-headline explains the unique mechanism in one sentence</div>
+          <div class="crit-desc">The sentence directly below the headline explains how the outcome is delivered, differentiating from alternatives.</div>
+          <div class="crit-why">Google Ads traffic is almost always Schwartz Stage 3 (Solution Aware) — they know CRO agencies exist, they're evaluating which one. The headline catches attention; the sub-headline must answer "but why this one specifically?" "We audit 70 criteria, calculate the revenue cost of every issue, and walk you through it in 20 minutes" is a mechanism claim. Without it, two agencies with identical headlines are indistinguishable — and the visitor defaults to price comparison.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass</div>
+              <div class="ex-text">"We audit your page across 70 criteria, calculate the monthly revenue you're losing on each issue, and walk you through the findings — free."</div>
+              <div class="ex-note">Mechanism (70-criteria audit), differentiator (revenue calculation per issue), offer (free walkthrough). All in one sentence.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail examples</div>
+              <div class="ex-text">"We're a team of experienced conversion specialists dedicated to improving your results."</div>
+              <div class="ex-note">No mechanism. "Experienced" and "dedicated" are self-awards. "Results" is vague. This could describe any agency.</div>
+              <div class="ex-text" style="margin-top:8px">"Our data-driven approach helps businesses maximise their ROI."</div>
+              <div class="ex-note">"Data-driven" is claimed by 95% of agencies. "Maximise ROI" is an aspiration, not a mechanism.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw1" data-id="6">
+        <span class="crit-n">6</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">The offer is differentiated from obvious alternatives</div>
+          <div class="crit-desc">A visitor who has seen 2–3 competitors can immediately identify what makes this offer different.</div>
+          <div class="crit-why">The logo swap test: remove the company logo and replace it with a competitor's. Does the page still make perfect sense? If yes, differentiation has failed. Most landing pages in any category are interchangeable because they all describe the same features using the same vocabulary. The unique mechanism must be named explicitly, not implied. "We audit before we build, so every change is backed by data" differentiates from agencies that redesign first and measure later.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass</div>
+              <div class="ex-text">"Unlike agencies that redesign first and measure later — we calculate the revenue cost of every issue before touching a single pixel."</div>
+              <div class="ex-note">Names the competitor behaviour explicitly, then contrasts with a specific differentiating action.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail</div>
+              <div class="ex-text">"We're a full-service CRO agency with 10+ years of experience and a client-first approach."</div>
+              <div class="ex-note">Every agency claims years of experience and client-first approach. This describes the category, not the company.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw1" data-id="7">
+        <span class="crit-n">7</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">No vague superlatives in headline or opening copy</div>
+          <div class="crit-desc">Words like "world-class", "leading", "powerful", "best", "revolutionary", "innovative" are absent from the headline and first paragraph.</div>
+          <div class="crit-why">Ogilvy: "cleans 73% more effectively" is credible because the number implies testing. "Cleans better" is not. Vague superlatives actively reduce trust with sophisticated buyers — they signal "we couldn't find a specific claim." Every superlative is a missed opportunity for a specific one. Replace "world-class" with "70-criteria framework." Replace "best-in-class results" with "average CR improvement of 1.4 percentage points across client pages."</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — specific claims</div>
+              <div class="ex-text">"We audit 70 criteria across 7 CRO frameworks — most agencies check fewer than 20."</div>
+              <div class="ex-note">Specific number (70), named scope (7 frameworks), competitive context. All verifiable.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — vague superlatives</div>
+              <div class="ex-text">"We deliver world-class, industry-leading conversion optimisation solutions using cutting-edge methodology."</div>
+              <div class="ex-note">Five vague superlatives in one sentence. Zero specific claims. This sentence could be removed entirely.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw1" data-id="8">
+        <span class="crit-n">8</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">The hero section names who the offer is for</div>
+          <div class="crit-desc">The target audience is explicitly identified — by role, situation, or pain — within the hero section.</div>
+          <div class="crit-why">Cialdini's Unity: "for businesses running paid traffic" tells the right person "this is for me" and tells the wrong person to self-select out — which is equally valuable. Pages that try to speak to everyone convert no one because generalised copy lacks the specificity that resonates with any individual. Audience clarity test: can you tell the visitor's job title, their current problem, and why they might be searching today?</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass</div>
+              <div class="ex-text">"For marketing teams spending €3k+ per month on paid ads and wondering why the conversions don't match."</div>
+              <div class="ex-note">Role (marketing teams), qualifying condition (€3k+ spend), emotional state (wondering why conversions don't match).</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail</div>
+              <div class="ex-text">"For businesses of all sizes looking to improve their online performance."</div>
+              <div class="ex-note">"All sizes" and "online performance" are maximally vague. Nobody feels specifically spoken to.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw1" data-id="9">
+        <span class="crit-n">9</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Copy uses loss framing at least once in the hero</div>
+          <div class="crit-desc">At least one sentence in the hero frames around what the visitor is currently losing, not just what they could gain.</div>
+          <div class="crit-why">Kahneman's loss aversion: losses feel 2× more painful than equivalent gains. "Stop losing €3,000/month" triggers stronger emotional response than "earn €3,000/month more" even though the net outcome is identical. For paid traffic pages, this framing is especially powerful — the visitor is already spending money on ads, so framing their current situation as an ongoing loss is viscerally resonant in a way that gain-framing is not.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — loss-framed</div>
+              <div class="ex-text">"Every month your page underperforms, you're handing money to competitors who convert better."</div>
+              <div class="ex-note">Ongoing present-tense loss. Active competitor benefiting from the inaction. Creates urgency from reality.</div>
+              <div class="ex-text" style="margin-top:8px">"At 2% conversion rate, you're losing €2,400/month that a 3% page would keep."</div>
+              <div class="ex-note">Specific calculation turns abstract "underperformance" into a concrete monthly bill.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — pure gain framing</div>
+              <div class="ex-text">"Increase your conversion rate and unlock new revenue potential."</div>
+              <div class="ex-note">Purely gain-framed. "Unlock potential" is abstract and future-tense. Generates mild interest, not urgency.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw1" data-id="10">
+        <span class="crit-n">10</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">The offer is concrete and specific, not categorical</div>
+          <div class="crit-desc">The offer names a specific deliverable with a specific scope — not a vague service category.</div>
+          <div class="crit-why">Heath Brothers Concreteness: "70-criteria audit with revenue-leak calculation and 20-minute walkthrough, free" is sticky and memorable. "CRO services" is a category that disappears from memory within seconds. Concrete offers are remembered because the brain can form a specific mental image of them. Vague offers signal the company either hasn't thought it through or is deliberately hiding details to avoid commitment.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — concrete offer</div>
+              <div class="ex-text">"A 70-point audit of your landing page, a revenue-leak calculation showing the €/month cost of each issue, and a 20-minute video walkthrough — delivered within 5 business days."</div>
+              <div class="ex-note">Specific deliverables (3), specific format (video), specific timeframe (5 days). The visitor knows exactly what they get.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — categorical offer</div>
+              <div class="ex-text">"Comprehensive conversion rate optimisation services tailored to your business needs."</div>
+              <div class="ex-note">"Comprehensive" and "tailored" are category descriptors. The visitor has no idea what they actually receive.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fw-section" id="fw2">
+    <div class="fw-header" onclick="toggleFW(this)">
+      <span class="fw-num">02/07</span>
+      <span class="fw-name">Relevance &amp; Message Match</span>
+      <span class="fw-source">LIFT-R · Schwartz Awareness</span>
+      <span class="fw-score-badge" id="score-fw2">0/10</span>
+      <span class="fw-chevron">▼</span>
+    </div>
+    <div class="fw-body" style="display:none">
+      <div class="fw-desc">Does the page match the ad, keyword, and intent of the arriving visitor? Message match accounts for roughly 40% of avoidable bounce rate on paid campaigns. A great page receiving mismatched traffic still fails. The visitor's brain is looking for confirmation they landed in the right place — any signal that they didn't triggers exit before a word of copy is read.</div>
+      <div class="crit" data-fw="fw2" data-id="11">
+        <span class="crit-n">11</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Page headline echoes the primary ad headline or keyword intent</div>
+          <div class="crit-desc">The ad and page headline share at least one key phrase or directly address the same intent.</div>
+          <div class="crit-why">LIFT Relevance: the brain experiences a "scent" from ad to page. When the ad says "fix your landing page conversion rate" and the page headline says "We help businesses grow" — the scent breaks. The visitor's System 1 registers "wrong place" before any copy is processed. This happens in the first 200–300ms of page load, before the visitor has time to read anything. For paid traffic, the page exists only in the context of the ad that preceded it — it must honour that context explicitly.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — strong scent trail</div>
+              <div class="ex-text">Ad: "Landing page audit — find out what's killing your conversions" → Page headline: "Find out exactly what's killing your conversions — in 20 minutes."</div>
+              <div class="ex-note">Key phrase carried from ad to page. Visitor immediately feels confirmation: "yes, right place."</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — broken scent</div>
+              <div class="ex-text">Ad: "CRO audit — see your revenue leak" → Page headline: "Welcome to Acme Agency. We build better digital experiences."</div>
+              <div class="ex-note">Zero language match. The ad promised a specific diagnostic; the page opens on a brand statement.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw2" data-id="12">
+        <span class="crit-n">12</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Page addresses Schwartz Stage 3 (Solution Aware) — the default for paid search</div>
+          <div class="crit-desc">The page assumes the visitor knows the category exists and leads with differentiation, not category education.</div>
+          <div class="crit-why">Someone clicking a Google Ad for "CRO agency" is Stage 3: they know what CRO is, they know agencies exist, they are evaluating providers. A page that opens with "What is conversion rate optimisation?" wastes the most valuable screen real estate on explaining something the visitor already knows. Their actual question is "why this agency over the three other tabs I have open?"</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — Stage 3 appropriate</div>
+              <div class="ex-text">"Most CRO audits give you a list of recommendations. Ours gives you a revenue number attached to every single issue — so you know exactly what to fix first."</div>
+              <div class="ex-note">Assumes the visitor knows what a CRO audit is. Differentiates on a specific mechanism vs. the assumed alternative.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — Stage 2 content for Stage 3 visitor</div>
+              <div class="ex-text">"What is conversion rate optimisation? CRO is the process of increasing the percentage of visitors who take a desired action..."</div>
+              <div class="ex-note">Definition content for someone who already knows the definition. Signals the agency doesn't know who they're talking to.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw2" data-id="13">
+        <span class="crit-n">13</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Page serves a single, defined audience — not multiple segments</div>
+          <div class="crit-desc">The copy speaks to one visitor profile. No simultaneous targeting of e-commerce and SaaS, or startup and enterprise.</div>
+          <div class="crit-why">The specificity required to resonate deeply with one segment will feel irrelevant to another. A page trying to speak to both produces copy generic enough for neither. One traffic source → one audience → one page. Audience clarity test: read the first paragraph aloud — can you tell the visitor's job title, their current problem, and why they might be searching today?</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — single audience</div>
+              <div class="ex-text">Entire page written for "marketing managers at e-commerce brands spending €3k–€30k/month on paid ads." Every example uses product pages and cart abandonment. Every metric references e-commerce benchmarks.</div>
+              <div class="ex-note">The right visitor reads this and thinks "they understand my world exactly."</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — multi-segment dilution</div>
+              <div class="ex-text">"Whether you're an e-commerce store, a SaaS startup, a service business, or an enterprise brand — we help all types of businesses."</div>
+              <div class="ex-note">"All types" means being specific to none. Every "type" mentioned reduces the resonance with each individual type.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw2" data-id="14">
+        <span class="crit-n">14</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Page tone matches the sophistication level of the traffic source</div>
+          <div class="crit-desc">Copy complexity, vocabulary, and assumed knowledge level match what the visitor brings from the ad or referral source.</div>
+          <div class="crit-why">A CMO with 15 years of experience clicking a LinkedIn ad and a first-time business owner clicking a Facebook ad arrive with completely different knowledge, vocabulary, and patience for complexity. Over-simplified copy insults the sophisticated buyer. Jargon-heavy copy loses the generalist. The test: read the copy aloud imagining the specific person who saw the specific ad. Does it feel written for them or about them from a distance?</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — tone-matched</div>
+              <div class="ex-text">LinkedIn ad targeting CMOs → page uses "conversion funnel architecture," "ROAS degradation," "attribution modelling." Assumes deep knowledge, references industry benchmarks by name.</div>
+              <div class="ex-note">The CMO audience feels seen. The vocabulary signals peer-level expertise rather than a vendor pitching up.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — mismatch</div>
+              <div class="ex-text">Google Search Ad for "CRO agency" targeting CMOs → page opens with "Have you ever wondered why visitors leave your website without buying anything?"</div>
+              <div class="ex-note">Condescending to a CMO audience. Explaining that visitors leave without buying to someone whose job is conversion signals the agency doesn't know their audience.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw2" data-id="15">
+        <span class="crit-n">15</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Offer on the page matches the offer in the ad exactly</div>
+          <div class="crit-desc">If the ad says "free audit," the page leads with a free audit. The offer is consistent from click to landing.</div>
+          <div class="crit-why">Bait-and-switch is the most common and most damaging relevance failure. The visitor clicked because of a specific offer — the page must honour it immediately. Even upselling from the ad offer (promising a free thing then immediately pushing a paid thing) breaks trust before it's established. The ad offer should be the first thing on the page, exactly as stated in the ad.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — offer consistent</div>
+              <div class="ex-text">Ad: "Free landing page audit — we'll show you exactly what it's costing you" → Page hero: "Get your free landing page audit. We show you exactly what it's costing you each month."</div>
+              <div class="ex-note">Exact offer, nearly exact language. Visitor's expectation immediately confirmed.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — offer drift</div>
+              <div class="ex-text">Ad: "Free CRO audit for your website" → Page: Primary CTA is "Book a £2,500 discovery workshop." Free audit mentioned in footnote.</div>
+              <div class="ex-note">The promised free thing is buried. Visitor immediately feels misled. Paid offer appears before the free one they came for.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw2" data-id="16">
+        <span class="crit-n">16</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Page opens on the customer's current reality, not the company's aspirations</div>
+          <div class="crit-desc">The opening section mirrors the visitor's current situation or frustration before introducing the solution.</div>
+          <div class="crit-why">When a page opens on the visitor's own reality — "You're spending €5,000/month on ads. Most of that money is being wasted because your landing page isn't converting" — the visitor's System 1 responds with recognition: "yes, that's my situation." This creates rapport before a single claim is made. When a page opens on the company's story, it feels like a cold sales pitch starting with the seller's credentials before asking what the buyer needs.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — visitor-reality opening</div>
+              <div class="ex-text">"Your ads are running. The budget is being spent. But the conversions aren't coming in the way the numbers should allow. You've checked the targeting, the creative — but the page itself has never been properly audited."</div>
+              <div class="ex-note">Describes the visitor's exact experience. They feel understood before the solution is mentioned.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — company-first opening</div>
+              <div class="ex-text">"At Acme CRO, we're passionate about conversion optimisation. Our team of experts has worked with over 200 clients to deliver exceptional results using our proven methodology."</div>
+              <div class="ex-note">Four sentences about the company. The visitor is not mentioned until the word "clients" — as a passive object.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw2" data-id="17">
+        <span class="crit-n">17</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Industry or use-case specificity present if the ad targets a specific vertical</div>
+          <div class="crit-desc">If the traffic source targets a specific industry, the page contains at least one explicit reference to that context.</div>
+          <div class="crit-why">Unity signal: a page for e-commerce that mentions "product pages" and "cart abandonment" converts better with an e-commerce audience than a generic page — even if all other copy is identical. The specific vocabulary signals that the provider has worked in this context, understands the metrics that matter, and has faced the specific problems the visitor is dealing with. This only applies when the traffic source is segmented by vertical — if the traffic is mixed, vertical-specific language will alienate non-matching visitors.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — vertical specific</div>
+              <div class="ex-text">E-commerce traffic → page mentions "product page conversion," "add-to-cart rate," "cart abandonment," and references e-commerce benchmarks (industry avg CR: 2.8% for paid search).</div>
+              <div class="ex-note">An e-commerce marketer reading this thinks "they know my world." Every metric is one they track daily.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — generic for vertical traffic</div>
+              <div class="ex-text">Ad targeting e-commerce managers → page talks only about "lead generation funnels," "consultation bookings," and "B2B sales pipeline." No e-commerce vocabulary anywhere.</div>
+              <div class="ex-note">Complete context mismatch. The visitor thinks "this isn't for me" even if the service would help them.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw2" data-id="18">
+        <span class="crit-n">18</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">No content contradicts or undermines the ad's implicit promise</div>
+          <div class="crit-desc">The page contains no pricing, tone, or content signals that would surprise or alarm a visitor arriving from the specific ad.</div>
+          <div class="crit-why">Expectation violations — even positive ones — cause cognitive friction. If the ad implies "affordable" and the page shows enterprise pricing starting at €25,000/month, the mismatch produces distrust and immediate exit. Every element of the page must be consistent with the expectations created by the ad: pricing level, visual quality, copy sophistication, and offer structure.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — consistent expectations</div>
+              <div class="ex-text">Ad targets SME budget (€1k–€5k/month ad spend) → page shows pricing of €500–€2,000/month, uses accessible language, no enterprise logos, straightforward process.</div>
+              <div class="ex-note">Everything confirms "this is for someone at your scale." No unexpected signals.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — expectation mismatch</div>
+              <div class="ex-text">Ad: "Affordable CRO for growing businesses" → Page shows "trusted by Nike, Amazon, HSBC" and minimum engagement of €50,000.</div>
+              <div class="ex-note">The logos and minimum engagement create an immediate "this isn't for me" response in the SME visitor the ad targeted.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw2" data-id="19">
+        <span class="crit-n">19</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Visual hierarchy reinforces the ad's primary message</div>
+          <div class="crit-desc">The most prominent visual element relates directly to the ad's main claim — not to brand aesthetics alone.</div>
+          <div class="crit-why">Visitors scan before they read. The visual hierarchy communicates the message independently of copy — and does so faster. If the ad is about revenue recovery and the hero image shows a team meeting, the visual breaks the scent before copy is processed. Test: look at the page for 2 seconds with eyes slightly unfocused. What is the dominant message conveyed by size, colour, and positioning alone? Does that message match the ad?</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — visually aligned</div>
+              <div class="ex-text">Ad about "seeing what's costing you conversions" → Hero shows an audit output screenshot with specific issues highlighted and revenue numbers attached.</div>
+              <div class="ex-note">The image demonstrates the exact thing the ad promised. Copy and visual tell the same story simultaneously.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — visual contradiction</div>
+              <div class="ex-text">Ad about analytical, data-driven auditing → Hero image is a soft-focus photo of two people shaking hands at a coffee shop. No data, no analysis visible anywhere.</div>
+              <div class="ex-note">Image communicates "relationship business" while copy says "data-driven analysis." The visitor feels the inconsistency.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw2" data-id="20">
+        <span class="crit-n">20</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Page load speed: under 3 seconds on mobile (PageSpeed ≥ 70)</div>
+          <div class="crit-desc">First Contentful Paint under 3 seconds on simulated 4G. Google PageSpeed Insights mobile score ≥ 70.</div>
+          <div class="crit-why">Google's data: 53% of mobile visitors abandon a page that takes longer than 3 seconds to load. For paid traffic, every slow-loading visitor is a complete waste of ad spend — the person paid for, arrived, and left before seeing a single word of copy. Specific culprits: uncompressed images (use WebP, max 200KB per image), render-blocking JavaScript, Google Fonts loading, third-party scripts (analytics, chat widgets, heatmap tools all add 200–500ms each). Test at pagespeed.web.dev with the specific landing page URL — not the homepage.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass benchmarks</div>
+              <div class="ex-text">PageSpeed mobile score ≥ 70. FCP &lt; 1.8s. LCP &lt; 2.5s. CLS &lt; 0.1. Total page weight &lt; 2MB.</div>
+              <div class="ex-note">Google's "Good" thresholds for Core Web Vitals. Meeting all four means the page doesn't haemorrhage paid traffic visitors.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — common causes</div>
+              <div class="ex-text">5MB hero image (JPG, uncompressed) · 4 third-party tracking scripts loading synchronously · Google Fonts without preconnect · YouTube embed loading full player JS on page load.</div>
+              <div class="ex-note">Each alone can push load time above 5 seconds. Together: 8–12 seconds. Over 80% of paid visitors gone before the page paints.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fw-section" id="fw3">
+    <div class="fw-header" onclick="toggleFW(this)">
+      <span class="fw-num">03/07</span>
+      <span class="fw-name">Clarity &amp; Cognitive Ease</span>
+      <span class="fw-source">LIFT-C · Krug · Kahneman</span>
+      <span class="fw-score-badge" id="score-fw3">0/10</span>
+      <span class="fw-chevron">▼</span>
+    </div>
+    <div class="fw-body" style="display:none">
+      <div class="fw-desc">Is the offer, structure, and next action unambiguous? Confusion is the most invisible conversion killer — visitors rarely know they're confused. They just leave. Cognitive ease (Kahneman) means: things that are easy to process feel more true, more credible, and more desirable. Friction in reading equals friction in deciding.</div>
+      <div class="crit" data-fw="fw3" data-id="21">
+        <span class="crit-n">21</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Primary CTA is visible without scrolling on both desktop and mobile</div>
+          <div class="crit-desc">A CTA button or form field is present above the fold — no scrolling required to find the first action opportunity.</div>
+          <div class="crit-why">The above-fold CTA serves two functions: (1) it captures visitors who decide immediately — the 10–20% already sold by the headline, and (2) it anchors the page's purpose so every visitor knows from the first second what action they're being invited to take. Test: load the page on a mobile device, don't scroll, and ask "can I take the primary action right now?" If no, this fails.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass</div>
+              <div class="ex-text">URL input field + "Get my free audit" button visible on first load on iPhone 13 (390px viewport). No scrolling needed.</div>
+              <div class="ex-note">The visitor who decides in 5 seconds can act in 5 seconds. Zero friction between decision and action.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail</div>
+              <div class="ex-text">Hero section: 800px tall video background with animated text that fades in sequentially. CTA appears after 4th text element at 6 seconds, positioned below the video fold.</div>
+              <div class="ex-note">Visitor ready to act at second 2 has no mechanism to act. By second 6 when the CTA appears, 60% of mobile visitors have already left.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw3" data-id="22">
+        <span class="crit-n">22</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">One clearly dominant CTA — no two buttons of equal visual weight</div>
+          <div class="crit-desc">Only one button or action is visually dominant at any point. Secondary actions are visually subordinate.</div>
+          <div class="crit-why">Hick's Law: decision time increases logarithmically with the number of options. Two CTAs of equal visual weight create a micro-decision the visitor didn't sign up for: "which one should I click?" This pause breaks momentum, and many visitors resolve it by clicking neither. Secondary CTAs (e.g., "Watch a 2-min demo") are acceptable but must be visually subordinate: smaller, lower contrast, text link rather than filled button.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — clear hierarchy</div>
+              <div class="ex-text">Primary: large cyan filled button "Get my free audit →" · Secondary: plain text link below "or watch a 2-minute demo" in 70% opacity grey.</div>
+              <div class="ex-note">Primary CTA has full visual weight. Secondary is clearly subordinate — it doesn't compete for the eye.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — equal weight CTAs</div>
+              <div class="ex-text">Two buttons side by side, identical size, identical cyan fill: "Get Free Audit" and "View Case Studies."</div>
+              <div class="ex-note">50% of clicks go to case studies instead of conversion. The visitor is forced to choose — a significant portion bounce rather than choose wrong.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw3" data-id="23">
+        <span class="crit-n">23</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">No paragraph in body copy exceeds 3 sentences</div>
+          <div class="crit-desc">Every paragraph is readable in a single breath. Wall-of-text sections are absent.</div>
+          <div class="crit-why">Krug's Don't Make Me Think: long paragraphs require active effort to parse. On a landing page, active effort equals cognitive friction equals motivation to leave. When visitors encounter a dense paragraph, their System 1 calculates: "the effort required to read this exceeds the likely reward." Most visitors skip dense paragraphs entirely — meaning writing them is both wasted effort and a visual deterrent that makes the page feel heavy.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — scannable copy</div>
+              <div class="ex-text">"Most landing page problems are invisible until you measure them. We audit 70 criteria and attach a revenue number to each issue. So instead of a vague recommendation list, you get a prioritised fix plan with a monthly cost per problem."</div>
+              <div class="ex-note">3 sentences. Each one advances the argument independently. Can be read in under 10 seconds.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — wall of text</div>
+              <div class="ex-text">A 7-sentence paragraph explaining the full methodology, history of CRO, why data matters, how the audit process was developed, what frameworks were used, and how results are typically delivered — all as one unbroken block.</div>
+              <div class="ex-note">Most visitors scan the first line and skip the rest. The information exists on the page but is never read.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw3" data-id="24">
+        <span class="crit-n">24</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">No unexplained jargon or acronyms in above-fold copy</div>
+          <div class="crit-desc">Every word in the headline and first screen is understandable to a non-specialist in the target audience.</div>
+          <div class="crit-why">Kahneman's cognitive ease: things that are hard to parse feel less true and less trustworthy. Jargon signals "designed for insiders" — which excludes anyone who doesn't already know the vocabulary, and paradoxically fails to impress even those who do (because insiders know jargon often hides imprecise thinking). Exception: specialist channels where jargon is expected vocabulary among the audience.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — audience-matched vocabulary</div>
+              <div class="ex-text">For CMO audience: "We identify conversion leaks, calculate their monthly revenue cost, and give you a prioritised fix plan backed by your own traffic data."</div>
+              <div class="ex-note">No unexplained jargon. "Conversion leaks" explained by context. Any marketing professional gets this instantly.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — unexplained acronyms</div>
+              <div class="ex-text">Hero for general business audience: "Optimise your CVR using LIFT-model CRO methodology aligned with your ROAS targets and CAC/LTV ratio."</div>
+              <div class="ex-note">Six acronyms in one sentence for an audience that likely knows two or three of them. The others create confusion and signal insider exclusivity.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw3" data-id="25">
+        <span class="crit-n">25</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Page has one primary goal — not multiple competing conversion objectives</div>
+          <div class="crit-desc">All roads lead to one action. The page does not simultaneously try to generate leads, sell a product, build a newsletter, and book a call.</div>
+          <div class="crit-why">The leaky bucket principle: every additional goal on a page reduces conversion toward the primary goal. Each goal requires different emotional positioning, different proof, different CTA language. A page trying to do all of them does none well. Test: "what is the one thing I want every visitor to do?" If you can't name one thing, the page has too many goals.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — single goal</div>
+              <div class="ex-text">Every CTA on the page says some variation of "get the free audit." The about section links back to the audit CTA. The proof section ends with the audit CTA. One destination, multiple paths to it.</div>
+              <div class="ex-note">Multiple CTAs are fine when they all lead to the same place. The goal is singular; the access points are multiple.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — goal proliferation</div>
+              <div class="ex-text">Above fold: "Book a consultation." Mid-page: "Download our free guide." Below proof: "Follow us on LinkedIn." Footer: "Subscribe to our newsletter." Also: "Shop our templates."</div>
+              <div class="ex-note">5 different goals competing on one page. The primary goal gets roughly 20% of the attention it would get alone.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw3" data-id="26">
+        <span class="crit-n">26</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Process explained in 3–4 steps maximum</div>
+          <div class="crit-desc">If the page includes a "how it works" section, it contains maximum 4 steps, with the first being minimal effort.</div>
+          <div class="crit-why">StoryBrand: a plan with 3 steps removes decision paralysis. The plan section exists to answer "what happens if I click?" — not to document the full delivery process. More than 4 steps introduces process anxiety: the visitor imagines the commitment required and retreats. Step 1 must be as effortless as possible: "Send us your URL" requires no thinking, no preparation, no vulnerability.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — 3-step process</div>
+              <div class="ex-text">1. Send us your URL (10 seconds) → 2. We audit across 70 criteria and calculate your revenue leak (48 hours) → 3. We walk you through the findings on a free 20-minute call.</div>
+              <div class="ex-note">Step 1 is trivially easy. Each step is described from the visitor's perspective. Time commitments are stated.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — 8-step process</div>
+              <div class="ex-text">8-step onboarding: Discovery call → Briefing document → Kick-off meeting → Audit phase 1 → Mid-point review → Audit phase 2 → Report preparation → Findings presentation.</div>
+              <div class="ex-note">The visitor's reaction: "I need to attend 3 meetings before I even know if this is worth it." Most exit rather than commit to all 8 steps.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw3" data-id="27">
+        <span class="crit-n">27</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Microcopy adjacent to the CTA explains what happens after clicking</div>
+          <div class="crit-desc">Within 1–2 lines of the CTA button, the visitor is told exactly what the next step is.</div>
+          <div class="crit-why">Post-click anxiety is one of the highest-impact conversion killers that never appears in analytics because it happens before the click. "What actually happens if I click this? Am I signing up for something? Is there a credit card required? Will someone call me?" Microcopy like "Takes 60 seconds · No card required · We'll email you the report" answers three objections in 8 words. Specificity matters: "No commitment" is too vague. "No credit card — we'll email your report within 48 hours" resolves specific fears.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — specific microcopy</div>
+              <div class="ex-text">Button: "Get my free conversion audit →" · Below: "Takes 60 seconds · Free forever · We'll walk you through it on a 20-min call · No pitch · Findings are yours to keep."</div>
+              <div class="ex-note">Answers: how long? · what does it cost? · what happens next? · what's the catch? · what if I don't continue? Five fears resolved.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — absent microcopy</div>
+              <div class="ex-text">Button: "Book a Call" — nothing else nearby.</div>
+              <div class="ex-note">What kind of call? How long? Will it be a sales call? These unresolved questions prevent the click from visitors who are almost ready to convert.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw3" data-id="28">
+        <span class="crit-n">28</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Visual hierarchy guides the eye in a clear top-to-bottom narrative path</div>
+          <div class="crit-desc">Page elements are sized and weighted so the reading order follows the persuasion sequence without visual confusion.</div>
+          <div class="crit-why">Krug: users don't read, they scan. The scan path must lead from headline → value prop → social proof → CTA without dead-ends or competing visual weights. Test: print the page in greyscale and squint at it. The hierarchy should still be immediately clear from size and contrast alone. If the page looks like a flat grid of equally-weighted items, the hierarchy has failed.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — clear hierarchy</div>
+              <div class="ex-text">H1 at 60px dominates · Sub-headline at 20px clearly secondary · CTA in high-contrast accent colour · Body at 16px balanced · Section headers at 36px create clear scroll-path signals.</div>
+              <div class="ex-note">At every point on the page, there's one element that's clearly most important. The eye knows where to go next without conscious decision.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — flat hierarchy</div>
+              <div class="ex-text">Page uses 4 heading sizes all within 4px of each other. Body copy, navigation items, and CTA button are all similar colours. Every section header is 22px bold — identical to sub-headers.</div>
+              <div class="ex-note">The eye has no starting point and no guided path. Visitors scan randomly, miss the most important elements, and experience the page as "messy."</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw3" data-id="29">
+        <span class="crit-n">29</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Body text is minimum 16px on mobile</div>
+          <div class="crit-desc">All paragraph copy renders at or above 16px on a standard mobile viewport (375px width).</div>
+          <div class="crit-why">Text below 16px on mobile requires pinching to read — an action almost no visitor will take. Google explicitly recommends 16px as the mobile minimum, and iOS Safari auto-zooms form inputs set below 16px (causing jarring layout shifts). Check: use browser DevTools → responsive design mode → 375px width, inspect computed font size of body paragraphs.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass benchmarks</div>
+              <div class="ex-text">Body copy: 16px base. Section descriptions: 17–18px. Hero paragraph: 18–20px. All tested at 375px viewport.</div>
+              <div class="ex-note">Comfortable reading on all standard phone sizes without pinching. iOS form auto-zoom issue eliminated.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — common pattern</div>
+              <div class="ex-text">Desktop CSS sets body at 16px, but a responsive breakpoint at 768px drops it to 13px "to fit more content." Feature table uses 11px text on mobile.</div>
+              <div class="ex-note">Text is technically on the page and technically readable if you pinch-zoom — but nobody does. The content might as well not exist.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw3" data-id="30">
+        <span class="crit-n">30</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Page section sequence follows narrative arc: Problem → Solution → Proof → CTA</div>
+          <div class="crit-desc">Sections appear in logical persuasion order. Proof doesn't precede the problem. CTA not presented before the solution.</div>
+          <div class="crit-why">Each section earns the right for the next to exist. Showing testimonials before explaining the problem is like showing a movie's happy ending before establishing the stakes — the emotional payoff has no foundation. The brain needs the sequence to build investment. Most common violation: putting "trusted by 200+ companies" logos immediately after the headline, before the problem has been established. The visitor doesn't yet care that 200 companies trust you — they haven't been shown they have a problem.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — correct sequence</div>
+              <div class="ex-text">Hero (what + who + why now) → Problem (what's breaking, what it costs) → Solution (how it works, why different) → Process (what to expect) → Proof (results, sample work) → CTA (act now).</div>
+              <div class="ex-note">Each section increases conviction. By the time the visitor reaches the CTA, they've built genuine motivation.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — broken sequence</div>
+              <div class="ex-text">Hero → Client logos (trust) → Pricing (commitment) → Problem section → CTA → Proof section after the CTA.</div>
+              <div class="ex-note">Showing pricing before the problem has been felt produces sticker shock. Proof after the CTA is useless — by then the visitor has either converted or left.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fw-section" id="fw4">
+    <div class="fw-header" onclick="toggleFW(this)">
+      <span class="fw-num">04/07</span>
+      <span class="fw-name">Anxiety Reduction &amp; Trust</span>
+      <span class="fw-source">LIFT-A · Cialdini · Kahneman</span>
+      <span class="fw-score-badge" id="score-fw4">0/10</span>
+      <span class="fw-chevron">▼</span>
+    </div>
+    <div class="fw-body" style="display:none">
+      <div class="fw-desc">What fears, doubts, or concerns might stop a visitor from converting? Every unaddressed anxiety is a silent conversion failure — the visitor left without saying why. Most pages ignore 70–80% of the objections visitors actually have, treating trust as a section rather than a continuous thread throughout the page.</div>
+      <div class="crit" data-fw="fw4" data-id="31">
+        <span class="crit-n">31</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">At least one risk reversal is placed adjacent to the primary CTA</div>
+          <div class="crit-desc">Within 2 scroll-lengths of the primary CTA: a guarantee, free trial, "no card required," "cancel anytime," or equivalent.</div>
+          <div class="crit-why">Loss aversion (Kahneman): the fear of loss is 2× more powerful than the desire for gain. The CTA asks the visitor to give something — time, money, contact information, vulnerability. The risk reversal removes the perceived loss. Without it, you're asking for commitment while loss aversion is fully active. Placement matters: the risk reversal must be adjacent to the CTA, visible in the exact moment the finger hovers over the button. The most effective reversals name a specific benefit the visitor keeps even if they don't proceed: "Findings are yours to keep regardless" is more powerful than "No commitment."</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — adjacent risk reversal</div>
+              <div class="ex-text">CTA button → [2px gap] → "Free · No credit card · Findings are yours regardless · Cancel anytime" directly below the button.</div>
+              <div class="ex-note">Risk reversal literally adjacent to the button. Visible at the exact moment of decision anxiety. Addresses 3 fears in one line.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — risk reversal buried</div>
+              <div class="ex-text">Money-back guarantee mentioned in FAQ section at the bottom, 8 scrolls below the primary CTA.</div>
+              <div class="ex-note">The guarantee exists but does zero conversion work because it's not visible at the point of decision.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw4" data-id="32">
+        <span class="crit-n">32</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Social proof is specific, named, and verifiable — not anonymous</div>
+          <div class="crit-desc">Testimonials include at minimum a real name and a specific measurable result. Anonymous or generic praise is absent.</div>
+          <div class="crit-why">Cialdini Social Proof hierarchy: named person + photo + company + specific result + timeframe = maximum credibility. Anonymous testimonial + any content = low credibility regardless of quality. Sophisticated buyers are calibrated to detect potentially fabricated testimonials. An anonymous "5-star review" triggers skepticism in that audience. Zero testimonials is a trust failure; anonymous testimonials is an active trust violation. The bar: if you cannot attach a real first and last name to the result, don't use the testimonial.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — full trust stack</div>
+              <div class="ex-text">"Conversion rate went from 1.4% to 3.8% in 6 weeks. Same traffic, same budget — we just fixed what FUGOTO found." — Jana Dvořák, Head of Marketing, Rohlik.cz [+ photo + LinkedIn link]</div>
+              <div class="ex-note">Name ✓ · Photo ✓ · Company with link ✓ · Specific numbers ✓ · Timeframe ✓ · Mechanism ✓. Every element independently verifiable.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — anonymous/generic</div>
+              <div class="ex-text">"Absolutely transformed our conversion rate! These guys know what they're doing. Would 100% recommend." — J.D., Marketing Manager</div>
+              <div class="ex-note">Initials only (unverifiable). "Transformed" with no number. Looks like something the company could have written itself.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw4" data-id="33">
+        <span class="crit-n">33</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">The "will this work for me?" objection is explicitly addressed</div>
+          <div class="crit-desc">Copy somewhere on the page directly addresses whether the offer is relevant to the visitor's specific situation.</div>
+          <div class="crit-why">The universal, unspoken objection on every landing page is "this might work for others but my situation is different." The visitor doesn't leave a comment — they just leave. The most efficient format: "This works best for [specific situation]. It's not right for [negative qualifier]." The negative qualifier is often the most powerful element — naming who it's NOT for signals confidence and eliminates the fear that you'll take anyone's money regardless of fit.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — fit explicitly addressed</div>
+              <div class="ex-text">"This audit is most valuable if you're spending at least €1,000/month on paid ads and have been running for more than 90 days. If you're just starting out or running purely organic traffic, the revenue-leak calculation won't be meaningful yet — and we'll tell you that upfront."</div>
+              <div class="ex-note">Clear fit criteria. Explicit disqualifier. The honesty of "we'll tell you that upfront" dramatically increases trust with the qualified visitor.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — unaddressed fit objection</div>
+              <div class="ex-text">Page shows e-commerce case studies only. Visitor is a SaaS founder. Nowhere does it clarify whether the service applies to SaaS or what benchmarks are used.</div>
+              <div class="ex-note">The SaaS founder can't determine if this applies to them without asking — and most won't ask. They leave assuming it's e-commerce only.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw4" data-id="34">
+        <span class="crit-n">34</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">The "is this a sales pitch?" fear is directly addressed</div>
+          <div class="crit-desc">For service pages with a call CTA: copy explicitly states what the call is NOT (a pitch, a commitment) as well as what it IS.</div>
+          <div class="crit-why">The consultation-call fear is one of the most reliable conversion killers on service pages, and almost no page addresses it. The visitor's internal monologue: "If I book a call, I'm signing up for a 45-minute pitch and awkward objection-handling." This fear is rational — that's what most "free consultation" calls actually are. Addressing it directly: "No pitch — just your findings. You decide what happens next. We won't follow up unless you ask." The second effect is a powerful credibility signal — you're confident enough in the value that you don't need to sell during the call.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — pitch fear addressed</div>
+              <div class="ex-text">"The 20-minute call is a walkthrough of your audit findings — not a sales call. We show you the issues, explain the revenue cost of each, and answer your questions. We don't pitch anything. If you want to discuss working together, that's a separate conversation you initiate."</div>
+              <div class="ex-note">Explicitly names the fear ("not a sales call"). Describes exactly what happens. Gives the visitor control. Signals confidence in the product.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — unaddressed pitch fear</div>
+              <div class="ex-text">CTA: "Book your free 30-minute strategy session." No explanation of what happens, who attends, or whether there's a follow-up pitch.</div>
+              <div class="ex-note">"Strategy session" is universally understood as a sales call by anyone who has been on one. Without an explicit denial, the fear remains active.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw4" data-id="35">
+        <span class="crit-n">35</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Authority signals are specific and externally verifiable — not self-awarded</div>
+          <div class="crit-desc">Credibility indicators are independently checkable: named frameworks, specific methodologies, client logos, media mentions. Not self-applied labels.</div>
+          <div class="crit-why">Cialdini distinguishes Authority (credentials you claim) from Credibility (things that can be independently verified). "Industry-leading CRO expertise" is a self-awarded claim that carries zero weight — anyone can write it. "Our audit applies the LIFT Model, Cialdini's 7 Principles, and Schwartz's Awareness framework" is a named methodology that can be researched. Client logos are external. Media mentions are external. Test for each claim: could a visitor independently verify this?</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — verifiable authority</div>
+              <div class="ex-text">"Our 70-criteria framework applies: LIFT Model (Chris Goward, Widerfunnel), Cialdini's 7 Principles, Schwartz's Buyer Awareness stages, and Krug's cognitive ease principles."</div>
+              <div class="ex-note">Every framework named can be Googled. Their authors are real. Their application to CRO is documentable.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — self-awarded labels</div>
+              <div class="ex-text">"Award-winning CRO agency · Industry-leading methodology · Trusted by hundreds of brands · Best-in-class conversion specialists."</div>
+              <div class="ex-note">Which award? Which industry ranking? All claims are unverifiable because they contain no specifics. Sophisticated buyers read these as filler.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw4" data-id="36">
+        <span class="crit-n">36</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Pricing is transparent, or the process to get pricing is clearly explained</div>
+          <div class="crit-desc">If pricing exists, it is shown. If pricing is custom, the exact process to get a quote is explained.</div>
+          <div class="crit-why">Hidden pricing creates one of the strongest conversion anxieties: "will this be too expensive for me?" A visitor who doesn't know the price must either ask (effort + commitment) or assume the worst (exit). Hiding pricing doesn't protect the company from price-sensitive visitors — it protects price-sensitive visitors from converting. If pricing is variable: "Pricing depends on page complexity and traffic volume — most clients pay €800–€2,500. Fill in the form and we'll confirm your price within 24 hours." This sets an expectation range and a clear next step.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — transparent</div>
+              <div class="ex-text">Fixed pricing: "Conversion Audit — €497. Includes: 70-criteria report, revenue-leak calculation, 20-min walkthrough. Payment after delivery."</div>
+              <div class="ex-note">Price, deliverables, and payment timing all explicit. No anxiety because all variables are known.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — opaque</div>
+              <div class="ex-text">"Pricing is bespoke to your needs. Contact us to discuss." — No indication of budget range, no explanation of what affects pricing.</div>
+              <div class="ex-note">The visitor's worst-case assumption fills the void: "it's probably €10,000+." Most budget-appropriate prospects self-select out.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw4" data-id="37">
+        <span class="crit-n">37</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">At least one piece of independently verifiable social proof exists</div>
+          <div class="crit-desc">There is at least one trust element that cannot have been fabricated: real named client, linked case study, third-party review count, media logo.</div>
+          <div class="crit-why">Heath Brothers: the most credible claim is one the visitor can test in their imagination before clicking. A company can write anything about themselves. A named client with a specific result can be Googled. A third-party review platform has an external source the visitor can visit independently. The minimum bar: at least one element where the visitor could, if motivated, independently verify that the claim is real.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — verifiable proof</div>
+              <div class="ex-text">Named client: "Jana Dvořák, Head of Marketing, Rohlik.cz" — visitor can find Jana on LinkedIn, verify she works at Rohlik, determine Rohlik is a real company.</div>
+              <div class="ex-note">Even if the visitor doesn't verify — the fact that they could is what creates trust. Verifiable proof signals confidence; unverifiable proof signals potential fabrication.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — all self-authored</div>
+              <div class="ex-text">Page contains: company-written case studies (no client named), anonymous testimonials, self-awarded "top agency" badge, company blog post linked as "press mention."</div>
+              <div class="ex-note">Everything was written or awarded by the company itself. A skeptical visitor assigns near-zero trust.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw4" data-id="38">
+        <span class="crit-n">38</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">A real human face is visible — founder, team, or actual person</div>
+          <div class="crit-desc">At least one authentic photograph of a real person associated with the business appears on the page.</div>
+          <div class="crit-why">Cialdini Liking: people buy from people. Stock photography registers as "no real humans are here" — the brain is exquisitely calibrated to detect authenticity in faces. A founder photo — even taken on a phone, even imperfect — consistently outperforms stock photography for trust. The presence of a real face signals: there is an actual person behind this company, they are willing to be identified with it, and they are confident enough to show their face. Anonymity is the natural habitat of scams — showing a face signals the opposite.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — real person</div>
+              <div class="ex-text">Founder photo in the "about" or proof section: real person, name, title. Photo taken in a real environment, not a studio backdrop. Face is clear and identifiable.</div>
+              <div class="ex-note">Even an imperfect photo of a real person outperforms a perfect stock photo. Authenticity beats polish.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — stock or absent</div>
+              <div class="ex-text">Page uses a stock photo of a smiling woman at a laptop for the "team" section. No name. Not linked to any real person. Reverse image search finds the same photo on 40 other websites.</div>
+              <div class="ex-note">Most visitors don't reverse image search. But the artificial quality of the photo registers subconsciously as "this company is hiding its real people."</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw4" data-id="39">
+        <span class="crit-n">39</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Reciprocity principle applied — something of value given before anything is asked</div>
+          <div class="crit-desc">A free resource, tool, or audit is offered on the page or as the primary CTA — something the visitor receives without committing first.</div>
+          <div class="crit-why">Cialdini Reciprocity: when you give first, the visitor feels a social obligation to give back. More importantly, they experience the quality of your work before they pay. The free offer is not a loss leader — it is the persuasion mechanism. Ariely adds: "FREE" triggers a disproportionate emotional response that "low-cost" does not. The free offer also de-risks the first interaction: the visitor doesn't have to trust you with money before they've experienced your work. If the findings are good, payment follows naturally.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — genuine reciprocity</div>
+              <div class="ex-text">"Free 70-criteria audit — we show you the full findings, including a revenue-leak calculation, before you pay anything or make any decision about working together."</div>
+              <div class="ex-note">Value (full findings + revenue calculation) delivered before any payment decision. Visitor experiences quality before committing.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — fake reciprocity</div>
+              <div class="ex-text">"Free consultation — 30 minutes with our team." (Which turns out to be a discovery call where the company gathers information to scope a paid proposal.)</div>
+              <div class="ex-note">Framed as free value; actually a sales tool. The visitor gives 30 minutes and gets a proposal they didn't ask for. Trust destroyed at delivery.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw4" data-id="40">
+        <span class="crit-n">40</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">No fake urgency, fake countdown timers, or fabricated scarcity</div>
+          <div class="crit-desc">All urgency mechanisms are real and verifiable. No countdown timer resets on reload. No static "only 3 spots left."</div>
+          <div class="crit-why">Fake urgency is detected by a significant portion of visitors — and permanently destroys trust in those who detect it. Once a visitor identifies manufactured urgency, every other trust signal on the page is viewed with the same suspicion: "if they fabricated the urgency, what else did they fabricate?" Real scarcity (genuine capacity limits) is the only safe mechanism: "We take on 8 new clients per month to maintain quality" makes operational sense, can be verified, and signals commitment to quality rather than manipulation.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — real scarcity</div>
+              <div class="ex-text">"Free founding client audits: 10 total (7 remaining as of March 2026). After the founding cohort is full, the audit moves to €497."</div>
+              <div class="ex-note">Specific number. Date context. Clear future pricing. The scarcity is real — it has a defined mechanism (founding cohort) and a defined consequence (price change).</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — fabricated urgency</div>
+              <div class="ex-text">Countdown timer: "OFFER ENDS IN 02:14:33" — resets to 24 hours every time the page loads. "⚡ Only 2 spots left" — text unchanged for 6 months.</div>
+              <div class="ex-note">Any visitor who reloads the page discovers the fraud. Once discovered, the company has permanently signalled "we will manipulate you."</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fw-section" id="fw5">
+    <div class="fw-header" onclick="toggleFW(this)">
+      <span class="fw-num">05/07</span>
+      <span class="fw-name">Distraction &amp; Focus</span>
+      <span class="fw-source">LIFT-D · Krug · Eyal</span>
+      <span class="fw-score-badge" id="score-fw5">0/10</span>
+      <span class="fw-chevron">▼</span>
+    </div>
+    <div class="fw-body" style="display:none">
+      <div class="fw-desc">What is competing with the primary CTA for the visitor's attention? Every element that isn't the conversion path is a potential exit. Landing pages receiving paid traffic must be designed as funnels — every element either advances toward conversion or it should be removed.</div>
+      <div class="crit" data-fw="fw5" data-id="41">
+        <span class="crit-n">41</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">No standard navigation menu on the landing page</div>
+          <div class="crit-desc">The page has no full navigation bar with links to other website sections (Home, About, Blog, etc.).</div>
+          <div class="crit-why">Navigation links are exit paths. Every navigation item is an invitation to leave for a destination without a conversion mechanism. Multiple controlled studies show removing navigation from dedicated landing pages increases conversion by 10–30%. Navigation communicates "this is a website, and you have many places to go." A landing page should communicate "you are here for one reason, and here is the action." Exception: a minimal sticky header with logo + CTA only is acceptable and may help.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — minimal nav</div>
+              <div class="ex-text">Sticky header contains: Logo (links to homepage) + "Get Free Audit" CTA button. Nothing else.</div>
+              <div class="ex-note">The only interactive elements are the logo (expected, rarely clicked mid-session) and the CTA. Every visitor action leads to either staying or converting.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — full site navigation</div>
+              <div class="ex-text">Sticky navigation: Home | About Us | Services | Case Studies | Blog | Pricing | Contact. 7 navigation links on a dedicated paid campaign page.</div>
+              <div class="ex-note">Each navigation link is a potential exit. A visitor curious about "Case Studies" clicks away to a page with no CTA.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw5" data-id="42">
+        <span class="crit-n">42</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">No social media icons linking off the page</div>
+          <div class="crit-desc">Social sharing buttons or profile links are absent, or if present are in the footer only and not prominently styled.</div>
+          <div class="crit-why">Social media links are one-way exits. A visitor who clicks your Instagram link is gone — Instagram's algorithm is explicitly designed to keep them there. A common mistaken belief: "social icons make us look established." The evidence says otherwise — they make you look like you prioritised brand vanity over the visitor's experience. Exception: a creator or influencer whose primary authority signal IS their social following, where the social proof of that following is directly relevant to the offer.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — social links removed or minimal</div>
+              <div class="ex-text">Social icons appear only in the footer, styled in muted grey, small and easily missed. Not in header, hero, or any section above the footer.</div>
+              <div class="ex-note">Available to visitors who actively seek them for due diligence — not a visible distraction during the primary conversion journey.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — prominent social icons</div>
+              <div class="ex-text">Four social media icons (Facebook, Instagram, LinkedIn, Twitter) in the header next to the logo, styled in brand colours at 24px height. Also present in the hero as "Follow us for tips."</div>
+              <div class="ex-note">Prominently positioned, visually competitive with the CTA. Each icon is an exit invitation from the highest-traffic zone on the page.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw5" data-id="43">
+        <span class="crit-n">43</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">No auto-playing video or audio on page load</div>
+          <div class="crit-desc">All media is paused by default. Nothing plays automatically on page load.</div>
+          <div class="crit-why">Auto-play violates the visitor's expectation of control and is disrespectful of their context. Most people browse from environments where unexpected audio would be embarrassing: open-plan office, public space. Even visitors in private environments experience auto-play as an intrusion. The immediate response: "this website doesn't respect my context" → leave. The rule: all media starts on user intent. If the video is good enough to watch, visitors will click play; if it's not, autoplay won't help.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — user-controlled media</div>
+              <div class="ex-text">Product demo video in the solution section. Large, clear play button centred on the thumbnail. Auto-play off, audio off by default.</div>
+              <div class="ex-note">Visitor is fully in control. The thumbnail is descriptive enough to make an informed choice. If they click, it's because they want to watch.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — auto-playing media</div>
+              <div class="ex-text">Full-screen background video in hero plays on load (looping). Separate section has a testimonial video that plays with audio when the visitor scrolls past it.</div>
+              <div class="ex-note">The looping background consumes rendering resources and competes with copy. The scroll-triggered audio testimonial causes immediate exit for visitors in shared spaces.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw5" data-id="44">
+        <span class="crit-n">44</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">No pop-up or interstitial appears in the first 30 seconds</div>
+          <div class="crit-desc">Any pop-up, chat widget expansion, or content-covering overlay does not appear within 30 seconds of a new visitor's session.</div>
+          <div class="crit-why">Eyal's Hooked: the first 10–30 seconds are the most fragile moment in the visitor relationship — trust hasn't been established yet. An interruption before the visitor has received any value is a violation of the implicit social contract of the page. Google penalises mobile pages with intrusive interstitials. The 30-second minimum is a floor, not a target — if a pop-up is necessary (e.g., exit intent), 60–90 seconds after page load is better, and only for visitors who have scrolled past 50% of the page.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — delayed or absent interruptions</div>
+              <div class="ex-text">Chat widget is present but collapsed by default. Only opens if the visitor clicks it. No pop-ups. Cookie consent is a small non-intrusive banner at the bottom.</div>
+              <div class="ex-note">Visitor journey is uninterrupted. The chat widget is available as a resource without being a distraction.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — immediate interruption</div>
+              <div class="ex-text">3 seconds after page load: full-screen pop-up "Sign up for our newsletter and get 10% off!" Before the visitor has had time to read the headline.</div>
+              <div class="ex-note">The visitor arrived for a specific reason (an ad promised them something) and immediately encounters a request before they've received any value.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw5" data-id="45">
+        <span class="crit-n">45</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Form asks only for the minimum information required to deliver the offer</div>
+          <div class="crit-desc">Form contains only fields that are strictly necessary. No "company size," "phone number," or "how did you hear about us?" unless operationally required.</div>
+          <div class="crit-why">Every form field is a potential exit and a trust signal: asking for information you don't need signals you're collecting data for your benefit, not delivering value for the visitor's. HubSpot research: reducing a form from 4 fields to 3 increases conversion by 50% on average. Question to ask for each field: "what specifically would we do differently if we had this information?" If the answer is "nothing immediately," remove the field. Phone numbers are the single highest-anxiety form field on non-phone-based offers — their presence implies "someone will call me," activating the sales-pitch fear.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — minimal required fields</div>
+              <div class="ex-text">Free audit form: URL field (required to do the audit) + Email (required to deliver the report). Two fields. Both necessary and their necessity is obvious from context.</div>
+              <div class="ex-note">The visitor understands why both fields are needed. No trust friction. Completion is fast (30 seconds).</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — unnecessary fields</div>
+              <div class="ex-text">Free audit form: URL · First name · Last name · Company name · Company size · Phone number · Monthly ad spend · "How did you hear about us?" · Job title. 9 fields for a free audit.</div>
+              <div class="ex-note">Most visitors fill URL + email and then see the remaining 7 fields and leave. Phone number alone will cause 30–40% of visitors to abandon.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw5" data-id="46">
+        <span class="crit-n">46</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">All external links open in a new tab</div>
+          <div class="crit-desc">Any link that takes the visitor off the page opens target="_blank". Links away from the page are minimised.</div>
+          <div class="crit-why">An external link that replaces the current tab closes the page permanently. Even if the visitor intends to return, the probability of returning with the same conversion intent drops dramatically — the mental context is lost, other tabs compete for attention, the decision process resets. Link audit: go through the page and mark every hyperlink. Ask for each: does this link advance the conversion goal, or does it give the visitor a reason to leave before converting? Any link in the second category should be removed or deferred to post-conversion.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — minimal external links</div>
+              <div class="ex-text">The only external link is the client testimonial company name (Rohlik.cz) — which opens in a new tab and serves as a trust verification mechanism. All other links are internal anchor links or the CTA.</div>
+              <div class="ex-note">External links used only where they serve a trust-building function. The main tab stays open.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — external links without new tab</div>
+              <div class="ex-text">"Read our full methodology on our blog →" (opens in same tab, navigates away). "Check our Trustpilot reviews" (same tab).</div>
+              <div class="ex-note">Visitor clicks "full methodology," reads the blog post, forgets the landing page. Without new tab, it's a guaranteed exit.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw5" data-id="47">
+        <span class="crit-n">47</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Visual elements serve the conversion narrative — no decorative-only elements</div>
+          <div class="crit-desc">Each image, icon, or graphic either illustrates a claim, demonstrates the product, or builds trust. Pure decoration is absent.</div>
+          <div class="crit-why">Visual clutter taxes cognitive processing (Kahneman). Every element the eye processes — even subconsciously — consumes attentional budget. The "every element earns its place" test: for each visual, ask "if I removed this, would the visitor be less likely to convert?" If the honest answer is "no," remove or replace it. Most common decorative offender: stock photos of "smiling people in a meeting room" — replace with product screenshots, audit output samples, before/after comparisons, real process documentation.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — every element earns its place</div>
+              <div class="ex-text">Hero: screenshot of an actual audit report with real findings and revenue numbers. Proof section: before/after analytics graph. Process section: numbered diagram of the 3-step process.</div>
+              <div class="ex-note">Every visual does conversion work: demonstrates the product, proves the outcome, or reduces a specific anxiety. None is purely decorative.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — decoration as content</div>
+              <div class="ex-text">Hero: abstract wavy gradient background. Mid-page: isometric illustration of a laptop with charts (generic). Team section: stock photo of hands around a table.</div>
+              <div class="ex-note">All three images could be removed without reducing conversion. They consume visual attention and page weight without contributing to the persuasion argument.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw5" data-id="48">
+        <span class="crit-n">48</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Footer does not contain full site navigation or links to unrelated pages</div>
+          <div class="crit-desc">The footer is either minimal (privacy/terms only) or entirely absent on the landing page.</div>
+          <div class="crit-why">A comprehensive footer on a dedicated landing page is a navigation menu at the bottom of the funnel — placed where it does the most damage. Visitors who reach the footer have invested the most time. They are the most likely to convert. Offering exit paths at the moment of highest intent loses the visitors who were closest to converting. If a footer is required for legal reasons, keep it minimal: two text links in small grey text. No service links, no company links, no social icons.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — minimal footer</div>
+              <div class="ex-text">Footer contains: Logo · One-line tagline · Privacy Policy link (new tab) · Terms link (new tab) · Copyright notice. No navigation, no service links, no social icons.</div>
+              <div class="ex-note">Legally compliant. Minimal exit paths. Visitor who scrolls to the footer is immediately returned to the CTA section above.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — full website footer</div>
+              <div class="ex-text">Standard site footer with 4-column layout: Company (About, Team, Careers, Press) · Services (list) · Resources (Blog, Case Studies, Guides) · Contact (Email, Phone, Social icons).</div>
+              <div class="ex-note">The visitor who has read everything and is almost ready to convert is now presented with 20+ links to explore. "Blog" captures visitors in research mode instead of conversion mode.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw5" data-id="49">
+        <span class="crit-n">49</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">A micro-commitment mechanism precedes the main CTA where possible</div>
+          <div class="crit-desc">Before or as part of the primary CTA, there is a small prior engagement — entering a URL, answering a question — that commits the visitor before the full ask.</div>
+          <div class="crit-why">Cialdini Commitment and Consistency: once a person takes a small action, they feel compelled to be consistent with that action in subsequent behaviour. "I already entered my URL — it would feel inconsistent to not finish the form." Multi-step forms consistently outperform single-step forms for high-consideration offers for this reason. The first step must be the easiest possible action: entering a URL requires no personal information, no vulnerability, no commitment to purchase.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — genuine micro-commitment</div>
+              <div class="ex-text">Step 1: Enter your landing page URL. Step 2: A few details to calculate your revenue leak. — The URL is the micro-commitment. Easy (10 seconds), non-personal, actually needed for the audit.</div>
+              <div class="ex-note">The micro-commitment is genuine (URL required for the audit), low-friction, and creates real consistency motivation for step 2.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — no micro-commitment</div>
+              <div class="ex-text">Single-step form: Name, Company, Email, Phone, Message, "How did you hear about us?" — all in one go, with no prior engagement.</div>
+              <div class="ex-note">Presents the full commitment up front. The visitor evaluates the entire form as a single cost before providing anything. Completion rates significantly lower than equivalent multi-step forms.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw5" data-id="50">
+        <span class="crit-n">50</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Total page weight under 3MB (images + scripts + fonts)</div>
+          <div class="crit-desc">Total page resource weight, checked via DevTools Network tab, is under 3MB.</div>
+          <div class="crit-why">Beyond raw speed, page weight causes layout instability (CLS — Cumulative Layout Shift): images that load late cause the page to jump, disrupting reading mid-sentence. Each layout shift is an interruption to engagement. Specific weight targets: total images under 1.5MB (use WebP, max 200KB per image) · JavaScript under 500KB (deferred) · Total page under 3MB. Common 3MB+ culprits: uncompressed hero images, multiple Google Font families, Lottie animation files, unoptimised video thumbnails, third-party widget bundles.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — optimised assets</div>
+              <div class="ex-text">Hero image: 180KB WebP. Font: Plus Jakarta Sans subset (Latin only), preloaded, 42KB. Total JS: 310KB deferred. Total page: 1.4MB transferred.</div>
+              <div class="ex-note">Well within 3MB. FCP under 1.5 seconds on 4G. No layout shifts.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — unoptimised assets</div>
+              <div class="ex-text">Hero image: 4.2MB JPEG (original Figma export). Google Fonts: 6 families, all weights, synchronous (1.2MB). Lottie animation: 800KB JSON. Chat widget: 650KB JS. Total: 7.8MB.</div>
+              <div class="ex-note">8–12 second load time on 4G. 70%+ of mobile visitors abandon before a pixel of copy is seen.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fw-section" id="fw6">
+    <div class="fw-header" onclick="toggleFW(this)">
+      <span class="fw-num">06/07</span>
+      <span class="fw-name">CTA Quality &amp; Conversion Mechanics</span>
+      <span class="fw-source">Bly · JTBD · Copy Rules</span>
+      <span class="fw-score-badge" id="score-fw6">0/10</span>
+      <span class="fw-chevron">▼</span>
+    </div>
+    <div class="fw-body" style="display:none">
+      <div class="fw-desc">The CTA is the conversion mechanism — everything else on the page exists to bring the visitor to this moment. Its language, placement, structure, and surrounding context determine whether a persuaded visitor actually clicks. Most pages get the persuasion mostly right and the CTA completely wrong. This is where the most common and most recoverable revenue leaks live.</div>
+      <div class="crit" data-fw="fw6" data-id="51">
+        <span class="crit-n">51</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">CTA button copy leads with the outcome the visitor wants — not the mechanism</div>
+          <div class="crit-desc">The button label names the result the visitor will get, not the action they take or the service they receive.</div>
+          <div class="crit-why">JTBD: people don't hire a CTA button to "book a call." They hire it to solve a specific problem — "find out why my ads aren't converting." The button should name the job it's being hired for. "Book a Call" · "Request a Quote" · "Contact Us" · "Schedule a Demo" — every one of these names an action or process. None names an outcome. A/B tests across industries consistently show 15–40% conversion lifts from outcome-first CTA copy. This is one of the highest-ROI changes on any page.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — outcome-first language</div>
+              <div class="ex-text">"See exactly what's killing my conversions →" / "Get my free revenue leak report" / "Find out what my page should be converting at"</div>
+              <div class="ex-note">Each button hires the CTA for a specific job the visitor wants done. The outcome is named before the mechanism.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — mechanism-first language</div>
+              <div class="ex-text">"Book a Call" / "Request an Audit" / "Contact Us" / "Schedule a Demo" / "Get Started" / "Submit"</div>
+              <div class="ex-note">Every one names the action or mechanism. None tells the visitor what they'll receive. "Get Started" is especially weak — started on what?</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw6" data-id="52">
+        <span class="crit-n">52</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">CTA uses first-person language ("my", "I") not second-person ("your", "you")</div>
+          <div class="crit-desc">Button label uses "Get my free audit" not "Get your free audit."</div>
+          <div class="crit-why">Multiple controlled A/B tests consistently show first-person CTA copy outperforming second-person by 5–20%. The mechanism: first-person puts the visitor into the action — "Get MY audit" positions the visitor as the agent, already in possession of the outcome. "My" audit feels like something already belonging to the visitor that the click retrieves. "Your" audit feels like something being offered. Ownership motivation is stronger than receipt motivation. The change is trivially easy (3 characters) with consistent conversion impact.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — first-person</div>
+              <div class="ex-text">"Get my free audit →" / "Show me what I'm losing" / "Find my conversion leaks" / "Start my free trial"</div>
+              <div class="ex-note">The visitor is grammatically the agent. They're acting, not receiving. Micro-ownership feeling activated before the click.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — second-person</div>
+              <div class="ex-text">"Get your free audit →" / "Discover your conversion leaks" / "Start your free trial"</div>
+              <div class="ex-note">Grammatically correct and common. But consistently lower-converting than first-person equivalents. A 10% lift for a 3-character change is one of the highest-ROI edits in CRO.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw6" data-id="53">
+        <span class="crit-n">53</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Primary CTA button is visually distinct — colour, size, and weight set it apart from all elements</div>
+          <div class="crit-desc">The CTA button is immediately identifiable as the most important interactive element without reading any text.</div>
+          <div class="crit-why">If the CTA button blends into the design system, it fails regardless of copy quality. Test: look at the page for 2 seconds and immediately point to the most important element. If it's not the CTA, the visual hierarchy has failed. The button must be: (1) a colour used nowhere else at that saturation, (2) large enough to be the visual anchor of its section, (3) weighted above all surrounding elements. Common failure: a beautifully designed page where the CTA is styled consistently with the design system. It looks harmonious but converts poorly because nothing signals "THIS is where you click."</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — visually dominant CTA</div>
+              <div class="ex-text">Dark page with grey/white typography. CTA: solid cyan (#00E5FF), full width of the form card, high contrast. The only saturated colour on the page. Eye drawn to it immediately even at peripheral vision.</div>
+              <div class="ex-note">The colour break-out from the design system makes the button visually dominant by contrast. No other element competes for the eye.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — blended CTA</div>
+              <div class="ex-text">Blue page with blue section backgrounds and blue typography. CTA button: slightly lighter blue with white text. Visually indistinct from surrounding design.</div>
+              <div class="ex-note">The squint test fails — at a distance or unfocused, the button disappears into the page. No visual anchor for "this is where I click."</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+      <div class="crit" data-fw="fw6" data-id="54">
+        <span class="crit-n">54</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">CTA is repeated after every major section — not only in the hero</div>
+          <div class="crit-desc">A CTA (button or inline link) appears after the problem section, solution section, proof section, and in the final section.</div>
+          <div class="crit-why">Visitors decide to convert at different points depending on how much persuasion they need. An "early converter" convinced by the headline must act immediately. A "late converter" who needs proof must find a CTA right after the proof section. Every section without a CTA is a missed opportunity: a visitor who became convinced reading that section will either scroll back to the hero (friction), look for a CTA and not find one (frustration), or simply leave (permanent loss).</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — CTAs throughout</div>
+              <div class="ex-text">Hero: full CTA form. Problem section ends: "Get your free audit →" (small button). Proof section ends: full CTA form repeated. Final section: full CTA.</div>
+              <div class="ex-note">No section is a conversion dead-end. A visitor convinced at any point can immediately act.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — single hero CTA only</div>
+              <div class="ex-text">CTA form in hero. Then: problem section (no CTA) → services (no CTA) → proof (no CTA) → FAQ (no CTA) → footer (no CTA).</div>
+              <div class="ex-note">A visitor convinced by the proof section has to scroll all the way back to the top to convert. Most won't.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw6" data-id="55">
+        <span class="crit-n">55</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">CTA includes three-layer structure: button → mechanism microcopy → risk reversal</div>
+          <div class="crit-desc">Adjacent to the button: (1) outcome button copy, (2) one line naming the mechanism/timeframe, (3) one line removing the risk of clicking.</div>
+          <div class="crit-why">The three-layer CTA addresses three distinct visitor states simultaneously: (1) the button creates desire — names the outcome; (2) the mechanism microcopy sets expectations — tells the visitor what happens next and how long; (3) the risk reversal removes fear of loss — answers "what do I risk by clicking?" All three anxieties are active at the moment of decision. Most pages address only (1). The combined lift of all three layers vs. a button alone is typically 20–40%.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — full three layers</div>
+              <div class="ex-text">Layer 1 (button): "Get my free conversion audit →" · Layer 2: "Takes 60 seconds · We'll walk you through findings on a 20-min call" · Layer 3: "Free forever · No credit card · Findings are yours regardless"</div>
+              <div class="ex-note">All three visitor anxieties addressed: desire (audit), process (60 seconds + call), risk (free, no card, mine to keep). The CTA is a complete conversion unit.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — button only</div>
+              <div class="ex-text">Just the button: "Get Free Audit" — nothing else. No microcopy, no risk reversal.</div>
+              <div class="ex-note">What happens after I click? How long will this take? Is there a credit card required? Will someone call me? All unresolved at the moment of decision.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw6" data-id="56">
+        <span class="crit-n">56</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">CTA touch target is minimum 44×44px on mobile</div>
+          <div class="crit-desc">The clickable area of the primary CTA meets Apple/Google's minimum recommended touch target size on mobile.</div>
+          <div class="crit-why">Apple HIG and Google Material Design both specify 44×44pt minimum touch targets. Buttons smaller than this produce mis-clicks and failed taps — which appear in session recordings as "rage clicks" on non-interactive elements, not on the CTA. These don't show up in conversion funnel data, making the real problem invisible. Check: load on an actual phone, navigate to the CTA, and tap the button with your thumb as a user would. Does it register reliably on the first tap?</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — adequate touch target</div>
+              <div class="ex-text">CTA button: full-width on mobile (100% of form card width minus padding), height: 52px. Touch area: ~340×52px. Even imprecise taps register correctly.</div>
+              <div class="ex-note">Full-width mobile buttons eliminate the touch target problem entirely.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — undersized touch target</div>
+              <div class="ex-text">CTA button: desktop design shrunk on mobile. Ends up 180×32px. Text link CTAs at 12px height (inline links in body text).</div>
+              <div class="ex-note">At 32px height, the button is 25% below the minimum. A significant portion of taps miss. Inline text links at 12px height are nearly impossible to tap with a thumb.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw6" data-id="57">
+        <span class="crit-n">57</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">The word "FREE" is used explicitly if the offer is free</div>
+          <div class="crit-desc">If the primary offer costs nothing, the CTA and adjacent copy uses the word "free" — not "$0", "no cost", or "complimentary."</div>
+          <div class="crit-why">Ariely's FREE! effect (Predictably Irrational, Chapter 3): the word "free" triggers an emotional response disproportionate to its rational meaning. In controlled experiments, "free chocolate" converted dramatically better than "1-cent chocolate" even though the 1-cent option was more valuable in absolute terms. The mechanism: "free" eliminates the cost-benefit calculation entirely — there is no downside to evaluate. "$0 audit" and "free audit" communicate identical information, but "free audit" produces meaningfully higher conversion because the word carries emotional charge that "$0" does not.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — "free" used explicitly</div>
+              <div class="ex-text">"Get my FREE conversion audit →" · "Free · No credit card · No commitment" · "It's free. We mean it."</div>
+              <div class="ex-note">The word appears multiple times, is visually prominent, and is not buried in microcopy.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — "free" avoided</div>
+              <div class="ex-text">"Get your complimentary conversion audit →" · "No-cost page analysis" · "€0 audit report"</div>
+              <div class="ex-note">"Complimentary" reads as formal and corporate. "No-cost" is a double negative. "€0" is purely rational and misses the emotional charge entirely. All three convert below "free" equivalents.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw6" data-id="58">
+        <span class="crit-n">58</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">The CTA section is the strongest-designed section — not the weakest</div>
+          <div class="crit-desc">The final CTA block receives equal or greater visual investment than the hero. It is not a minimal form on a plain background.</div>
+          <div class="crit-why">Kahneman's Peak-End Rule: people judge experiences by their peak moment and their ending — not the average. The CTA section is both the most important functional moment (the decision) and the ending. A page where the hero is beautifully designed and the CTA section is a sparse form on a plain background creates an anticlimactic ending: the visitor's emotional engagement is built up and then abruptly dropped at the moment they need it most.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — CTA section as hero</div>
+              <div class="ex-text">CTA section: same visual treatment as hero (gradient background, prominent typography, glow effects on the form card). Repeats the core value proposition. Full three-layer CTA structure. Founding client offer visible for urgency.</div>
+              <div class="ex-note">The page's emotional arc peaks at the CTA section. The visitor's engagement is at maximum when they reach the conversion mechanism.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — CTA as afterthought</div>
+              <div class="ex-text">After an elaborate, designed page — a plain white section with a grey border form, 2-field input, small text "Book a call" button, nothing else.</div>
+              <div class="ex-note">Visual quality drops sharply exactly where conversion happens. The subconscious message: "this is the unimportant part."</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw6" data-id="59">
+        <span class="crit-n">59</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">CTA is a "variable reward" — the outcome is specific but the result is personal/unknown</div>
+          <div class="crit-desc">The CTA language creates curiosity about what the visitor will specifically discover — rather than naming a completely predictable generic deliverable.</div>
+          <div class="crit-why">Eyal's Hooked framework: variable reward (outcome intriguing but not fully known) activates the brain's dopaminergic reward system more powerfully than fixed reward. "See what's killing YOUR conversions" is variable — the visitor knows the type of thing they'll discover but not the specific issues on their specific page. This creates anticipatory curiosity — the same mechanism that makes people pull down on social media feeds.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — variable reward framing</div>
+              <div class="ex-text">"Find out exactly what's killing MY conversions →" / "See what MY page is costing me each month" / "Discover the 3 biggest leaks on my page"</div>
+              <div class="ex-note">Personal ("my page", "my conversions"). Intriguing but not fully known — the specific issues are unknown until they click. Creates anticipatory curiosity.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — fixed, generic reward</div>
+              <div class="ex-text">"Download the CRO audit checklist PDF" / "Get a 10-page audit report" / "Receive our landing page assessment document"</div>
+              <div class="ex-note">Completely predictable deliverable. "A PDF" creates no curiosity — the visitor knows exactly what they're getting and can pre-evaluate whether it's worth the effort.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw6" data-id="60">
+        <span class="crit-n">60</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">No generic CTA language: "Submit", "Click Here", "Learn More", "Contact Us" absent</div>
+          <div class="crit-desc">None of these four phrases appear as button labels anywhere on the page.</div>
+          <div class="crit-why">Bly's CTA scoring: these four score 1–2/10 because they communicate nothing about the outcome, create no desire, and are indistinguishable from every generic CTA the visitor has seen everywhere else. "Submit" makes the visitor feel like they're completing bureaucratic paperwork. "Learn More" doesn't tell the visitor what they'll learn or why it matters. "Contact Us" communicates that the visitor is doing the company a favour. This is the single easiest criterion to fix: open the page, find these words, replace them with the outcome they lead to.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — all replaced with outcome language</div>
+              <div class="ex-text">"Submit" → "Get my free audit" · "Learn More" → "See how it works" · "Contact Us" → "Talk to us about your page"</div>
+              <div class="ex-note">Each replacement names a specific outcome or action. The visitor knows what they're clicking toward.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — generic labels present</div>
+              <div class="ex-text">Form button: "Submit" · Navigation CTA: "Learn More" · Footer: "Contact Us" · Mid-page: "Click Here to Download"</div>
+              <div class="ex-note">Four generic labels on one page. Each is a missed opportunity to name an outcome and reinforce the conversion argument at a moment of action.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-c">Critical</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fw-section" id="fw7">
+    <div class="fw-header" onclick="toggleFW(this)">
+      <span class="fw-num">07/07</span>
+      <span class="fw-name">Urgency &amp; Conversion Momentum</span>
+      <span class="fw-source">LIFT-U · Ariely · Cialdini · Eyal</span>
+      <span class="fw-score-badge" id="score-fw7">0/10</span>
+      <span class="fw-chevron">▼</span>
+    </div>
+    <div class="fw-body" style="display:none">
+      <div class="fw-desc">"Later" almost always means "never" — for paid traffic especially, the visitor who leaves without converting has a statistically very low probability of returning with the same intent. Honest urgency transforms the decision from "should I do this?" to "why haven't I done this already?" This framework is often neglected because urgency feels manipulative — but honest urgency based on real costs and real constraints is a service to the visitor, not a manipulation.</div>
+      <div class="crit" data-fw="fw7" data-id="61">
+        <span class="crit-n">61</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">The cost of inaction is quantified somewhere on the page</div>
+          <div class="crit-desc">The page includes a specific calculation or statement of what the visitor is currently losing per month by not solving the problem.</div>
+          <div class="crit-why">The cost of inaction is the most honest and most compelling urgency mechanism available. It doesn't manufacture pressure — it shows the visitor what their current situation is costing in terms they already understand (money). The calculation: monthly visitors × (benchmark CR - current CR) × average order value = monthly revenue leak. This turns "your page could be better" into "your page is costing you €2,400 every month you don't fix it." For maximum impact, make the calculation specific to the visitor's inputs — our 2-step form collects the data needed to show a real personalised number.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — quantified cost</div>
+              <div class="ex-text">"At €5,000/month ad spend with a 1.8% CR, a 1-point improvement to 2.8% would generate approximately €2,800 more revenue per month — from the same budget you're already spending."</div>
+              <div class="ex-note">Specific numbers. Uses visitor's own context (ad spend, CR). The specificity makes it believable and therefore motivating.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — abstract urgency</div>
+              <div class="ex-text">"Every day your page underperforms is a missed opportunity for growth."</div>
+              <div class="ex-note">"Missed opportunity" and "growth" are abstract. No number. No timeframe. No calculation. The visitor nods and scrolls on.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw7" data-id="62">
+        <span class="crit-n">62</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Real scarcity or capacity constraints stated if they genuinely exist</div>
+          <div class="crit-desc">If the service genuinely has limited capacity, this is stated clearly and specifically.</div>
+          <div class="crit-why">Cialdini Scarcity: real constraints create urgency without damaging trust — but only when specific. "Limited spots available" with no number is vague and disbelieved. "We cap at 8 active audit clients per month to maintain 48-hour turnaround quality" is a specific, believable constraint with a clear operational logic. For a solo operator or small agency, capacity limits are genuinely real — using them is honest and appropriate. The critical distinction: "limited spots" because you're managing quality is real scarcity. "Limited spots" because the countdown timer script says 3 is fake scarcity.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — specific real scarcity</div>
+              <div class="ex-text">"Free founding client audits: 10 total (7 remaining as of March 2026). After the founding cohort is closed, the audit moves to €497."</div>
+              <div class="ex-note">Specific number. Date context. Future price anchor. Reason for limitation implied (founding cohort, quality). All elements of credible, honest scarcity.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — vague or fabricated</div>
+              <div class="ex-text">"⚡ Limited availability — book your spot now before it's too late!" — displayed for months with no change, no number, no reason for limitation.</div>
+              <div class="ex-note">"Before it's too late" implies a deadline that doesn't exist. No number, no reason. Sophisticated visitors read this as generic manipulation.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw7" data-id="63">
+        <span class="crit-n">63</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Page narrative creates momentum — each section increases commitment, not resets it</div>
+          <div class="crit-desc">Sections are sequenced so each builds on the engagement of the previous, moving the visitor progressively closer to the conversion decision.</div>
+          <div class="crit-why">Eyal's Hooked model applied to landing page narrative: each section should increase the visitor's investment in the page's story — both psychological (they've read this much, they care) and informational (they now know more, which raises curiosity about what comes next). A section that introduces a competing message or requires re-orientation breaks the momentum chain. Momentum test: after reading each section, ask "does the visitor have more reason to convert now than before reading this section?"</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — building momentum</div>
+              <div class="ex-text">Hero (I have a problem) → Problem agitation (the problem costs more than I realised) → Solution (there's a specific way to fix it) → Process (it's easier than I expected) → Proof (it has worked for others) → Founding offer (I can get it now, free, with a reason to act today).</div>
+              <div class="ex-note">Each section moves the visitor from awareness to motivation to conviction to action. The emotional investment increases with each section.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — momentum-breaking sections</div>
+              <div class="ex-text">Hero (conversion problem) → Company history (founded in 2019, team of 12, offices in...) → Services list (6 different services with equal weighting) → Generic testimonials → CTA.</div>
+              <div class="ex-note">Company history section breaks momentum completely — shifts from "your problem" to "our story." The visitor has to re-engage with a new topic.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw7" data-id="64">
+        <span class="crit-n">64</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Page names a shared enemy — a problem, practice, or situation both brand and visitor oppose</div>
+          <div class="crit-desc">Copy explicitly names what the brand is against, creating shared opposition with the visitor.</div>
+          <div class="crit-why">StoryBrand villain principle: a shared enemy creates instant alignment, rapport, and differentiation simultaneously. "We're against agencies that redesign without data" tells the visitor three things: you're on their side, you understand the problem they've experienced, you're different from the enemy category. Shared enemies create stronger psychological bonds than shared values alone. The enemy should be a recognisable practice (not a company), something the visitor has probably experienced or feared, and something the brand genuinely opposes.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — specific shared enemy</div>
+              <div class="ex-text">"We're against the agency playbook where the first thing that happens is a redesign proposal — before anyone has measured what's actually wrong. Every pixel change should be justified by data showing it will move a specific metric. Redesigning from aesthetics is expensive guessing."</div>
+              <div class="ex-note">Enemy is specific (redesign-first approach), the harm is named (expensive guessing). Any visitor who has experienced an unjustified redesign immediately feels aligned.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — no enemy named</div>
+              <div class="ex-text">Page describes the service, the benefits, the process. No mention of what the brand is against or what approaches it considers inferior.</div>
+              <div class="ex-note">Without a shared enemy, the brand is just another option. The visitor evaluates rationally, not emotionally. Rational evaluation produces price comparison; shared opposition produces brand affinity.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw7" data-id="65">
+        <span class="crit-n">65</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Value is established before price is introduced</div>
+          <div class="crit-desc">If pricing exists, it appears only after the value proposition, proof, and mechanism are fully established — never in the hero.</div>
+          <div class="crit-why">Poundstone's price-to-value sequencing: the longer a visitor reads before encountering a price, the less price-sensitive they become. A visitor who encounters price before value has no framework to evaluate reasonableness — they default to comparing against the cheapest alternative they know. A visitor who encounters price after extensive value establishment has a rich framework: "for a 70-criteria audit with revenue calculations and a walkthrough... €497 seems reasonable." The same price in the hero (before any value context) produces: "€497 for what exactly?" and the visitor leaves.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — value before price</div>
+              <div class="ex-text">Hero (what + why) → Problem (cost of NOT fixing) → Solution (70 criteria, revenue calculation, walkthrough) → Process → Proof → THEN: Pricing section showing €497 after the visitor understands the full value.</div>
+              <div class="ex-note">By the time the visitor sees €497, they've been told exactly what they get, seen proof it works, and understood the cost of not acting. The price has a value framework to land in.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — price before value</div>
+              <div class="ex-text">Hero section: "CRO Audit — €1,200. Book now." Price is the second thing on the page, before value is established.</div>
+              <div class="ex-note">The visitor processes "€1,200" before they've been given a single reason to care. With no value framework, the brain compares it to zero (cost of doing nothing) and often decides inertia is preferable.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw7" data-id="66">
+        <span class="crit-n">66</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">The "success state" is described concretely — the visitor can visualise the outcome</div>
+          <div class="crit-desc">The post-conversion outcome is described in specific, concrete terms — not abstract benefit language.</div>
+          <div class="crit-why">Heath Brothers Concreteness: the brain cannot form a desire for something it cannot visualise. "Improved conversion rate" is abstract — the brain can't form a specific image of it. "You'll leave the call with a prioritised list of 5–12 issues, each with a specific revenue number attached, ranked by impact-to-effort ratio, and a clear answer to 'what should I fix first?'" — that is concrete. The visitor can imagine sitting at their desk holding that list. The success state description is often the most underdeveloped section on service pages.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — concrete success state</div>
+              <div class="ex-text">"After the 20-minute call, you'll know: (1) the specific issues costing you conversions, (2) the monthly revenue estimate for each issue, (3) which 2–3 fixes would have the biggest impact for the least effort, and (4) whether your current CR is above or below industry benchmark for your traffic source."</div>
+              <div class="ex-note">Four specific, concrete things the visitor will know. Each is visualisable. Described in terms of what they will be able to DO.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — abstract benefits</div>
+              <div class="ex-text">"After working with us, you'll have a higher-converting page, better ROI on your ad spend, and clearer insight into your conversion funnel."</div>
+              <div class="ex-note">"Higher-converting," "better ROI," "clearer insight" — none can be visualised. They are abstract benefit claims that every CRO agency makes.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw7" data-id="67">
+        <span class="crit-n">67</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">An anchoring mechanism exists to make the offer's value feel larger in context</div>
+          <div class="crit-desc">The page shows a reference price — cost of the problem, competitor pricing, or usual cost of the service — before presenting the offer.</div>
+          <div class="crit-why">Ariely's anchoring: the first number a visitor sees becomes their mental reference point for everything that follows. This reference point is sticky — it shapes all subsequent price evaluations even when the visitor knows they're being anchored. For a free audit offer, the anchor is the cost of a full agency redesign: "Agencies typically charge €5,000–€15,000 for a full landing page rebuild. We show you the findings first — free." In this context, "free" lands against an anchor of €5,000–€15,000 and feels extraordinarily generous.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — effective anchoring</div>
+              <div class="ex-text">"Most agencies charge €5,000–€15,000 to redesign a page that wasn't audited properly in the first place. We audit it first for free — so any changes you make are backed by data, not guesswork."</div>
+              <div class="ex-note">Anchor: €5,000–€15,000. Our price: free. The gap makes "free" feel extraordinarily valuable. The anchor also positions the competitor approach as flawed.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — no anchor context</div>
+              <div class="ex-text">"Get a free conversion audit." — stated in isolation, with no reference to what a comparable service costs elsewhere.</div>
+              <div class="ex-note">"Free" has emotional power on its own, but without an anchor, the visitor has no framework for "how valuable is this free thing?" The brain assigns a moderate value by default.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw7" data-id="68">
+        <span class="crit-n">68</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">A specific "reason to act today" exists beyond the general offer</div>
+          <div class="crit-desc">There is a specific, honest reason why acting today is better than acting next week.</div>
+          <div class="crit-why">In the absence of a reason to act now, "I'll come back to this" is the default response — and research on conversion recovery shows paid traffic visitors who leave without converting have a return-and-convert rate below 3% without retargeting. "I'll come back" is almost always a polite version of "I've decided not to." The reason must be: (1) real, not manufactured; (2) specific, not vague; (3) personally costly to delay. The cost-per-week calculation is the most honest: "At your current CR, every week of delay costs approximately €X in recoverable revenue. The audit itself takes 48 hours."</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — specific act-today reason</div>
+              <div class="ex-text">"We're accepting 7 more founding client audits (free, findings yours to keep). After the founding cohort closes, the audit is €497. At your estimated monthly leak of €2,400, every week you wait costs approximately €600. The audit takes 48 hours."</div>
+              <div class="ex-note">Three reasons to act today: founding cohort closes, weekly cost of delay (personalised), fast turnaround (48 hours).</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — no reason to act today</div>
+              <div class="ex-text">Page describes the offer clearly and persuasively. No mention of why today is better than next month. No capacity constraint, no pricing change, no cost of delay calculation.</div>
+              <div class="ex-note">The visitor has been persuaded but not urgentised. Decision is deferred. "I'll come back to this when I have time" — and statistically, they don't.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+      <div class="crit" data-fw="fw7" data-id="69">
+        <span class="crit-n">69</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">Page tells a before/after story — current state vs transformed state</div>
+          <div class="crit-desc">Explicitly or implicitly, the page shows where the visitor is now and where they'll be after using the product or service.</div>
+          <div class="crit-why">Heath Brothers' Story principle: stories are 22× more memorable than facts alone (Stanford research). The before/after structure is the most efficient story format for landing pages — it compresses the entire transformation into a scannable, emotionally resonant format. The "before" state creates recognition and empathy; the "after" state creates desire. For maximum effectiveness: make the "before" feel familiar and specific, make the "after" concrete and measurable, and make the transition believable (not miraculous).</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — concrete before/after</div>
+              <div class="ex-text">"Before: €6,000/month in ads, 1.4% conversion rate, 84 leads/month. After audit and 3 fixes (CTA copy, hero headline, risk reversal): 3.1% CR, 186 leads/month. Same budget. 12 weeks."</div>
+              <div class="ex-note">Specific numbers. Familiar situation. Same budget removes "you need to spend more" objection. Timeframe (12 weeks) is believable, not miraculous.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — abstract before/after</div>
+              <div class="ex-text">"Before: struggling with poor conversions and wasted ad spend. After: optimised pages, better results, more confident marketing decisions."</div>
+              <div class="ex-note">"Struggling," "wasted," "better results," "more confident" — all abstract. No numbers, no timeframe. The brain cannot form a concrete image of either state.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-m">Medium</span>
+      </div>
+      <div class="crit" data-fw="fw7" data-id="70">
+        <span class="crit-n">70</span>
+        <div class="crit-toggle" onclick="toggleCrit(this)"></div>
+        <div class="crit-body">
+          <div class="crit-title">The final section of the page is a CTA — not FAQ, blog links, or footer content</div>
+          <div class="crit-desc">The last substantial section before the footer is a CTA block — the final act is an invitation to convert, not information consumption.</div>
+          <div class="crit-why">Kahneman's Peak-End Rule: the ending is disproportionately influential on the visitor's overall judgment of the experience. A page that ends on an FAQ ends on information-gathering mode — the visitor's last mental state is "I am reading and learning," not "I am deciding and acting." Practically: place the FAQ before the final CTA, not after it. A visitor who has just had their last objection answered by the FAQ is at peak readiness — the CTA must be immediately available to capture that moment.</div>
+          <div class="crit-examples">
+            <div class="ex-block ex-pass">
+              <div class="ex-label">✓ Pass — CTA as final section</div>
+              <div class="ex-text">Page sequence: ... → FAQ (addresses 5 remaining objections) → Final CTA section (full form, value proposition summary, founding offer, risk reversal) → Minimal footer (privacy/terms only).</div>
+              <div class="ex-note">FAQ clears remaining doubts. CTA immediately capitalises on the objection-cleared visitor. The last interactive experience is the conversion mechanism.</div>
+            </div>
+            <div class="ex-block ex-fail">
+              <div class="ex-label">✗ Fail — CTA buried before page end</div>
+              <div class="ex-text">Page sequence: ... → CTA section → "More resources" blog links → FAQ → About the team → Standard website footer.</div>
+              <div class="ex-note">CTA is not the last thing the visitor sees. The page ends on blog links and team information. The momentum built toward the CTA is dissipated by post-CTA content.</div>
+            </div>
+          </div>
+        </div>
+        <span class="sev sev-h">High</span>
+      </div>
+    </div>
+  </div>
+
+
+</div><!-- /wrap -->
+
+<div class="export-bar">
+  <button class="export-btn export-secondary" onclick="copyResults()">Copy results</button>
+  <button class="export-btn export-primary" onclick="printPage()">Print / PDF</button>
+</div>
+
+<script>
+var state = {};
+
+function toggleFW(header) {
+  var body = header.nextElementSibling;
+  var isOpen = header.classList.contains('open');
+  header.classList.toggle('open', !isOpen);
+  body.style.display = isOpen ? 'none' : 'block';
+}
+
+function toggleCrit(toggle) {
+  var crit = toggle.closest('.crit');
+  var id = crit.dataset.id;
+  var fw = crit.dataset.fw;
+  if (toggle.classList.contains('pass')) {
+    toggle.classList.remove('pass');
+    toggle.textContent = '';
+    state[id] = null;
+  } else if (toggle.classList.contains('fail')) {
+    toggle.classList.remove('fail');
+    toggle.classList.add('pass');
+    toggle.textContent = '✓';
+    state[id] = 'pass';
+  } else {
+    toggle.classList.add('fail');
+    toggle.textContent = '✗';
+    state[id] = 'fail';
+  }
+  updateScores(fw);
+  updateGlobal();
+}
+
+function updateScores(fw) {
+  var crits = document.querySelectorAll('[data-fw="' + fw + '"]');
+  var passed = 0, checked = 0;
+  crits.forEach(function(c) {
+    var id = c.dataset.id;
+    if (state[id] === 'pass') { passed++; checked++; }
+    else if (state[id] === 'fail') { checked++; }
+  });
+  var badge = document.getElementById('score-' + fw);
+  badge.textContent = passed + '/10';
+  var pct = checked / 10;
+  badge.style.color = passed >= 8 ? 'var(--green)' : passed >= 5 ? 'var(--amber)' : checked > 0 ? 'var(--red)' : 'var(--t2)';
+}
+
+function updateGlobal() {
+  var total = Object.keys(state).length;
+  var passed = Object.values(state).filter(function(v){return v==='pass'}).length;
+  var checked = total;
+  document.getElementById('globalScore').textContent = checked + ' / 70 checked · ' + passed + ' passed';
+  document.getElementById('progBar').style.width = (checked/70*100) + '%';
+  document.getElementById('progressPct').textContent = Math.round(checked/70*100) + '%';
+}
+
+function expandCrit(btn) {
+  var crit = btn.closest('.crit');
+  crit.classList.toggle('expanded');
+  btn.textContent = crit.classList.contains('expanded') ? '▲ collapse' : '▼ notes';
+}
+
+// Add expand buttons dynamically
+document.querySelectorAll('.crit').forEach(function(c) {
+  var title = c.querySelector('.crit-title');
+  title.style.cursor = 'pointer';
+  title.onclick = function() {
+    c.classList.toggle('expanded');
+  };
+
+  // Add notes textarea
+  var body = c.querySelector('.crit-body');
+  var notesDiv = document.createElement('div');
+  notesDiv.className = 'crit-notes';
+  notesDiv.innerHTML = '<textarea class="notes-input" placeholder="Notes for this finding…" rows="2"></textarea>';
+  body.appendChild(notesDiv);
+});
+
+function resetAll() {
+  if (!confirm('Reset all scores and notes?')) return;
+  state = {};
+  document.querySelectorAll('.crit-toggle').forEach(function(t){
+    t.classList.remove('pass','fail');
+    t.textContent='';
+  });
+  document.querySelectorAll('.notes-input').forEach(function(n){n.value=''});
+  ['fw1','fw2','fw3','fw4','fw5','fw6','fw7'].forEach(function(fw){
+    document.getElementById('score-'+fw).textContent='0/10';
+    document.getElementById('score-'+fw).style.color='';
+  });
+  document.getElementById('globalScore').textContent='0 / 70 checked';
+  document.getElementById('progBar').style.width='0%';
+  document.getElementById('progressPct').textContent='0%';
+}
+
+function copyResults() {
+  var lines = ['FUGOTO PagePulse Audit Results\n'];
+  var fws = ['Value Proposition','Relevance','Clarity','Anxiety Reduction','Distraction','CTA Quality','Urgency'];
+  fws.forEach(function(name, i) {
+    var fw = 'fw' + (i+1);
+    var badge = document.getElementById('score-' + fw).textContent;
+    lines.push('\n## ' + (i+1) + '. ' + name + ' — ' + badge);
+    document.querySelectorAll('[data-fw="' + fw + '"]').forEach(function(c) {
+      var id = c.dataset.id;
+      var s = state[id];
+      var title = c.querySelector('.crit-title').textContent;
+      var notes = c.querySelector('.notes-input').value;
+      var icon = s === 'pass' ? '✓' : s === 'fail' ? '✗' : '○';
+      lines.push(icon + ' ' + title);
+      if (notes) lines.push('  → ' + notes);
+    });
+  });
+  navigator.clipboard.writeText(lines.join('\n'));
+  var btn = document.querySelector('.export-secondary');
+  btn.textContent = 'Copied!';
+  setTimeout(function(){btn.textContent='Copy results'},2000);
+}
+
+function printPage() {
+  window.print();
+}
+</script>
+</body>
+</html>
