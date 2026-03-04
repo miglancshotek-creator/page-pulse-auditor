@@ -192,10 +192,10 @@ YOUR TASK:
    For each critical issue provide:
    - The issue name (short, punchy — e.g. "Zero social proof on page")
    - Which framework category it belongs to (use exact framework name)
-   - Severity: "critical" (score ≤3), "high" (score 4-5), or "medium" (score 6-7)
-   - A concise problem description explaining WHY it hurts conversions
-   - A specific solution recommendation (NEVER "No action needed" unless score is 10/10)
-   ${estimatedVisitors > 0 ? "- Estimated monthly revenue loss (using the formula above)" : ""}
+    - Severity: "critical" (score ≤3), "high" (score 4-5), or "medium" (score 6-7)
+    - A DETAILED problem description (3-5 sentences) explaining WHY it hurts conversions, what psychological principle it violates, and what specific evidence from the page supports this finding
+    - A specific, actionable solution recommendation with concrete examples (NEVER "No action needed" unless score is 10/10)
+    ${estimatedVisitors > 0 ? "- Estimated monthly revenue loss (using the formula above)" : "- Even without revenue data, explain the BUSINESS IMPACT: how this issue causes visitor drop-off, reduces trust, or kills conversions. Be specific about the behavioral consequence."}
 
 3. Provide CONTENT OPTIMIZATION RECOMMENDATIONS for key text elements (heading, subheadline, CTA). For each show current version, write optimized version and explain why it's better.
 
