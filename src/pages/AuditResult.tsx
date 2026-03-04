@@ -78,7 +78,7 @@ const AuditResult = () => {
       const SECTION_GAP_MM = 4;
 
       const pdf = new jsPDF("p", "mm", "a4");
-      pdf.setFillColor(9, 9, 11);
+      pdf.setFillColor(252, 252, 252);
       pdf.rect(0, 0, A4_WIDTH_MM, A4_HEIGHT_MM, "F");
 
       let currentY = MARGIN_MM;
