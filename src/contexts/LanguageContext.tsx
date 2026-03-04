@@ -22,7 +22,7 @@ const translations: Record<string, Record<Lang, string>> = {
     en: "Get an instant AI audit of any landing page. Evaluate messaging, trust, CTAs, mobile experience and SEO.",
   },
 
-  // Pillars
+  // Pillars (legacy)
   "pillar.messaging": { cs: "Sdělení", en: "Messaging" },
   "pillar.trust": { cs: "Důvěra", en: "Trust" },
   "pillar.cta": { cs: "CTA", en: "CTA" },
@@ -64,21 +64,31 @@ const translations: Record<string, Record<Lang, string>> = {
   "result.error.notFound": { cs: "Audit nebyl nalezen", en: "Audit not found" },
   "result.error.notFoundTitle": { cs: "Nenalezeno", en: "Not found" },
 
-  // ScoreRing
+  // ScoreRing (legacy)
   "score.excellent": { cs: "Výborné", en: "Excellent" },
   "score.good": { cs: "Dobré", en: "Good" },
   "score.improve": { cs: "Ke zlepšení", en: "Needs work" },
   "score.critical": { cs: "Kritické", en: "Critical" },
   "score.label": { cs: "Skóre konverzního zdraví", en: "Conversion health score" },
 
-  // Quick Wins
+  // Framework Scores
+  "fw.healthScore": { cs: "HEALTH SCORE", en: "HEALTH SCORE" },
+  "fw.criticalIssues": { cs: "kritických problémů", en: "critical issues" },
+
+  // Critical Issues
+  "issues.title": { cs: "Nalezené problémy", en: "Issues found" },
+  "issues.solution": { cs: "Řešení", en: "Solution" },
+  "issues.estMonthlyLeak": { cs: "Odhadovaný měsíční únik příjmů", en: "Est. monthly revenue leak" },
+  "issues.estAnnualLeak": { cs: "Odhadovaný roční únik", en: "Est. annual leak" },
+
+  // Quick Wins (legacy)
   "quickwins.title": { cs: "Rychlé výhry", en: "Quick wins" },
   "quickwins.subtitle": { cs: "Změny s vysokým dopadem", en: "High-impact changes" },
   "impact.high": { cs: "vysoký", en: "high" },
   "impact.medium": { cs: "střední", en: "medium" },
   "impact.low": { cs: "nízký", en: "low" },
 
-  // Audit Breakdown
+  // Audit Breakdown (legacy)
   "breakdown.title": { cs: "Rozpis auditu", en: "Audit breakdown" },
   "breakdown.category": { cs: "Kategorie", en: "Category" },
   "breakdown.score": { cs: "Skóre", en: "Score" },
@@ -91,7 +101,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "content.optimized": { cs: "Optimalizovaná verze:", en: "Optimized version:" },
   "content.why": { cs: "Proč je to lepší:", en: "Why this is better:" },
 
-  // Performance Analysis
+  // Performance Analysis (legacy)
   "perf.title": { cs: "Podrobná analýza výkonu", en: "Detailed performance analysis" },
   "perf.insight": { cs: "Expertní vhled: ", en: "Expert insight: " },
   "perf.actions": { cs: "Akční kroky:", en: "Action items:" },
@@ -109,7 +119,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "form.avgOrderValue": { cs: "Průměrná hodnota objednávky (€)", en: "Average order value (€)" },
   "form.avgOrderValuePlaceholder": { cs: "např. 65 (nebo nechte prázdné)", en: "e.g. 65 (or leave blank)" },
 
-  // Revenue Loss
+  // Revenue Loss (legacy)
   "revenue.title": { cs: "Odhad ušlých příjmů", en: "Estimated revenue loss" },
   "revenue.monthlyLoss": { cs: "Měsíční ztráta", en: "Monthly loss" },
   "revenue.annualLoss": { cs: "Roční ztráta", en: "Annual loss" },

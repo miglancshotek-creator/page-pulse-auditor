@@ -6,6 +6,26 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const FRAMEWORK_KEYS = [
+  "value_proposition",
+  "relevance",
+  "clarity",
+  "anxiety_trust",
+  "distraction_focus",
+  "cta_quality",
+  "urgency_momentum",
+] as const;
+
+const FRAMEWORK_WEIGHTS: Record<string, number> = {
+  value_proposition: 0.20,
+  relevance: 0.15,
+  clarity: 0.15,
+  anxiety_trust: 0.15,
+  distraction_focus: 0.10,
+  cta_quality: 0.15,
+  urgency_momentum: 0.10,
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -71,8 +91,7 @@ Step 5: For EACH conversion issue found:
 
 Step 6: FORMAT the explanation field for each item as follows:
   FIRST: Write 1-2 sentences describing WHY this issue hurts conversions (the business impact, user psychology).
-  THEN: Show the math on a new line starting with "Výpočet:" (or "Calculation:" in English).
-  Example: "Absence konkrétních referencí a případových studií snižuje důvěru návštěvníků. Bez sociálních důkazů uživatelé váhají s konverzí, protože nemají potvrzení od jiných zákazníků.\\nVýpočet: CPC est. €1.50 → ${bc.monthlyAdSpend}/1.50 = X návštěvníků/měsíc. CR 2.5%, relativní pokles 10% → X × 0.0025 = Y ztracených konverzí. Při €65/konverzi → €Z/měsíc ztráta."
+  THEN: Show the math on a new line starting with "${isEn ? "Calculation" : "Výpočet"}:".
 
 CRITICAL RULES:
 - Do NOT add rounding notes like "(Zaokrouhleno na €X pro Y% pokles)". The math already accounts for the drop.
@@ -83,7 +102,11 @@ CRITICAL RULES:
       ? "You are a landing page conversion optimization expert. Write ALL output in English."
       : "Jsi expert na konverzní optimalizaci landing page. VEŠKERÝ VÝSTUP PIŠ V ČEŠTINĚ. Používej správnou češtinu bez anglicismů a podivných formulací.";
 
-    const prompt = `${langInstruction} Analyze the following page data and provide a comprehensive audit.
+    const frameworkNames = isEn
+      ? ["Value Proposition", "Relevance & Message Match", "Clarity & Cognitive Ease", "Anxiety Reduction & Trust", "Distraction & Focus", "CTA Quality", "Urgency & Momentum"]
+      : ["Value Proposition", "Relevance & Message Match", "Clarity & Cognitive Ease", "Anxiety Reduction & Trust", "Distraction & Focus", "CTA Quality", "Urgency & Momentum"];
+
+    const prompt = `${langInstruction} Analyze the following page data using the 7-framework evaluation model with 70 criteria (10 per framework).
 
 ${guidelinesText ? `GENERAL GUIDELINES:\n${guidelinesText}\n` : ""}
 CRITICAL LIMITATIONS OF EXTRACTED DATA:
@@ -91,7 +114,7 @@ CRITICAL LIMITATIONS OF EXTRACTED DATA:
 - NEVER claim that a CTA, button or element is "missing" — absence in extracted data DOES NOT mean absence on the page.
 - Focus on text quality, trust signals and verifiable issues, not placement or frequency of elements.
 
-AUDIT CRITERIA:
+THE 7 EVALUATION FRAMEWORKS (10 criteria each, 70 total):
 ${criteriaText}
 ${businessContextText}
 
@@ -108,50 +131,70 @@ MOBILE LAYOUT SIGNALS:
 ${JSON.stringify(scrapeData.mobileSignals || {}, null, 2)}
 
 YOUR TASK:
-1. Provide CONTENT OPTIMIZATION RECOMMENDATIONS for key text elements (heading, subheadline, CTA). For each show current version, write optimized version and explain why it's better with specific points.
+1. Score each of the 7 frameworks on a scale of 1–10. For each framework, provide a short key_issue (the single biggest problem found) and a recommendation.
 
-2. Provide DETAILED PERFORMANCE ANALYSIS in 5 dimensions: ${isEn ? "Relevance, Propensity To Take Action, Persuasiveness, Motivation, Focus On The Goal" : "Relevance, Sklon k akci, Přesvědčivost, Motivace, Zaměření na cíl"}. For each provide score (1-10), description, expert insight specific to this page and 3 action items.
+2. Identify the TOP CRITICAL ISSUES across all frameworks. For each critical issue provide:
+   - The issue name (short, punchy — e.g. "Zero social proof on page")
+   - Which framework category it belongs to
+   - Severity: "critical" (score ≤3), "high" (score 4-5), or "medium" (score 6-7)
+   - A concise problem description explaining WHY it hurts conversions
+   - A specific solution recommendation
+   ${bc.monthlyAdSpend ? "- Estimated monthly revenue loss (using the formula above)" : ""}
 
-3. Provide OVERALL PERFORMANCE SCORE (1-10) with detailed narrative summary and next steps.
+3. Provide CONTENT OPTIMIZATION RECOMMENDATIONS for key text elements (heading, subheadline, CTA). For each show current version, write optimized version and explain why it's better.
 
-4. Also provide legacy scores for backward compatibility.
+4. Provide an OVERALL SUMMARY with a narrative assessment and prioritized next steps.
 
-${bc.monthlyAdSpend ? `5. Provide REVENUE LOSS ESTIMATION: For each major conversion issue found, estimate the monthly revenue loss in euros based on the business context provided. List 3-5 specific issues with their estimated monthly loss.` : ""}`;
+${bc.monthlyAdSpend ? `5. Calculate the TOTAL estimated monthly and annual revenue leak using the revenue loss formula.` : ""}
+
+SCORING RULES:
+- Any criterion with weight 10 that scores ≤3 is automatically "critical" severity
+- Any criterion with weight 8 that scores ≤5 is "high" severity
+- Be ruthless: missing social proof = score 1-2 for trust, vague headline = score 2-3 for value proposition
+- The overall score (0-100) = weighted average of framework scores × 10`;
 
     // Build tools array
+    const criticalIssueProperties: Record<string, any> = {
+      issue: { type: "string", description: "Short punchy issue name" },
+      category: { type: "string", description: "Which framework this belongs to" },
+      severity: { type: "string", enum: ["critical", "high", "medium"] },
+      description: { type: "string", description: "Why this hurts conversions (1-2 sentences)" },
+      solution: { type: "string", description: "Specific actionable recommendation" },
+    };
+
+    if (bc.monthlyAdSpend) {
+      criticalIssueProperties.estimated_monthly_loss = {
+        type: "number",
+        description: "Estimated monthly revenue loss in euros for this issue",
+      };
+      criticalIssueProperties.explanation = {
+        type: "string",
+        description: "Business impact description + math breakdown on new line",
+      };
+    }
+
+    const criticalIssueRequired = ["issue", "category", "severity", "description", "solution"];
+    if (bc.monthlyAdSpend) {
+      criticalIssueRequired.push("estimated_monthly_loss", "explanation");
+    }
+
     const revenueLossProperties = bc.monthlyAdSpend ? {
       revenue_loss: {
         type: "object",
-        description: "Revenue loss estimation based on business context. All math must be shown.",
+        description: "Revenue loss totals",
         properties: {
-          estimated_cpc: { type: "number", description: "The CPC value used for calculation (in euros)" },
-          estimated_monthly_visitors: { type: "number", description: "Monthly visitors = ad spend / CPC" },
-          conversion_rate_used: { type: "number", description: "Conversion rate used (percentage, e.g. 2.5)" },
-          revenue_per_conversion: { type: "number", description: "Revenue per conversion in euros" },
-          total_monthly_loss: { type: "number", description: "Total estimated monthly revenue loss in euros" },
-          total_annual_loss: { type: "number", description: "Total estimated annual revenue loss (monthly × 12)" },
-          items: {
-            type: "array",
-            description: "3-5 specific conversion issues with estimated revenue impact",
-            items: {
-              type: "object",
-              properties: {
-                issue: { type: "string", description: "The specific conversion issue" },
-                estimated_monthly_loss: { type: "number", description: "Estimated monthly loss in euros for this issue" },
-                severity: { type: "string", enum: ["high", "medium", "low"] },
-                relative_cr_drop_percent: { type: "number", description: "Estimated relative CR drop in % (e.g. 10 means 10% relative drop)" },
-                lost_conversions: { type: "number", description: "Number of lost conversions per month from this issue" },
-                explanation: { type: "string", description: "Full math breakdown: CPC used, visitors calculated, CR drop, lost conversions, revenue per conversion, final loss" },
-              },
-              required: ["issue", "estimated_monthly_loss", "severity", "relative_cr_drop_percent", "lost_conversions", "explanation"],
-            },
-          },
+          estimated_cpc: { type: "number" },
+          estimated_monthly_visitors: { type: "number" },
+          conversion_rate_used: { type: "number" },
+          revenue_per_conversion: { type: "number" },
+          total_monthly_loss: { type: "number" },
+          total_annual_loss: { type: "number" },
         },
-        required: ["estimated_cpc", "estimated_monthly_visitors", "conversion_rate_used", "revenue_per_conversion", "total_monthly_loss", "total_annual_loss", "items"],
+        required: ["estimated_cpc", "estimated_monthly_visitors", "conversion_rate_used", "revenue_per_conversion", "total_monthly_loss", "total_annual_loss"],
       },
     } : {};
 
-    const requiredFields = ["overall_score", "scores", "content_optimizations", "performance_analysis", "overall_summary", "quick_wins", "breakdown"];
+    const requiredFields = ["framework_scores", "critical_issues", "content_optimizations", "overall_summary"];
     if (bc.monthlyAdSpend) requiredFields.push("revenue_loss");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -164,7 +207,7 @@ ${bc.monthlyAdSpend ? `5. Provide REVENUE LOSS ESTIMATION: For each major conver
         model: "google/gemini-2.5-flash",
         temperature: 0,
         messages: [
-          { role: "system", content: isEn ? "You are a landing page conversion optimization expert. Provide detailed page-specific analysis. Extracted data is INCOMPLETE — never claim CTAs or elements are missing. Write ALL output in English." : "Jsi expert na konverzní optimalizaci landing page. Poskytuj podrobnou analýzu specifickou pro danou stránku. Extrahovaná data jsou NEÚPLNÁ — nikdy netvrd, že CTA nebo prvky chybí. VEŠKERÝ VÝSTUP PIŠ V ČEŠTINĚ. Používej správnou spisovnou češtinu." },
+          { role: "system", content: isEn ? "You are a landing page conversion optimization expert. Provide detailed page-specific analysis using the 7-framework model. Extracted data is INCOMPLETE — never claim CTAs or elements are missing. Write ALL output in English." : "Jsi expert na konverzní optimalizaci landing page. Poskytuj podrobnou analýzu specifickou pro danou stránku pomocí 7-framework modelu. Extrahovaná data jsou NEÚPLNÁ — nikdy netvrd, že CTA nebo prvky chybí. VEŠKERÝ VÝSTUP PIŠ V ČEŠTINĚ. Používej správnou spisovnou češtinu." },
           { role: "user", content: prompt },
         ],
         tools: [
@@ -176,17 +219,29 @@ ${bc.monthlyAdSpend ? `5. Provide REVENUE LOSS ESTIMATION: For each major conver
               parameters: {
                 type: "object",
                 properties: {
-                  overall_score: { type: "number", description: "Overall weighted percentage score 0-100 for legacy compatibility" },
-                  scores: {
-                    type: "object",
-                    properties: {
-                      messaging_clarity: { type: "number", description: "Percentage score 0-100" },
-                      trust_signals: { type: "number", description: "Percentage score 0-100" },
-                      cta_strength: { type: "number", description: "Percentage score 0-100" },
-                      mobile_layout: { type: "number", description: "Percentage score 0-100" },
-                      seo_metadata: { type: "number", description: "Percentage score 0-100" },
+                  framework_scores: {
+                    type: "array",
+                    description: "Scores for each of the 7 frameworks",
+                    items: {
+                      type: "object",
+                      properties: {
+                        key: { type: "string", enum: [...FRAMEWORK_KEYS], description: "Framework identifier" },
+                        name: { type: "string", description: "Framework display name" },
+                        score: { type: "number", description: "Score 1-10" },
+                        key_issue: { type: "string", description: "The single biggest issue found in this framework" },
+                        recommendation: { type: "string", description: "Top recommendation for this framework" },
+                      },
+                      required: ["key", "name", "score", "key_issue", "recommendation"],
                     },
-                    required: ["messaging_clarity", "trust_signals", "cta_strength", "mobile_layout", "seo_metadata"],
+                  },
+                  critical_issues: {
+                    type: "array",
+                    description: "Top critical and high-severity issues found across all frameworks. Include ALL issues with severity critical or high.",
+                    items: {
+                      type: "object",
+                      properties: criticalIssueProperties,
+                      required: criticalIssueRequired,
+                    },
                   },
                   content_optimizations: {
                     type: "array",
@@ -203,54 +258,13 @@ ${bc.monthlyAdSpend ? `5. Provide REVENUE LOSS ESTIMATION: For each major conver
                       required: ["element", "impact_score", "current_version", "optimized_version", "reasons"],
                     },
                   },
-                  performance_analysis: {
-                    type: "array",
-                    description: "5 performance dimensions",
-                    items: {
-                      type: "object",
-                      properties: {
-                        dimension: { type: "string" },
-                        score: { type: "number" },
-                        description: { type: "string" },
-                        expert_insight: { type: "string" },
-                        action_items: { type: "array", items: { type: "string" } },
-                      },
-                      required: ["dimension", "score", "description", "expert_insight", "action_items"],
-                    },
-                  },
                   overall_summary: {
                     type: "object",
                     properties: {
-                      score: { type: "number" },
-                      narrative: { type: "string" },
-                      next_steps: { type: "array", items: { type: "string" } },
+                      narrative: { type: "string", description: "Detailed narrative assessment" },
+                      next_steps: { type: "array", items: { type: "string" }, description: "Prioritized list of next steps" },
                     },
-                    required: ["score", "narrative", "next_steps"],
-                  },
-                  quick_wins: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        title: { type: "string" },
-                        description: { type: "string" },
-                        impact: { type: "string", enum: ["high", "medium", "low"] },
-                      },
-                      required: ["title", "description", "impact"],
-                    },
-                  },
-                  breakdown: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        category: { type: "string" },
-                        score: { type: "number" },
-                        status: { type: "string", enum: ["pass", "warning", "fail"] },
-                        recommendation: { type: "string" },
-                      },
-                      required: ["category", "score", "status", "recommendation"],
-                    },
+                    required: ["narrative", "next_steps"],
                   },
                   ...revenueLossProperties,
                 },
@@ -285,33 +299,34 @@ ${bc.monthlyAdSpend ? `5. Provide REVENUE LOSS ESTIMATION: For each major conver
 
     const results = JSON.parse(toolCall.function.arguments);
 
-    // Validate scores are percentages
-    const scoreKeys = ["messaging_clarity", "trust_signals", "cta_strength", "mobile_layout", "seo_metadata"];
-    for (const key of scoreKeys) {
-      if (results.scores[key] !== undefined && results.scores[key] <= 8) {
-        results.scores[key] = Math.round((results.scores[key] / 8) * 100);
-      }
+    // Compute overall_score from framework_scores (weighted average, scale to 0-100)
+    let overallScore = 0;
+    const frameworkScores = results.framework_scores || [];
+    for (const fs of frameworkScores) {
+      const weight = FRAMEWORK_WEIGHTS[fs.key] || 0;
+      overallScore += (fs.score / 10) * 100 * weight;
     }
-    const weights = { messaging_clarity: 0.30, trust_signals: 0.20, cta_strength: 0.25, mobile_layout: 0.15, seo_metadata: 0.10 };
-    results.overall_score = Math.round(
-      scoreKeys.reduce((sum, k) => sum + (results.scores[k] || 0) * weights[k], 0)
-    );
-    if (Array.isArray(results.breakdown)) {
-      for (const item of results.breakdown) {
-        if (item.score !== undefined && item.score <= 8) {
-          item.score = Math.round((item.score / 8) * 100);
-        }
-        item.status = item.score >= 80 ? "pass" : item.score >= 50 ? "warning" : "fail";
-      }
+    results.overall_score = Math.round(overallScore);
+
+    // Count critical issues
+    const criticalCount = (results.critical_issues || []).filter(
+      (i: any) => i.severity === "critical"
+    ).length;
+    results.critical_count = criticalCount;
+
+    // Build legacy-compatible scores object from framework_scores
+    const scoresMap: Record<string, number> = {};
+    for (const fs of frameworkScores) {
+      scoresMap[fs.key] = fs.score;
     }
 
     const { error: updateError } = await supabase
       .from("audits")
       .update({
-        overall_score: Math.round(results.overall_score),
-        scores: results.scores,
-        quick_wins: results.quick_wins,
-        breakdown: results.breakdown,
+        overall_score: results.overall_score,
+        scores: scoresMap,
+        quick_wins: results.critical_issues || [],
+        breakdown: results.framework_scores || [],
         raw_ai_response: JSON.stringify(results),
         status: "completed",
       })

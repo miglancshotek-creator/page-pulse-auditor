@@ -1,12 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import ScoreRing from "@/components/ScoreRing";
-import QuickWins from "@/components/QuickWins";
+import FrameworkScores from "@/components/FrameworkScores";
+import CriticalIssues from "@/components/CriticalIssues";
 import ContentOptimizations from "@/components/ContentOptimizations";
-import PerformanceAnalysis from "@/components/PerformanceAnalysis";
 import OverallSummary from "@/components/OverallSummary";
-import RevenueLoss from "@/components/RevenueLoss";
 import LanguageToggle from "@/components/LanguageToggle";
 import { ArrowLeft, ExternalLink, Copy, Check, Image, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -81,7 +79,6 @@ const AuditResult = () => {
       const SECTION_GAP_MM = 4;
 
       const pdf = new jsPDF("p", "mm", "a4");
-      // Fill first page background
       pdf.setFillColor(9, 9, 11);
       pdf.rect(0, 0, A4_WIDTH_MM, A4_HEIGHT_MM, "F");
 
@@ -91,7 +88,6 @@ const AuditResult = () => {
         reportRef.current.querySelectorAll("[data-pdf-section]")
       ) as HTMLElement[];
 
-      // Temporarily disable animations so elements render at full opacity
       reportRef.current.style.setProperty("animation", "none", "important");
       reportRef.current.querySelectorAll("*").forEach((el) => {
         const htmlEl = el as HTMLElement;
@@ -101,17 +97,13 @@ const AuditResult = () => {
 
       for (const section of sections) {
         const canvas = await html2canvas(section, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#09090b",
-          logging: false,
+          scale: 2, useCORS: true, backgroundColor: "#09090b", logging: false,
         });
 
         const widthPx = canvas.width / 2;
         const heightPx = canvas.height / 2;
         const scaleFactor = CONTENT_WIDTH_MM / widthPx;
         const heightMM = heightPx * scaleFactor;
-
         const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
 
         if (heightMM > remainingSpace && currentY > MARGIN_MM) {
@@ -128,7 +120,7 @@ const AuditResult = () => {
 
       const fileName = `audit-${(audit.page_title || audit.url).replace(/[^a-zA-Z0-9]/g, "-").substring(0, 40)}.pdf`;
       pdf.save(fileName);
-      // Restore animations
+
       reportRef.current.style.removeProperty("animation");
       reportRef.current.querySelectorAll("*").forEach((el) => {
         const htmlEl = el as HTMLElement;
@@ -137,7 +129,6 @@ const AuditResult = () => {
       });
       toast({ title: t("result.pdfExported") || "PDF exported successfully" });
     } catch {
-      // Restore animations on error too
       if (reportRef.current) {
         reportRef.current.style.removeProperty("animation");
         reportRef.current.querySelectorAll("*").forEach((el) => {
@@ -175,6 +166,7 @@ const AuditResult = () => {
     );
   }
 
+  // Parse results
   let rawResults: any = {};
   try {
     rawResults = audit.raw_ai_response ? JSON.parse(audit.raw_ai_response) : {};
@@ -182,11 +174,17 @@ const AuditResult = () => {
     rawResults = {};
   }
 
+  const frameworkScores = Array.isArray(rawResults.framework_scores) ? rawResults.framework_scores : [];
+  const criticalIssues = Array.isArray(rawResults.critical_issues) ? rawResults.critical_issues : [];
   const contentOptimizations = Array.isArray(rawResults.content_optimizations) ? rawResults.content_optimizations : [];
-  const performanceAnalysis = Array.isArray(rawResults.performance_analysis) ? rawResults.performance_analysis : [];
   const overallSummary = rawResults.overall_summary || null;
   const revenueLoss = rawResults.revenue_loss || null;
-  const quickWins = Array.isArray(audit.quick_wins) ? audit.quick_wins : [];
+
+  const overallScore = audit.overall_score || rawResults.overall_score || 0;
+  const criticalCount = rawResults.critical_count || criticalIssues.filter((i: any) => i.severity === "critical").length;
+
+  const totalMonthlyLoss = revenueLoss?.total_monthly_loss || null;
+  const totalAnnualLoss = revenueLoss?.total_annual_loss || null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -204,7 +202,7 @@ const AuditResult = () => {
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg px-3 py-1.5 disabled:opacity-50"
             >
               <Download className="h-3.5 w-3.5" />
-              {exporting ? (t("result.exporting") || "Exporting…") : (t("result.downloadPdf") || "Download PDF")}
+              {exporting ? (t("result.exporting")) : (t("result.downloadPdf"))}
             </button>
             <button
               onClick={copyLink}
@@ -227,6 +225,7 @@ const AuditResult = () => {
       </header>
 
       <main ref={reportRef} className="container max-w-6xl mx-auto px-4 py-8 space-y-10">
+        {/* Page info */}
         <div data-pdf-section className="text-center space-y-2 animate-fade-up">
           <h1 className="text-3xl font-bold">{audit.page_title || audit.url}</h1>
           <p className="text-base text-muted-foreground font-mono">{audit.url}</p>
@@ -235,6 +234,7 @@ const AuditResult = () => {
           </p>
         </div>
 
+        {/* Screenshot */}
         {audit.screenshot_url && (
           <div data-pdf-section className="rounded-xl border border-border overflow-hidden animate-fade-up max-w-4xl mx-auto">
             <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 border-b border-border">
@@ -245,22 +245,36 @@ const AuditResult = () => {
           </div>
         )}
 
-        {revenueLoss && revenueLoss.items?.length > 0 && (
-          <RevenueLoss
-            items={revenueLoss.items}
-            totalMonthlyLoss={revenueLoss.total_monthly_loss}
-            totalAnnualLoss={revenueLoss.total_annual_loss}
-          />
-        )}
-        {contentOptimizations.length > 0 && <ContentOptimizations items={contentOptimizations} />}
-        {performanceAnalysis.length > 0 && <PerformanceAnalysis items={performanceAnalysis} />}
-        {overallSummary && <OverallSummary summary={overallSummary} />}
-
-        {quickWins.length > 0 && contentOptimizations.length === 0 && (
-          <div data-pdf-section className="rounded-xl border border-border bg-card p-6 animate-fade-up">
-            <QuickWins wins={quickWins} />
+        {/* Two-column layout: framework scores + critical issues */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Framework scores card — left column */}
+          <div className="lg:col-span-2">
+            {frameworkScores.length > 0 && (
+              <FrameworkScores
+                scores={frameworkScores}
+                overallScore={overallScore}
+                criticalCount={criticalCount}
+              />
+            )}
           </div>
-        )}
+
+          {/* Critical issues — right column */}
+          <div className="lg:col-span-3">
+            {criticalIssues.length > 0 && (
+              <CriticalIssues
+                issues={criticalIssues}
+                totalMonthlyLoss={totalMonthlyLoss}
+                totalAnnualLoss={totalAnnualLoss}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Content optimizations */}
+        {contentOptimizations.length > 0 && <ContentOptimizations items={contentOptimizations} />}
+
+        {/* Overall summary */}
+        {overallSummary && <OverallSummary summary={{ ...overallSummary, score: overallSummary.score || Math.round(overallScore / 10) }} />}
       </main>
     </div>
   );
