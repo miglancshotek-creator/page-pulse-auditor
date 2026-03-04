@@ -135,18 +135,18 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
                   <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${fwDotClass}`} />
                   <h3 className="text-base font-bold">{label}</h3>
                   {isAllGood ? (
-                    <span className="text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border bg-[hsl(172,66%,50%)]/15 text-[hsl(172,66%,50%)] border-[hsl(172,66%,50%)]/30">
+                    <span className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${fwBadgeClass}`}>
                       ✓ {lang === "cs" ? "V pořádku" : "Looks good"}
                     </span>
                   ) : isMissingIssues ? (
-                    <span className="text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border bg-[hsl(38,92%,55%)]/15 text-[hsl(38,92%,55%)] border-[hsl(38,92%,55%)]/30">
+                    <span className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${fwBadgeClass}`}>
                       {lang === "cs" ? "⚠ K revizi" : "⚠ Review"}
                     </span>
                   ) : (
                     <span
-                      className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${worstStyle.badge}`}
+                      className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${fwBadgeClass}`}
                     >
-                      {worstSeverity}
+                      {fwSeverity}
                     </span>
                   )}
                 </div>
