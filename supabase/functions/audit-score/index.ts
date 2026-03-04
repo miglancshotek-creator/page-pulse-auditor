@@ -26,6 +26,62 @@ const FRAMEWORK_WEIGHTS: Record<string, number> = {
   urgency_momentum: 0.10,
 };
 
+const parseMaybeJson = (raw: string): any | null => {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
+const extractJsonFromContent = (content: unknown): any | null => {
+  let text = "";
+
+  if (typeof content === "string") {
+    text = content;
+  } else if (Array.isArray(content)) {
+    text = content
+      .map((part: any) => {
+        if (typeof part === "string") return part;
+        if (part?.type === "text") return part?.text || "";
+        return "";
+      })
+      .join("\n");
+  }
+
+  if (!text.trim()) return null;
+
+  const cleaned = text
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "");
+
+  const direct = parseMaybeJson(cleaned);
+  if (direct) return direct;
+
+  const match = cleaned.match(/\{[\s\S]*\}/);
+  if (!match) return null;
+
+  return parseMaybeJson(match[0]);
+};
+
+const extractAuditResults = (aiData: any): any | null => {
+  const message = aiData?.choices?.[0]?.message;
+  if (!message) return null;
+
+  const toolArgs = message?.tool_calls?.[0]?.function?.arguments;
+  if (typeof toolArgs === "string") {
+    const parsedTool = parseMaybeJson(toolArgs);
+    if (parsedTool) return parsedTool;
+    console.warn("Tool call args parse failed");
+  }
+
+  const parsedFromContent = extractJsonFromContent(message?.content);
+  if (parsedFromContent && typeof parsedFromContent === "object") return parsedFromContent;
+
+  return null;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -293,14 +349,15 @@ SCORING RULES:
     }
 
     const aiData = await response.json();
-    console.log("AI response finish_reason:", aiData.choices?.[0]?.finish_reason);
-    let toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    
-    // Retry once if no tool call (model sometimes returns text instead)
-    if (!toolCall) {
-      console.warn("No tool call on first attempt, retrying...");
-      console.log("AI message content:", JSON.stringify(aiData.choices?.[0]?.message?.content)?.substring(0, 500));
-      
+    console.log("AI response finish_reason:", aiData?.choices?.[0]?.finish_reason);
+
+    let results = extractAuditResults(aiData);
+
+    // Retry once if extraction fails (model occasionally returns malformed tool payload)
+    if (!results) {
+      console.warn("No valid structured payload on first attempt, retrying...");
+      console.log("AI message content:", JSON.stringify(aiData?.choices?.[0]?.message?.content)?.substring(0, 500));
+
       const retryResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -380,22 +437,20 @@ SCORING RULES:
           tool_choice: { type: "function", function: { name: "submit_audit_results" } },
         }),
       });
-      
+
       if (!retryResponse.ok) {
         const t = await retryResponse.text();
         console.error("Retry AI error:", retryResponse.status, t);
         throw new Error("AI scoring failed on retry");
       }
-      
+
       const retryData = await retryResponse.json();
-      toolCall = retryData.choices?.[0]?.message?.tool_calls?.[0];
-      if (!toolCall) {
-        console.error("Retry also failed. Response:", JSON.stringify(retryData.choices?.[0]?.message)?.substring(0, 1000));
-        throw new Error("No tool call in AI response after retry");
+      results = extractAuditResults(retryData);
+      if (!results) {
+        console.error("Retry extraction failed. Message:", JSON.stringify(retryData?.choices?.[0]?.message)?.substring(0, 1200));
+        throw new Error("No structured audit results in AI response after retry");
       }
     }
-
-    const results = JSON.parse(toolCall.function.arguments);
 
     // Compute overall_score from framework_scores (weighted average, scale to 0-100)
     let overallScore = 0;
