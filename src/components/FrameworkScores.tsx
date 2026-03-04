@@ -48,7 +48,7 @@ const FrameworkScores = ({ scores, overallScore, criticalCount }: FrameworkScore
         </div>
         <div className="h-1.5 rounded-full bg-muted/30 overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-1000 ${getScoreBarColor(overallScore)}`}
+            className={`h-full rounded-full transition-all duration-1000 ${getScoreBgClass(overallScore)}`}
             style={{ width: `${overallScore}%` }}
           />
         </div>
