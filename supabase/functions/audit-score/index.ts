@@ -214,8 +214,8 @@ SCORING RULES:
       issue: { type: "string", description: "Short punchy issue name" },
       category: { type: "string", description: "Which framework this belongs to" },
       severity: { type: "string", enum: ["critical", "high", "medium"] },
-      description: { type: "string", description: "Why this hurts conversions (1-2 sentences)" },
-      solution: { type: "string", description: "Specific actionable recommendation" },
+      description: { type: "string", description: "Detailed explanation (3-5 sentences) of WHY this hurts conversions, what psychological/behavioral principle it violates, and what specific page evidence supports this finding. Include the business impact even without revenue numbers." },
+      solution: { type: "string", description: "Specific actionable recommendation with concrete examples of what to change and why it will improve conversions" },
     };
 
     if (estimatedVisitors > 0) {
