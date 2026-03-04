@@ -123,7 +123,7 @@ REVENUE LOSS CALCULATION — FOLLOW THIS FORMULA EXACTLY:
 Step 1: Monthly Visitors = ${estimatedVisitors} (provided by user)
 
 Step 2: Conversion Rate:
-  ${bc.conversionRate ? "Use provided: " + bc.conversionRate + "%" : "Use industry average: E-commerce ~2.5%, SaaS ~3-5%, Lead Gen ~5-10%, Agency ~3-7%, Local ~5-8%"}
+  ${bc.conversionRate ? "Use provided: " + bc.conversionRate + "%" : `Use traffic-source benchmark: Google Search Ads: 3.2%, Google Shopping: 2.8%, Google Display: 0.9%, Meta Ads: 1.8%, LinkedIn Ads: 1.1%, Organic/SEO: 2.4%, Email: 4.2%, Mixed/Other: 2.0%. Select the rate matching traffic source "${bc.trafficSourceLabel || trafficSource}".`}
 
 Step 3: Revenue per Conversion:
   ${bc.avgOrderValue ? "Use provided: €" + bc.avgOrderValue : "Use industry benchmark: E-commerce €50-80, SaaS €30-100/mo, Lead Gen €50-200, Agency €100-300, Local €30-80"}
