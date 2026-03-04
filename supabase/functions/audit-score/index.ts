@@ -110,43 +110,76 @@ serve(async (req) => {
     const trafficSource = bc.trafficSource || "mixed";
     const estimatedVisitors = bc.monthlyVisitors || 0;
 
+    // 5×5 CR Benchmark Matrix: [businessType][trafficSource] = benchmark CR%
+    const CR_BENCHMARKS: Record<string, Record<string, number>> = {
+      ecommerce:  { google_search: 3.2, google_shopping: 3.2, meta_ads: 2.0, linkedin_ads: 0.8, organic: 2.5, google_display: 0.7, email: 3.2, mixed: 2.0 },
+      saas:       { google_search: 3.5, google_shopping: 3.5, meta_ads: 2.5, linkedin_ads: 2.5, organic: 3.0, google_display: 0.9, email: 3.5, mixed: 2.5 },
+      leadgen:    { google_search: 5.0, google_shopping: 5.0, meta_ads: 3.5, linkedin_ads: 3.0, organic: 4.0, google_display: 1.0, email: 5.0, mixed: 3.5 },
+      agency:     { google_search: 4.0, google_shopping: 4.0, meta_ads: 2.5, linkedin_ads: 2.5, organic: 3.5, google_display: 0.8, email: 4.0, mixed: 2.5 },
+      local:      { google_search: 6.0, google_shopping: 6.0, meta_ads: 4.0, linkedin_ads: 1.5, organic: 5.5, google_display: 1.2, email: 6.0, mixed: 4.0 },
+    };
+
+    // Look up benchmark CR from the matrix
+    const bizType = bc.businessType || "ecommerce";
+    const benchmarkCRFromTable = CR_BENCHMARKS[bizType]?.[trafficSource] ?? CR_BENCHMARKS["ecommerce"]?.["mixed"] ?? 2.0;
+    
+    // Current CR: user-provided or assume conservative 1.5%
+    const currentCR = bc.conversionRate ? parseFloat(bc.conversionRate) : 1.5;
+    
+    // Benchmark CR = MAX(table value, current CR + 1%) — the +1% floor rule
+    const benchmarkCR = Math.max(benchmarkCRFromTable, currentCR + 1.0);
+    
+    // Gap in percentage points
+    const crGap = benchmarkCR - currentCR;
+    
+    // AOV
+    const aov = bc.avgOrderValue ? parseFloat(bc.avgOrderValue) : null;
+
+    // Pre-calculate total monthly leak if we have all data
+    const totalMonthlyLeak = (estimatedVisitors > 0 && aov) 
+      ? Math.round(estimatedVisitors * (crGap / 100) * aov) 
+      : null;
+
     const businessContextText = estimatedVisitors > 0 ? `
 BUSINESS CONTEXT:
 - Monthly Visitors: ${estimatedVisitors}
 - Traffic Source: ${bc.trafficSourceLabel || trafficSource}
-- Current Conversion Rate: ${bc.conversionRate ? bc.conversionRate + "%" : "Not provided (use traffic-source benchmark below)"}
 - Business Type: ${bc.businessTypeLabel || bc.businessType || "Unknown"}
-- Average Revenue per Conversion: ${bc.avgOrderValue ? "€" + bc.avgOrderValue : "Not provided (use industry benchmark)"}
+- Current Conversion Rate: ${currentCR}%${!bc.conversionRate ? " (assumed conservative default — user did not provide)" : ""}
+- Benchmark CR (from table): ${benchmarkCRFromTable}%
+- Benchmark CR used (with +1% floor rule): ${benchmarkCR}%
+- CR Gap: ${crGap.toFixed(1)} percentage points
+- Average Order Value (AOV): ${aov ? "€" + aov : "Not provided (use industry benchmark: E-commerce €65, SaaS €50, Lead Gen €120, Agency €200, Local €50)"}
+${totalMonthlyLeak !== null ? `- PRE-CALCULATED Total Monthly Revenue Leak: €${totalMonthlyLeak} (= ${estimatedVisitors} × ${(crGap / 100).toFixed(4)} × €${aov})` : ""}
 
-REVENUE LOSS CALCULATION — FOLLOW THIS FORMULA EXACTLY:
+REVENUE LEAK FORMULA — FOLLOW THIS EXACTLY:
 
-Step 1: Monthly Visitors = ${estimatedVisitors} (provided by user)
+The TOTAL revenue leak represents the gap between the page's current performance and industry benchmark.
+Formula: Monthly Leak = Visitors × (Benchmark CR − Current CR) ÷ 100 × AOV
+= ${estimatedVisitors} × ${crGap.toFixed(1)}% × €${aov || "{AOV}"}
+${totalMonthlyLeak !== null ? `= €${totalMonthlyLeak}/month` : ""}
 
-Step 2: Conversion Rate:
-  ${bc.conversionRate ? "Use provided: " + bc.conversionRate + "%" : `Use traffic-source benchmark: Google Search Ads: 3.2%, Google Shopping: 2.8%, Google Display: 0.9%, Meta Ads: 1.8%, LinkedIn Ads: 1.1%, Organic/SEO: 2.4%, Email: 4.2%, Mixed/Other: 2.0%. Select the rate matching traffic source "${bc.trafficSourceLabel || trafficSource}".`}
+For EACH critical issue, assign a SHARE of this total leak proportional to how much that issue contributes to the CR gap.
+All issue losses should roughly sum to the total monthly leak (€${totalMonthlyLeak ?? "calculate from formula"}).
 
-Step 3: Revenue per Conversion:
-  ${bc.avgOrderValue ? "Use provided: €" + bc.avgOrderValue : "Use industry benchmark: E-commerce €50-80, SaaS €30-100/mo, Lead Gen €50-200, Agency €100-300, Local €30-80"}
+Step for EACH issue:
+  a. Estimate what % share of the total CR gap this issue is responsible for (e.g., "25% of total gap")
+  b. Issue Monthly Loss = Total Monthly Leak × share%
+  c. Use the EXACT calculated value, do NOT round arbitrarily.
 
-Step 4: For EACH conversion issue found:
-  a. State the estimated RELATIVE conversion rate drop (e.g., "15% relative drop")
-  b. Lost Conversions = ${estimatedVisitors} × (CR × relative_drop%)
-  c. Monthly Loss = Lost Conversions × Revenue per Conversion
-  d. Use the EXACT calculated value, do NOT round.
-
-Step 5: FORMAT the explanation field for EVERY issue using this EXACT structure:
+FORMAT the explanation field for EVERY issue using this EXACT structure:
   Line 1-2: WHY this issue hurts conversions (1-2 sentences).
-  Line 3: "${isEn ? "Visitors" : "Návštěvníci"}: ${estimatedVisitors}"
-  Line 4: "${isEn ? "CR used" : "Použitá CR"}: {cr}% | ${isEn ? "Relative drop" : "Relativní pokles"}: {drop}%"
-  Line 5: "${isEn ? "Lost conversions" : "Ztracené konverze"}: ${estimatedVisitors} × {cr as decimal} × {drop as decimal} = {X}"
-  Line 6: "${isEn ? "Revenue per conversion" : "Výnos na konverzi"}: €{Y}"
-  Line 7: "${isEn ? "Calculation" : "Výpočet"}: {X} × €{Y} = €{loss}"
+  Line 3: "${isEn ? "Current CR" : "Aktuální CR"}: ${currentCR}% → ${isEn ? "Benchmark CR" : "Benchmarková CR"}: ${benchmarkCR}% (${isEn ? "gap" : "mezera"}: ${crGap.toFixed(1)}pp)"
+  Line 4: "${isEn ? "Share of gap" : "Podíl na mezeře"}: {share}%"
+  Line 5: "${isEn ? "Monthly leak" : "Měsíční únik"}: €${totalMonthlyLeak ?? "{total}"} × {share as decimal} = €{loss}"
 
 CRITICAL RULES:
 - The visitor count is ${estimatedVisitors}. This is a known value — do NOT re-derive it.
+- The benchmark CR is ${benchmarkCR}%. The gap is ${crGap.toFixed(1)}pp. These are PRE-CALCULATED — use them as-is.
+${totalMonthlyLeak !== null ? `- The TOTAL monthly leak is €${totalMonthlyLeak}. This is PRE-CALCULATED — use it as-is.` : ""}
 - The €{loss} value on the LAST LINE of the explanation MUST EXACTLY EQUAL the estimated_monthly_loss number field.
-- If they differ, you made an error — recalculate until they match.
-- ALWAYS show ALL 7 lines. Never skip intermediate steps.` : "";
+- The SUM of all estimated_monthly_loss values across issues should approximately equal €${totalMonthlyLeak ?? "total"}.
+- ALWAYS show ALL 5 lines. Never skip intermediate steps.` : "";
 
     const langInstruction = isEn
       ? "You are a landing page conversion optimization expert. Write ALL output in English."
