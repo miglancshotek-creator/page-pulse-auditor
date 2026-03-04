@@ -26,6 +26,62 @@ const FRAMEWORK_WEIGHTS: Record<string, number> = {
   urgency_momentum: 0.10,
 };
 
+const parseMaybeJson = (raw: string): any | null => {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
+const extractJsonFromContent = (content: unknown): any | null => {
+  let text = "";
+
+  if (typeof content === "string") {
+    text = content;
+  } else if (Array.isArray(content)) {
+    text = content
+      .map((part: any) => {
+        if (typeof part === "string") return part;
+        if (part?.type === "text") return part?.text || "";
+        return "";
+      })
+      .join("\n");
+  }
+
+  if (!text.trim()) return null;
+
+  const cleaned = text
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "");
+
+  const direct = parseMaybeJson(cleaned);
+  if (direct) return direct;
+
+  const match = cleaned.match(/\{[\s\S]*\}/);
+  if (!match) return null;
+
+  return parseMaybeJson(match[0]);
+};
+
+const extractAuditResults = (aiData: any): any | null => {
+  const message = aiData?.choices?.[0]?.message;
+  if (!message) return null;
+
+  const toolArgs = message?.tool_calls?.[0]?.function?.arguments;
+  if (typeof toolArgs === "string") {
+    const parsedTool = parseMaybeJson(toolArgs);
+    if (parsedTool) return parsedTool;
+    console.warn("Tool call args parse failed");
+  }
+
+  const parsedFromContent = extractJsonFromContent(message?.content);
+  if (parsedFromContent && typeof parsedFromContent === "object") return parsedFromContent;
+
+  return null;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
