@@ -83,7 +83,7 @@ const FrameworkScores = ({ scores, overallScore, criticalCount }: FrameworkScore
                   style={{ width: `${fw.score * 10}%` }}
                 />
               </div>
-              <span className="text-xs font-bold w-8 text-right tabular-nums">{fw.score}/10</span>
+              <span className="text-xs font-bold w-10 text-right tabular-nums">{Math.round(fw.score * 10)}/100</span>
             </div>
           );
         })}
