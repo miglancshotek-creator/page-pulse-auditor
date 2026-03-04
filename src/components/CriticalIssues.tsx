@@ -189,9 +189,9 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
                         </div>
 
                         {item.explanation && (
-                          <p className="text-xs text-muted-foreground mt-2 whitespace-pre-line leading-relaxed">
+                          <div className="mt-2 rounded-lg bg-muted/40 border border-border/60 p-3 font-mono text-[11px] text-muted-foreground leading-[1.7] whitespace-pre-line tabular-nums">
                             {item.explanation}
-                          </p>
+                          </div>
                         )}
                       </div>
                   ))}
