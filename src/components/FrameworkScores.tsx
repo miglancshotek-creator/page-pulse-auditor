@@ -1,4 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getScoreBgClass, getScoreBadgeClass } from "@/lib/score-colors";
 
 interface FrameworkScore {
   key: string;
@@ -22,20 +23,6 @@ const FRAMEWORK_LABELS: Record<string, Record<string, string>> = {
   distraction_focus: { cs: "Focus", en: "Focus" },
   cta_quality: { cs: "CTA", en: "CTA" },
   urgency_momentum: { cs: "Urgency", en: "Urgency" },
-};
-
-const getBarColor = (score: number) => {
-  if (score >= 8) return "bg-[hsl(172,66%,50%)]";
-  if (score >= 6) return "bg-[hsl(172,66%,50%)]";
-  if (score >= 4) return "bg-[hsl(38,92%,55%)]";
-  return "bg-[hsl(0,72%,55%)]";
-};
-
-const getScoreBarColor = (score: number) => {
-  if (score >= 80) return "bg-[hsl(152,69%,48%)]";
-  if (score >= 60) return "bg-[hsl(172,66%,50%)]";
-  if (score >= 40) return "bg-[hsl(38,92%,55%)]";
-  return "bg-[hsl(0,72%,55%)]";
 };
 
 const FrameworkScores = ({ scores, overallScore, criticalCount }: FrameworkScoresProps) => {
