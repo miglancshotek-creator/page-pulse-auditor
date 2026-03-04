@@ -195,7 +195,7 @@ SCORING RULES:
     } : {};
 
     const requiredFields = ["framework_scores", "critical_issues", "content_optimizations", "overall_summary"];
-    if (bc.monthlyAdSpend) requiredFields.push("revenue_loss");
+    if (estimatedVisitors > 0) requiredFields.push("revenue_loss");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
