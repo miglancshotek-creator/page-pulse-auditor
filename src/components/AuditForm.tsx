@@ -134,12 +134,15 @@ const AuditForm = () => {
       {/* Business Context Fields */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={labelClass}>{t("form.adSpend")}</label>
-          <select value={adSpend} onChange={e => setAdSpend(e.target.value)} className={selectClass} disabled={loading}>
-            {AD_SPEND_OPTIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label[lang]}</option>
-            ))}
-          </select>
+          <label className={labelClass}>{t("form.monthlyVisitors")}</label>
+          <input
+            type="number"
+            value={monthlyVisitors}
+            onChange={e => setMonthlyVisitors(e.target.value)}
+            placeholder={t("form.monthlyVisitorsPlaceholder")}
+            className={selectClass}
+            disabled={loading}
+          />
         </div>
         <div>
           <label className={labelClass}>{t("form.trafficSource")}</label>

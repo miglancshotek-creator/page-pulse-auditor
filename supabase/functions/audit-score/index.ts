@@ -139,7 +139,7 @@ YOUR TASK:
    - Severity: "critical" (score ≤3), "high" (score 4-5), or "medium" (score 6-7)
    - A concise problem description explaining WHY it hurts conversions
    - A specific solution recommendation (NEVER "No action needed" unless score is 10/10)
-   ${bc.monthlyAdSpend ? "- Estimated monthly revenue loss (using the formula above)" : ""}
+   ${estimatedVisitors > 0 ? "- Estimated monthly revenue loss (using the formula above)" : ""}
 
 3. Provide CONTENT OPTIMIZATION RECOMMENDATIONS for key text elements (heading, subheadline, CTA). For each show current version, write optimized version and explain why it's better.
 
