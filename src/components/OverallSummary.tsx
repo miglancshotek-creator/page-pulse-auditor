@@ -1,4 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getScoreTextClass } from "@/lib/score-colors";
 
 interface OverallSummaryProps {
   summary: {
@@ -7,13 +8,6 @@ interface OverallSummaryProps {
     next_steps: string[];
   };
 }
-
-const getScoreColor = (score: number) => {
-  if (score >= 80) return "text-score-excellent border-score-excellent";
-  if (score >= 60) return "text-score-good border-score-good";
-  if (score >= 40) return "text-score-warning border-score-warning";
-  return "text-score-poor border-score-poor";
-};
 
 const OverallSummary = ({ summary }: OverallSummaryProps) => {
   const { t } = useLanguage();
