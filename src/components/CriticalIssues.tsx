@@ -177,7 +177,7 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
               ) : (
                 <div className="divide-y divide-border">
                   {fwIssues.map((item, i) => {
-                    const style = severityStyles[item.severity] || severityStyles.medium;
+                    const style = issueSeverityStyles[item.severity] || issueSeverityStyles.medium;
                     return (
                       <div key={i} className="px-4 py-3">
                         <div className="flex items-start justify-between gap-3 mb-1.5">
