@@ -96,7 +96,7 @@ const AuditResult = () => {
 
       for (const section of sections) {
         const canvas = await html2canvas(section, {
-          scale: 2, useCORS: true, backgroundColor: "#09090b", logging: false,
+          scale: 2, useCORS: true, backgroundColor: "#fcfcfc", logging: false,
         });
 
         const widthPx = canvas.width / 2;
