@@ -183,14 +183,13 @@ SCORING RULES:
         type: "object",
         description: "Revenue loss totals",
         properties: {
-          estimated_cpc: { type: "number" },
-          estimated_monthly_visitors: { type: "number" },
+          monthly_visitors: { type: "number" },
           conversion_rate_used: { type: "number" },
           revenue_per_conversion: { type: "number" },
           total_monthly_loss: { type: "number" },
           total_annual_loss: { type: "number" },
         },
-        required: ["estimated_cpc", "estimated_monthly_visitors", "conversion_rate_used", "revenue_per_conversion", "total_monthly_loss", "total_annual_loss"],
+        required: ["monthly_visitors", "conversion_rate_used", "revenue_per_conversion", "total_monthly_loss", "total_annual_loss"],
       },
     } : {};
 
