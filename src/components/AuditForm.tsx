@@ -5,13 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const AD_SPEND_OPTIONS = [
-  { value: "under_1000", label: { cs: "Pod 1 000 €", en: "Under €1,000" }, midpoint: 500 },
-  { value: "1000_5000", label: { cs: "1 000 – 5 000 €", en: "€1,000 – €5,000" }, midpoint: 3000 },
-  { value: "5000_10000", label: { cs: "5 000 – 10 000 €", en: "€5,000 – €10,000" }, midpoint: 7500 },
-  { value: "10000_20000", label: { cs: "10 000 – 20 000 €", en: "€10,000 – €20,000" }, midpoint: 15000 },
-  { value: "20000_plus", label: { cs: "20 000+ €", en: "€20,000+" }, midpoint: 30000 },
-];
 
 const TRAFFIC_SOURCES = [
   { value: "google_search", label: { cs: "Google Search Ads", en: "Google Search Ads" } },
