@@ -88,15 +88,20 @@ Step 4: For EACH conversion issue found:
   c. Monthly Loss = Lost Conversions × Revenue per Conversion
   d. Use the EXACT calculated value, do NOT round.
 
-Step 5: FORMAT the explanation field for each item as follows:
-  FIRST: Write 1-2 sentences describing WHY this issue hurts conversions.
-  THEN: Show the math on a new line starting with "${isEn ? "Calculation" : "Výpočet"}:"
-  FORMAT: "${estimatedVisitors} × ({cr} × {drop%}) × {revenue_per_conversion} = €{loss}"
+Step 5: FORMAT the explanation field for EVERY issue using this EXACT structure:
+  Line 1-2: WHY this issue hurts conversions (1-2 sentences).
+  Line 3: "${isEn ? "Visitors" : "Návštěvníci"}: ${estimatedVisitors}"
+  Line 4: "${isEn ? "CR used" : "Použitá CR"}: {cr}% | ${isEn ? "Relative drop" : "Relativní pokles"}: {drop}%"
+  Line 5: "${isEn ? "Lost conversions" : "Ztracené konverze"}: ${estimatedVisitors} × {cr as decimal} × {drop as decimal} = {X}"
+  Line 6: "${isEn ? "Revenue per conversion" : "Výnos na konverzi"}: €{Y}"
+  Line 7: "${isEn ? "Calculation" : "Výpočet"}: {X} × €{Y} = €{loss}"
 
 CRITICAL RULES:
 - The visitor count is ${estimatedVisitors}. NEVER divide ad spend by CPC again — visitors are already computed.
 - Do NOT show "ad_spend / CPC" anywhere in the formula. Start with ${estimatedVisitors}.
-- Use the EXACT calculated monthly loss value as estimated_monthly_loss.` : "";
+- The €{loss} value on the LAST LINE of the explanation MUST EXACTLY EQUAL the estimated_monthly_loss number field.
+- If they differ, you made an error — recalculate until they match.
+- ALWAYS show ALL 7 lines. Never skip intermediate steps.` : "";
 
     const langInstruction = isEn
       ? "You are a landing page conversion optimization expert. Write ALL output in English."
@@ -171,11 +176,11 @@ SCORING RULES:
     if (bc.monthlyAdSpend) {
       criticalIssueProperties.estimated_monthly_loss = {
         type: "number",
-        description: "Estimated monthly revenue loss in euros for this issue",
+        description: "The EXACT euro value from the last line of the explanation calculation (Line 7). Must match the calculated €{loss} exactly.",
       };
       criticalIssueProperties.explanation = {
         type: "string",
-        description: "Business impact description + math breakdown on new line",
+        description: "MUST contain 7 lines: Lines 1-2 why it hurts, Line 3 visitors, Line 4 CR & drop%, Line 5 lost conversions math, Line 6 revenue per conversion, Line 7 final calculation. The final €value MUST equal estimated_monthly_loss.",
       };
     }
 
