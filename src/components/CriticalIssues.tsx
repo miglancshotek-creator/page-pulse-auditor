@@ -132,7 +132,7 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
               {/* Framework header */}
               <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${isAllGood ? "bg-[hsl(172,66%,50%)]" : isMissingIssues ? "bg-[hsl(38,92%,55%)]" : worstStyle.dot}`} />
+                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${fwDotClass}`} />
                   <h3 className="text-base font-bold">{label}</h3>
                   {isAllGood ? (
                     <span className="text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border bg-[hsl(172,66%,50%)]/15 text-[hsl(172,66%,50%)] border-[hsl(172,66%,50%)]/30">
