@@ -111,7 +111,8 @@ const translations: Record<string, Record<Lang, string>> = {
   "summary.nextSteps": { cs: "Další kroky:", en: "Next steps:" },
 
   // Form - Business Context
-  "form.adSpend": { cs: "Měsíční útrata za reklamu", en: "Monthly ad spend" },
+  "form.monthlyVisitors": { cs: "Měsíční návštěvníci", en: "Monthly visitors" },
+  "form.monthlyVisitorsPlaceholder": { cs: "např. 3000", en: "e.g. 3000" },
   "form.trafficSource": { cs: "Hlavní zdroj návštěvnosti", en: "Primary traffic source" },
   "form.conversionRate": { cs: "Aktuální konverzní poměr", en: "Current conversion rate" },
   "form.conversionRatePlaceholder": { cs: "např. 2.3% (nebo nechte prázdné)", en: "e.g. 2.3% (or leave blank)" },

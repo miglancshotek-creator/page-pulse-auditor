@@ -51,30 +51,20 @@ serve(async (req) => {
     // Build business context section
     const bc = businessContext || {};
 
-    // Pre-compute visitors so the AI receives a concrete number
-    const cpcMap: Record<string, number> = {
-      google_search: 1.50, google_shopping: 0.80, google_display: 0.50,
-      meta: 0.80, linkedin: 5.00, email: 0, organic: 0, mixed: 1.20,
-    };
     const trafficSource = bc.trafficSource || "mixed";
-    const estimatedCPC = cpcMap[trafficSource] ?? 1.20;
-    const estimatedVisitors = bc.monthlyAdSpend
-      ? (estimatedCPC > 0 ? Math.round(bc.monthlyAdSpend / estimatedCPC) : 3000)
-      : 0;
+    const estimatedVisitors = bc.monthlyVisitors || 0;
 
-    const businessContextText = bc.monthlyAdSpend ? `
+    const businessContextText = estimatedVisitors > 0 ? `
 BUSINESS CONTEXT:
-- Monthly Ad Spend: €${bc.monthlyAdSpend}
+- Monthly Visitors: ${estimatedVisitors}
 - Traffic Source: ${bc.trafficSourceLabel || trafficSource}
-- Estimated CPC: €${estimatedCPC.toFixed(2)}
-- Estimated Monthly Visitors (pre-calculated): ${estimatedVisitors} (= €${bc.monthlyAdSpend} / €${estimatedCPC.toFixed(2)})
 - Current Conversion Rate: ${bc.conversionRate ? bc.conversionRate + "%" : "Not provided (use industry average for " + (bc.businessTypeLabel || "this business type") + ")"}
 - Business Type: ${bc.businessTypeLabel || bc.businessType || "Unknown"}
 - Average Revenue per Conversion: ${bc.avgOrderValue ? "€" + bc.avgOrderValue : "Not provided (use industry benchmark)"}
 
 REVENUE LOSS CALCULATION — FOLLOW THIS FORMULA EXACTLY:
 
-Step 1: Monthly Visitors = ${estimatedVisitors} (already calculated above — DO NOT re-derive from ad spend)
+Step 1: Monthly Visitors = ${estimatedVisitors} (provided by user)
 
 Step 2: Conversion Rate:
   ${bc.conversionRate ? "Use provided: " + bc.conversionRate + "%" : "Use industry average: E-commerce ~2.5%, SaaS ~3-5%, Lead Gen ~5-10%, Agency ~3-7%, Local ~5-8%"}
@@ -97,8 +87,7 @@ Step 5: FORMAT the explanation field for EVERY issue using this EXACT structure:
   Line 7: "${isEn ? "Calculation" : "Výpočet"}: {X} × €{Y} = €{loss}"
 
 CRITICAL RULES:
-- The visitor count is ${estimatedVisitors}. NEVER divide ad spend by CPC again — visitors are already computed.
-- Do NOT show "ad_spend / CPC" anywhere in the formula. Start with ${estimatedVisitors}.
+- The visitor count is ${estimatedVisitors}. This is a known value — do NOT re-derive it.
 - The €{loss} value on the LAST LINE of the explanation MUST EXACTLY EQUAL the estimated_monthly_loss number field.
 - If they differ, you made an error — recalculate until they match.
 - ALWAYS show ALL 7 lines. Never skip intermediate steps.` : "";
@@ -150,13 +139,13 @@ YOUR TASK:
    - Severity: "critical" (score ≤3), "high" (score 4-5), or "medium" (score 6-7)
    - A concise problem description explaining WHY it hurts conversions
    - A specific solution recommendation (NEVER "No action needed" unless score is 10/10)
-   ${bc.monthlyAdSpend ? "- Estimated monthly revenue loss (using the formula above)" : ""}
+   ${estimatedVisitors > 0 ? "- Estimated monthly revenue loss (using the formula above)" : ""}
 
 3. Provide CONTENT OPTIMIZATION RECOMMENDATIONS for key text elements (heading, subheadline, CTA). For each show current version, write optimized version and explain why it's better.
 
 4. Provide an OVERALL SUMMARY with a narrative assessment and prioritized next steps.
 
-${bc.monthlyAdSpend ? `5. Calculate the TOTAL estimated monthly and annual revenue leak using the revenue loss formula.` : ""}
+${estimatedVisitors > 0 ? `5. Calculate the TOTAL estimated monthly and annual revenue leak using the revenue loss formula.` : ""}
 
 SCORING RULES:
 - Any criterion with weight 10 that scores ≤3 is automatically "critical" severity
@@ -173,7 +162,7 @@ SCORING RULES:
       solution: { type: "string", description: "Specific actionable recommendation" },
     };
 
-    if (bc.monthlyAdSpend) {
+    if (estimatedVisitors > 0) {
       criticalIssueProperties.estimated_monthly_loss = {
         type: "number",
         description: "The EXACT euro value from the last line of the explanation calculation (Line 7). Must match the calculated €{loss} exactly.",
@@ -185,28 +174,27 @@ SCORING RULES:
     }
 
     const criticalIssueRequired = ["issue", "category", "severity", "description", "solution"];
-    if (bc.monthlyAdSpend) {
+    if (estimatedVisitors > 0) {
       criticalIssueRequired.push("estimated_monthly_loss", "explanation");
     }
 
-    const revenueLossProperties = bc.monthlyAdSpend ? {
+    const revenueLossProperties = estimatedVisitors > 0 ? {
       revenue_loss: {
         type: "object",
         description: "Revenue loss totals",
         properties: {
-          estimated_cpc: { type: "number" },
-          estimated_monthly_visitors: { type: "number" },
+          monthly_visitors: { type: "number" },
           conversion_rate_used: { type: "number" },
           revenue_per_conversion: { type: "number" },
           total_monthly_loss: { type: "number" },
           total_annual_loss: { type: "number" },
         },
-        required: ["estimated_cpc", "estimated_monthly_visitors", "conversion_rate_used", "revenue_per_conversion", "total_monthly_loss", "total_annual_loss"],
+        required: ["monthly_visitors", "conversion_rate_used", "revenue_per_conversion", "total_monthly_loss", "total_annual_loss"],
       },
     } : {};
 
     const requiredFields = ["framework_scores", "critical_issues", "content_optimizations", "overall_summary"];
-    if (bc.monthlyAdSpend) requiredFields.push("revenue_loss");
+    if (estimatedVisitors > 0) requiredFields.push("revenue_loss");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

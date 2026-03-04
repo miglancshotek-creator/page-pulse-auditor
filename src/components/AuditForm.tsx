@@ -5,13 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const AD_SPEND_OPTIONS = [
-  { value: "under_1000", label: { cs: "Pod 1 000 €", en: "Under €1,000" }, midpoint: 500 },
-  { value: "1000_5000", label: { cs: "1 000 – 5 000 €", en: "€1,000 – €5,000" }, midpoint: 3000 },
-  { value: "5000_10000", label: { cs: "5 000 – 10 000 €", en: "€5,000 – €10,000" }, midpoint: 7500 },
-  { value: "10000_20000", label: { cs: "10 000 – 20 000 €", en: "€10,000 – €20,000" }, midpoint: 15000 },
-  { value: "20000_plus", label: { cs: "20 000+ €", en: "€20,000+" }, midpoint: 30000 },
-];
 
 const TRAFFIC_SOURCES = [
   { value: "google_search", label: { cs: "Google Search Ads", en: "Google Search Ads" } },
@@ -33,7 +26,7 @@ const BUSINESS_TYPES = [
 
 const AuditForm = () => {
   const [url, setUrl] = useState("");
-  const [adSpend, setAdSpend] = useState("1000_5000");
+  const [monthlyVisitors, setMonthlyVisitors] = useState("");
   const [trafficSource, setTrafficSource] = useState("google_search");
   const [conversionRate, setConversionRate] = useState("");
   const [businessType, setBusinessType] = useState("ecommerce");
@@ -81,7 +74,7 @@ const AuditForm = () => {
 
       setStep("scoring");
 
-      const spendOption = AD_SPEND_OPTIONS.find(o => o.value === adSpend);
+      const parsedVisitors = monthlyVisitors ? parseInt(monthlyVisitors, 10) : null;
 
       const { data: scoreResult, error: scoreErr } = await supabase.functions.invoke("audit-score", {
         body: {
@@ -89,8 +82,7 @@ const AuditForm = () => {
           scrapeData: { ...scrapeData, url: url.trim() },
           language: lang,
           businessContext: {
-            monthlyAdSpend: spendOption?.midpoint || 3000,
-            adSpendLabel: spendOption?.label[lang] || "",
+            monthlyVisitors: parsedVisitors && !isNaN(parsedVisitors) ? parsedVisitors : null,
             trafficSource,
             trafficSourceLabel: TRAFFIC_SOURCES.find(s => s.value === trafficSource)?.label[lang] || "",
             conversionRate: conversionRate ? parseFloat(conversionRate) : null,
@@ -142,12 +134,15 @@ const AuditForm = () => {
       {/* Business Context Fields */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={labelClass}>{t("form.adSpend")}</label>
-          <select value={adSpend} onChange={e => setAdSpend(e.target.value)} className={selectClass} disabled={loading}>
-            {AD_SPEND_OPTIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label[lang]}</option>
-            ))}
-          </select>
+          <label className={labelClass}>{t("form.monthlyVisitors")}</label>
+          <input
+            type="number"
+            value={monthlyVisitors}
+            onChange={e => setMonthlyVisitors(e.target.value)}
+            placeholder={t("form.monthlyVisitorsPlaceholder")}
+            className={selectClass}
+            disabled={loading}
+          />
         </div>
         <div>
           <label className={labelClass}>{t("form.trafficSource")}</label>
