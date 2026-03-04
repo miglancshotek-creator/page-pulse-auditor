@@ -194,7 +194,7 @@ YOUR TASK:
    - The issue name (short, punchy — e.g. "Zero social proof on page")
    - Which framework category it belongs to (use exact framework name)
     - Severity: "critical" (score ≤3), "high" (score 4-5), or "medium" (score 6-7)
-    - A DETAILED problem description (3-5 sentences) explaining WHY it hurts conversions, what psychological principle it violates, and what specific evidence from the page supports this finding
+    - A concise problem description (2-3 sentences max) explaining WHY it hurts conversions and what specific evidence from the page supports this. NEVER reference academic principles, authors, or frameworks by name (no "Cialdini", "Kahneman", "Hick's Law", "Paradox of Choice", etc.) — just explain the practical impact in plain business language.
     - A specific, actionable solution recommendation with concrete examples (NEVER "No action needed" unless score is 10/10)
     ${estimatedVisitors > 0 ? "- Estimated monthly revenue loss (using the formula above)" : "- Even without revenue data, explain the BUSINESS IMPACT: how this issue causes visitor drop-off, reduces trust, or kills conversions. Be specific about the behavioral consequence."}
 
