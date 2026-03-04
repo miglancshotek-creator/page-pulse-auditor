@@ -52,7 +52,8 @@ const categoryToFramework = (category: string): string => {
   return "value_proposition"; // fallback
 };
 
-const severityStyles: Record<string, { badge: string; dot: string }> = {
+// Issue-level severity styles (kept for individual issue badges)
+const issueSeverityStyles: Record<string, { badge: string; dot: string }> = {
   critical: {
     badge: "bg-[hsl(0,72%,55%)]/15 text-[hsl(0,72%,55%)] border-[hsl(0,72%,55%)]/30",
     dot: "bg-[hsl(0,72%,55%)]",
