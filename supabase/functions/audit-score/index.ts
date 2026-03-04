@@ -174,11 +174,11 @@ SCORING RULES:
     }
 
     const criticalIssueRequired = ["issue", "category", "severity", "description", "solution"];
-    if (bc.monthlyAdSpend) {
+    if (estimatedVisitors > 0) {
       criticalIssueRequired.push("estimated_monthly_loss", "explanation");
     }
 
-    const revenueLossProperties = bc.monthlyAdSpend ? {
+    const revenueLossProperties = estimatedVisitors > 0 ? {
       revenue_loss: {
         type: "object",
         description: "Revenue loss totals",
