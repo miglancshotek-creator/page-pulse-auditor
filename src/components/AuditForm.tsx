@@ -26,7 +26,7 @@ const BUSINESS_TYPES = [
 
 const AuditForm = () => {
   const [url, setUrl] = useState("");
-  const [adSpend, setAdSpend] = useState("1000_5000");
+  const [monthlyVisitors, setMonthlyVisitors] = useState("");
   const [trafficSource, setTrafficSource] = useState("google_search");
   const [conversionRate, setConversionRate] = useState("");
   const [businessType, setBusinessType] = useState("ecommerce");
