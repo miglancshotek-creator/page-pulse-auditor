@@ -1,4 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getScoreTextClass } from "@/lib/score-colors";
 
 interface ContentOptimization {
   element: string;
@@ -11,13 +12,6 @@ interface ContentOptimization {
 interface ContentOptimizationsProps {
   items: ContentOptimization[];
 }
-
-const getScoreColor = (score: number) => {
-  if (score >= 8) return "text-score-excellent border-score-excellent";
-  if (score >= 6) return "text-score-good border-score-good";
-  if (score >= 4) return "text-score-warning border-score-warning";
-  return "text-score-poor border-score-poor";
-};
 
 const ContentOptimizations = ({ items }: ContentOptimizationsProps) => {
   const { t } = useLanguage();
