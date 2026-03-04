@@ -3,7 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import FrameworkScores from "@/components/FrameworkScores";
 import CriticalIssues from "@/components/CriticalIssues";
-import ContentOptimizations from "@/components/ContentOptimizations";
 import OverallSummary from "@/components/OverallSummary";
 import LanguageToggle from "@/components/LanguageToggle";
 import { ArrowLeft, ExternalLink, Copy, Check, Image, Download } from "lucide-react";
