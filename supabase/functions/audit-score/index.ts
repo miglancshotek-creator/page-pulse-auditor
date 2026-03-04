@@ -114,7 +114,7 @@ serve(async (req) => {
 BUSINESS CONTEXT:
 - Monthly Visitors: ${estimatedVisitors}
 - Traffic Source: ${bc.trafficSourceLabel || trafficSource}
-- Current Conversion Rate: ${bc.conversionRate ? bc.conversionRate + "%" : "Not provided (use industry average for " + (bc.businessTypeLabel || "this business type") + ")"}
+- Current Conversion Rate: ${bc.conversionRate ? bc.conversionRate + "%" : "Not provided (use traffic-source benchmark below)"}
 - Business Type: ${bc.businessTypeLabel || bc.businessType || "Unknown"}
 - Average Revenue per Conversion: ${bc.avgOrderValue ? "€" + bc.avgOrderValue : "Not provided (use industry benchmark)"}
 
