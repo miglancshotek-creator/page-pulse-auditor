@@ -184,13 +184,6 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${style.dot}`} />
                             <h4 className="text-sm font-semibold">{item.issue}</h4>
-                            {item.severity !== fwSeverity && (
-                              <span
-                                className={`text-[8px] font-bold tracking-[0.08em] uppercase px-1.5 py-0.5 rounded border ${style.badge}`}
-                              >
-                                {item.severity}
-                              </span>
-                            )}
                           </div>
                           {item.estimated_monthly_loss != null && item.estimated_monthly_loss > 0 && (
                             <span className="text-xs font-bold text-[hsl(0,72%,55%)] shrink-0 tabular-nums">
