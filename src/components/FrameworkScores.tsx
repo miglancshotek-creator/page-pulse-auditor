@@ -66,7 +66,7 @@ const FrameworkScores = ({ scores, overallScore, criticalCount }: FrameworkScore
               <span className="text-xs text-muted-foreground w-20 shrink-0 text-right">{label}</span>
               <div className="flex-1 h-2.5 rounded-full bg-muted/20 overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${getBarColor(fw.score)}`}
+                  className={`h-full rounded-full transition-all duration-700 ${getScoreBgClass(fw.score * 10)}`}
                   style={{ width: `${fw.score * 10}%` }}
                 />
               </div>

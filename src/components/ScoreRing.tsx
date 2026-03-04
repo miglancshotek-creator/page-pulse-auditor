@@ -1,17 +1,11 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getScoreColor } from "@/lib/score-colors";
 
 interface ScoreRingProps {
   score: number;
   size?: number;
   strokeWidth?: number;
 }
-
-const getScoreColor = (score: number) => {
-  if (score >= 80) return "hsl(152, 69%, 48%)";
-  if (score >= 60) return "hsl(172, 66%, 50%)";
-  if (score >= 40) return "hsl(38, 92%, 55%)";
-  return "hsl(0, 72%, 55%)";
-};
 
 const ScoreRing = ({ score, size = 200, strokeWidth = 12 }: ScoreRingProps) => {
   const { t } = useLanguage();
