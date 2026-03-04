@@ -133,12 +133,18 @@ ${JSON.stringify(scrapeData.mobileSignals || {}, null, 2)}
 YOUR TASK:
 1. Score each of the 7 frameworks on a scale of 1–10. For each framework, provide a short key_issue (the single biggest problem found) and a recommendation.
 
-2. Identify the TOP CRITICAL ISSUES across all frameworks. For each critical issue provide:
+2. Identify CRITICAL ISSUES for ALL 7 frameworks — EVERY framework MUST have at least one issue entry, NO EXCEPTIONS.
+   - A score of 9/10 or below means there ARE real issues to find. Look harder. Be specific.
+   - The ONLY case where you may write "No action needed" as solution is a PERFECT 10/10 score (truly flawless, almost never happens).
+   - A score of 7/10 means significant room for improvement — find and describe 1-3 concrete issues.
+   - A score of 8/10 means there are still 1-2 clear improvements possible.
+   - A score of 9/10 means at least 1 minor issue exists.
+   For each critical issue provide:
    - The issue name (short, punchy — e.g. "Zero social proof on page")
-   - Which framework category it belongs to
+   - Which framework category it belongs to (use exact framework name)
    - Severity: "critical" (score ≤3), "high" (score 4-5), or "medium" (score 6-7)
    - A concise problem description explaining WHY it hurts conversions
-   - A specific solution recommendation
+   - A specific solution recommendation (NEVER "No action needed" unless score is 10/10)
    ${bc.monthlyAdSpend ? "- Estimated monthly revenue loss (using the formula above)" : ""}
 
 3. Provide CONTENT OPTIMIZATION RECOMMENDATIONS for key text elements (heading, subheadline, CTA). For each show current version, write optimized version and explain why it's better.
@@ -236,7 +242,7 @@ SCORING RULES:
                   },
                   critical_issues: {
                     type: "array",
-                    description: "You MUST return issues for ALL 7 frameworks. Every framework must have at least one entry. For ANY framework scoring 9/10 or below, you MUST find and describe real, specific issues that could be improved — never say 'No action needed' for these. Only if a framework scores a perfect 10/10 (truly flawless), include one entry with severity 'medium', a positive description, and solution 'No action needed'. Be critical and thorough — almost every framework should have actionable issues.",
+                    description: "MANDATORY: Return issues for ALL 7 frameworks with NO EXCEPTIONS. For each framework scoring 1-9 out of 10, you MUST find and describe REAL, SPECIFIC, ACTIONABLE issues — never use 'No action needed' for these scores. A score of 7/10 means there are clear problems to report. A score of 9/10 still requires at least 1 minor issue. The ONLY acceptable use of 'No action needed' is for a perfect 10/10 score (extremely rare). If you skip a framework or fail to provide issues for a score ≤9, the audit is INVALID.",
                     items: {
                       type: "object",
                       properties: criticalIssueProperties,

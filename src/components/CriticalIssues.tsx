@@ -110,11 +110,13 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
             0
           );
 
-          // Only show "Looks good" for scores above 9/10 (90/100)
+          // Only show "Looks good" for scores strictly above 90/100 (i.e. > 9/10)
           const fwScore = frameworkScores?.find(s => s.key === fwKey)?.score || 0;
           const isAllGood = fwScore > 9 && (!hasIssues || fwIssues.every(
             (i) => i.solution?.toLowerCase().includes("no action needed") || i.solution?.toLowerCase().includes("není potřeba")
           ));
+          // If AI returned no issues but score is ≤ 9, flag it
+          const isMissingIssues = !hasIssues && fwScore <= 9 && fwScore > 0;
 
           return (
             <div
@@ -125,11 +127,15 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
               {/* Framework header */}
               <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${isAllGood || !hasIssues ? "bg-[hsl(172,66%,50%)]" : worstStyle.dot}`} />
+                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${isAllGood ? "bg-[hsl(172,66%,50%)]" : isMissingIssues ? "bg-[hsl(38,92%,55%)]" : worstStyle.dot}`} />
                   <h3 className="text-base font-bold">{label}</h3>
-                  {isAllGood || !hasIssues ? (
+                  {isAllGood ? (
                     <span className="text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border bg-[hsl(172,66%,50%)]/15 text-[hsl(172,66%,50%)] border-[hsl(172,66%,50%)]/30">
                       ✓ {lang === "cs" ? "V pořádku" : "Looks good"}
+                    </span>
+                  ) : isMissingIssues ? (
+                    <span className="text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border bg-[hsl(38,92%,55%)]/15 text-[hsl(38,92%,55%)] border-[hsl(38,92%,55%)]/30">
+                      {lang === "cs" ? "⚠ K revizi" : "⚠ Review"}
                     </span>
                   ) : (
                     <span
@@ -147,12 +153,20 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
               </div>
 
               {/* Issues within framework */}
-              {isAllGood || !hasIssues ? (
+              {isAllGood ? (
                 <div className="px-4 py-4">
                   <p className="text-sm text-muted-foreground">
                     {lang === "cs"
                       ? "Tato sekce je dobře optimalizovaná. Nebyly nalezeny žádné závažné problémy."
                       : "This section is well-optimized. No significant issues found."}
+                  </p>
+                </div>
+              ) : isMissingIssues ? (
+                <div className="px-4 py-4">
+                  <p className="text-sm text-[hsl(38,92%,55%)]">
+                    {lang === "cs"
+                      ? `Skóre ${Math.round(fwScore * 10)}/100 — problémy nebyly vráceny, ale doporučujeme revizi.`
+                      : `Score ${Math.round(fwScore * 10)}/100 — no specific issues returned, review recommended.`}
                   </p>
                 </div>
               ) : (
