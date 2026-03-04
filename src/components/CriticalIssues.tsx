@@ -163,12 +163,10 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
               ) : (
                 <div className="divide-y divide-border">
                   {fwIssues.map((item, i) => {
-                    const style = issueSeverityStyles[item.severity] || issueSeverityStyles.medium;
-                    return (
                       <div key={i} className="px-4 py-3">
                         <div className="flex items-start justify-between gap-3 mb-1.5">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="text-sm font-semibold">{item.issue}</h4>
+                            <h4 className="text-sm font-semibold">{cleanIssueTitle(item.issue)}</h4>
                           </div>
                           {item.estimated_monthly_loss != null && item.estimated_monthly_loss > 0 && (
                             <span className="text-xs font-bold text-[hsl(0,72%,55%)] shrink-0 tabular-nums">
