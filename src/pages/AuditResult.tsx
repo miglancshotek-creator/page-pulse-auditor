@@ -3,7 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import FrameworkScores from "@/components/FrameworkScores";
 import CriticalIssues from "@/components/CriticalIssues";
-import ContentOptimizations from "@/components/ContentOptimizations";
 import OverallSummary from "@/components/OverallSummary";
 import LanguageToggle from "@/components/LanguageToggle";
 import { ArrowLeft, ExternalLink, Copy, Check, Image, Download } from "lucide-react";
@@ -176,7 +175,6 @@ const AuditResult = () => {
 
   const frameworkScores = Array.isArray(rawResults.framework_scores) ? rawResults.framework_scores : [];
   const criticalIssues = Array.isArray(rawResults.critical_issues) ? rawResults.critical_issues : [];
-  const contentOptimizations = Array.isArray(rawResults.content_optimizations) ? rawResults.content_optimizations : [];
   const overallSummary = rawResults.overall_summary || null;
   const revenueLoss = rawResults.revenue_loss || null;
 
@@ -269,9 +267,6 @@ const AuditResult = () => {
             )}
           </div>
         </div>
-
-        {/* Content optimizations */}
-        {contentOptimizations.length > 0 && <ContentOptimizations items={contentOptimizations} />}
 
         {/* Overall summary */}
         {overallSummary && <OverallSummary summary={{ ...overallSummary, score: overallSummary.score || Math.round(overallScore / 10) }} />}
