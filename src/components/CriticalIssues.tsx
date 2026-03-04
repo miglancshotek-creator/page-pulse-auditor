@@ -110,10 +110,11 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss }: CriticalI
             0
           );
 
-          // Check if all issues are "no action needed" type (score 9-10)
-          const isAllGood = hasIssues && fwIssues.every(
+          // Only show "Looks good" for scores above 9/10 (90/100)
+          const fwScore = frameworkScores?.find(s => s.key === fwKey)?.score || 0;
+          const isAllGood = fwScore > 9 && (!hasIssues || fwIssues.every(
             (i) => i.solution?.toLowerCase().includes("no action needed") || i.solution?.toLowerCase().includes("není potřeba")
-          );
+          ));
 
           return (
             <div
