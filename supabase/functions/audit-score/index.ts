@@ -292,7 +292,7 @@ SCORING RULES:
                   },
                   critical_issues: {
                     type: "array",
-                    description: "MANDATORY: Return issues for ALL 7 frameworks with NO EXCEPTIONS. Aim for 2-3 issues per framework (minimum 1). For each framework scoring 1-9 out of 10, you MUST find and describe REAL, SPECIFIC, ACTIONABLE issues with DETAILED descriptions (3-5 sentences each) — never use 'No action needed' for these scores. Every description must explain the psychological principle violated and the behavioral consequence. Every solution must include a concrete example. The ONLY acceptable use of 'No action needed' is for a perfect 10/10 score (extremely rare). If you skip a framework or provide shallow 1-sentence descriptions, the audit is INVALID.",
+                    description: "MANDATORY: Return issues for ALL 7 frameworks with NO EXCEPTIONS. Aim for 2-3 issues per framework (minimum 1). For each framework scoring 1-9 out of 10, you MUST find and describe REAL, SPECIFIC, ACTIONABLE issues with concise descriptions (2-3 sentences each). NEVER reference psychological principles, theories, or author names — use plain business language. Every solution must include a concrete example. The ONLY acceptable use of 'No action needed' is for a perfect 10/10 score (extremely rare). If you skip a framework or provide shallow 1-sentence descriptions, the audit is INVALID.",
                     items: {
                       type: "object",
                       properties: criticalIssueProperties,
