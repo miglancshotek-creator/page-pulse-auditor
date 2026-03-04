@@ -87,8 +87,8 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss }: CriticalI
     grouped[fwKey].push(issue);
   }
 
-  // Only show frameworks that have issues, in the correct order
-  const orderedFrameworks = FRAMEWORK_ORDER.filter((key) => grouped[key] && grouped[key].length > 0);
+  // Always show ALL 7 frameworks in order
+  const orderedFrameworks = FRAMEWORK_ORDER;
 
   return (
     <div data-pdf-section className="space-y-4 animate-fade-up">

@@ -236,7 +236,7 @@ SCORING RULES:
                   },
                   critical_issues: {
                     type: "array",
-                    description: "Top critical and high-severity issues found across all frameworks. Include ALL issues with severity critical or high.",
+                    description: "You MUST return issues for ALL 7 frameworks. Every framework must have at least one entry. If a framework scores 9-10/10 and has no real issues, include one entry with severity 'medium', a positive description noting the section is well-optimized, and solution as 'No action needed'. Never skip a framework.",
                     items: {
                       type: "object",
                       properties: criticalIssueProperties,
