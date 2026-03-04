@@ -107,7 +107,7 @@ const AuditResult = () => {
 
         if (heightMM > remainingSpace && currentY > MARGIN_MM) {
           pdf.addPage();
-          pdf.setFillColor(9, 9, 11);
+          pdf.setFillColor(252, 252, 252);
           pdf.rect(0, 0, A4_WIDTH_MM, A4_HEIGHT_MM, "F");
           currentY = MARGIN_MM;
         }
