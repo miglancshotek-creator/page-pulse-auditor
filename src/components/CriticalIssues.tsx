@@ -117,7 +117,6 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
           );
 
           // Only show "Looks good" for scores strictly above 90/100 (i.e. > 9/10)
-          const fwScore = frameworkScores?.find(s => s.key === fwKey)?.score || 0;
           const isAllGood = fwScore > 9 && (!hasIssues || fwIssues.every(
             (i) => i.solution?.toLowerCase().includes("no action needed") || i.solution?.toLowerCase().includes("není potřeba")
           ));
