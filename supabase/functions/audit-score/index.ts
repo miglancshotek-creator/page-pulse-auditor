@@ -171,11 +171,11 @@ SCORING RULES:
     if (bc.monthlyAdSpend) {
       criticalIssueProperties.estimated_monthly_loss = {
         type: "number",
-        description: "Estimated monthly revenue loss in euros for this issue",
+        description: "The EXACT euro value from the last line of the explanation calculation (Line 7). Must match the calculated €{loss} exactly.",
       };
       criticalIssueProperties.explanation = {
         type: "string",
-        description: "Business impact description + math breakdown on new line",
+        description: "MUST contain 7 lines: Lines 1-2 why it hurts, Line 3 visitors, Line 4 CR & drop%, Line 5 lost conversions math, Line 6 revenue per conversion, Line 7 final calculation. The final €value MUST equal estimated_monthly_loss.",
       };
     }
 
