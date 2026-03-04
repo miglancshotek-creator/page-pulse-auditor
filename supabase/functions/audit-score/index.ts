@@ -51,30 +51,20 @@ serve(async (req) => {
     // Build business context section
     const bc = businessContext || {};
 
-    // Pre-compute visitors so the AI receives a concrete number
-    const cpcMap: Record<string, number> = {
-      google_search: 1.50, google_shopping: 0.80, google_display: 0.50,
-      meta: 0.80, linkedin: 5.00, email: 0, organic: 0, mixed: 1.20,
-    };
     const trafficSource = bc.trafficSource || "mixed";
-    const estimatedCPC = cpcMap[trafficSource] ?? 1.20;
-    const estimatedVisitors = bc.monthlyAdSpend
-      ? (estimatedCPC > 0 ? Math.round(bc.monthlyAdSpend / estimatedCPC) : 3000)
-      : 0;
+    const estimatedVisitors = bc.monthlyVisitors || 0;
 
-    const businessContextText = bc.monthlyAdSpend ? `
+    const businessContextText = estimatedVisitors > 0 ? `
 BUSINESS CONTEXT:
-- Monthly Ad Spend: €${bc.monthlyAdSpend}
+- Monthly Visitors: ${estimatedVisitors}
 - Traffic Source: ${bc.trafficSourceLabel || trafficSource}
-- Estimated CPC: €${estimatedCPC.toFixed(2)}
-- Estimated Monthly Visitors (pre-calculated): ${estimatedVisitors} (= €${bc.monthlyAdSpend} / €${estimatedCPC.toFixed(2)})
 - Current Conversion Rate: ${bc.conversionRate ? bc.conversionRate + "%" : "Not provided (use industry average for " + (bc.businessTypeLabel || "this business type") + ")"}
 - Business Type: ${bc.businessTypeLabel || bc.businessType || "Unknown"}
 - Average Revenue per Conversion: ${bc.avgOrderValue ? "€" + bc.avgOrderValue : "Not provided (use industry benchmark)"}
 
 REVENUE LOSS CALCULATION — FOLLOW THIS FORMULA EXACTLY:
 
-Step 1: Monthly Visitors = ${estimatedVisitors} (already calculated above — DO NOT re-derive from ad spend)
+Step 1: Monthly Visitors = ${estimatedVisitors} (provided by user)
 
 Step 2: Conversion Rate:
   ${bc.conversionRate ? "Use provided: " + bc.conversionRate + "%" : "Use industry average: E-commerce ~2.5%, SaaS ~3-5%, Lead Gen ~5-10%, Agency ~3-7%, Local ~5-8%"}
@@ -97,8 +87,7 @@ Step 5: FORMAT the explanation field for EVERY issue using this EXACT structure:
   Line 7: "${isEn ? "Calculation" : "Výpočet"}: {X} × €{Y} = €{loss}"
 
 CRITICAL RULES:
-- The visitor count is ${estimatedVisitors}. NEVER divide ad spend by CPC again — visitors are already computed.
-- Do NOT show "ad_spend / CPC" anywhere in the formula. Start with ${estimatedVisitors}.
+- The visitor count is ${estimatedVisitors}. This is a known value — do NOT re-derive it.
 - The €{loss} value on the LAST LINE of the explanation MUST EXACTLY EQUAL the estimated_monthly_loss number field.
 - If they differ, you made an error — recalculate until they match.
 - ALWAYS show ALL 7 lines. Never skip intermediate steps.` : "";
