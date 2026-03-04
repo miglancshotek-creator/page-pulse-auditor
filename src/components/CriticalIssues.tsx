@@ -99,13 +99,19 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss }: CriticalI
 
       <div className="space-y-4">
         {orderedFrameworks.map((fwKey, fwIndex) => {
-          const fwIssues = grouped[fwKey];
+          const fwIssues = grouped[fwKey] || [];
           const label = FRAMEWORK_LABELS[fwKey]?.[lang] || fwKey;
-          const worstSeverity = getWorstSeverity(fwIssues);
+          const hasIssues = fwIssues.length > 0;
+          const worstSeverity = hasIssues ? getWorstSeverity(fwIssues) : "medium";
           const worstStyle = severityStyles[worstSeverity];
           const frameworkLoss = fwIssues.reduce(
             (sum, item) => sum + (item.estimated_monthly_loss || 0),
             0
+          );
+
+          // Check if all issues are "no action needed" type (score 9-10)
+          const isAllGood = hasIssues && fwIssues.every(
+            (i) => i.solution?.toLowerCase().includes("no action needed") || i.solution?.toLowerCase().includes("není potřeba")
           );
 
           return (
@@ -117,15 +123,21 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss }: CriticalI
               {/* Framework header */}
               <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${worstStyle.dot}`} />
+                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${isAllGood || !hasIssues ? "bg-[hsl(172,66%,50%)]" : worstStyle.dot}`} />
                   <h3 className="text-base font-bold">{label}</h3>
-                  <span
-                    className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${worstStyle.badge}`}
-                  >
-                    {worstSeverity}
-                  </span>
+                  {isAllGood || !hasIssues ? (
+                    <span className="text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border bg-[hsl(172,66%,50%)]/15 text-[hsl(172,66%,50%)] border-[hsl(172,66%,50%)]/30">
+                      ✓ {lang === "cs" ? "V pořádku" : "Looks good"}
+                    </span>
+                  ) : (
+                    <span
+                      className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${worstStyle.badge}`}
+                    >
+                      {worstSeverity}
+                    </span>
+                  )}
                 </div>
-                {frameworkLoss > 0 && (
+                {frameworkLoss > 0 && !isAllGood && (
                   <span className="text-sm font-bold text-[hsl(0,72%,55%)] tabular-nums">
                     ~{formatCurrency(frameworkLoss)}/mo
                   </span>
@@ -133,52 +145,62 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss }: CriticalI
               </div>
 
               {/* Issues within framework */}
-              <div className="divide-y divide-border">
-                {fwIssues.map((item, i) => {
-                  const style = severityStyles[item.severity] || severityStyles.medium;
-                  return (
-                    <div key={i} className="px-4 py-3">
-                      <div className="flex items-start justify-between gap-3 mb-1.5">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${style.dot}`} />
-                          <h4 className="text-sm font-semibold">{item.issue}</h4>
-                          {item.severity !== worstSeverity && (
-                            <span
-                              className={`text-[8px] font-bold tracking-[0.08em] uppercase px-1.5 py-0.5 rounded border ${style.badge}`}
-                            >
-                              {item.severity}
+              {isAllGood || !hasIssues ? (
+                <div className="px-4 py-4">
+                  <p className="text-sm text-muted-foreground">
+                    {lang === "cs"
+                      ? "Tato sekce je dobře optimalizovaná. Nebyly nalezeny žádné závažné problémy."
+                      : "This section is well-optimized. No significant issues found."}
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-border">
+                  {fwIssues.map((item, i) => {
+                    const style = severityStyles[item.severity] || severityStyles.medium;
+                    return (
+                      <div key={i} className="px-4 py-3">
+                        <div className="flex items-start justify-between gap-3 mb-1.5">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${style.dot}`} />
+                            <h4 className="text-sm font-semibold">{item.issue}</h4>
+                            {item.severity !== worstSeverity && (
+                              <span
+                                className={`text-[8px] font-bold tracking-[0.08em] uppercase px-1.5 py-0.5 rounded border ${style.badge}`}
+                              >
+                                {item.severity}
+                              </span>
+                            )}
+                          </div>
+                          {item.estimated_monthly_loss != null && item.estimated_monthly_loss > 0 && (
+                            <span className="text-xs font-bold text-[hsl(0,72%,55%)] shrink-0 tabular-nums">
+                              ~{formatCurrency(item.estimated_monthly_loss)}/mo
                             </span>
                           )}
                         </div>
-                        {item.estimated_monthly_loss != null && item.estimated_monthly_loss > 0 && (
-                          <span className="text-xs font-bold text-[hsl(0,72%,55%)] shrink-0 tabular-nums">
-                            ~{formatCurrency(item.estimated_monthly_loss)}/mo
-                          </span>
+
+                        <p className="text-sm text-muted-foreground leading-relaxed mb-2">
+                          {item.description}
+                        </p>
+
+                        <div className="rounded-lg bg-primary/5 border border-primary/10 p-2.5">
+                          <p className="text-sm">
+                            <span className="font-semibold text-primary">
+                              {t("issues.solution")}:{" "}
+                            </span>
+                            <span className="text-foreground/80">{item.solution}</span>
+                          </p>
+                        </div>
+
+                        {item.explanation && (
+                          <p className="text-xs text-muted-foreground mt-2 whitespace-pre-line leading-relaxed">
+                            {item.explanation}
+                          </p>
                         )}
                       </div>
-
-                      <p className="text-sm text-muted-foreground leading-relaxed mb-2">
-                        {item.description}
-                      </p>
-
-                      <div className="rounded-lg bg-primary/5 border border-primary/10 p-2.5">
-                        <p className="text-sm">
-                          <span className="font-semibold text-primary">
-                            {t("issues.solution")}:{" "}
-                          </span>
-                          <span className="text-foreground/80">{item.solution}</span>
-                        </p>
-                      </div>
-
-                      {item.explanation && (
-                        <p className="text-xs text-muted-foreground mt-2 whitespace-pre-line leading-relaxed">
-                          {item.explanation}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}
