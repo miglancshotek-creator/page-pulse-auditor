@@ -1,78 +1,53 @@
 
-# Fix Revenue Loss Calculation Logic
 
 ## Problem
-The AI prompt provides no concrete formula for calculating revenue loss. It just says "estimate the revenue being lost," which causes the AI to conflate ad spend with traffic volume (e.g., "€7500 ad spend = 225 conversions" — nonsensical).
 
-## Correct Calculation Model
+Two issues:
 
-The proper chain is:
+1. **Mismatch between calculated value and displayed badge**: The AI explanation text shows a correct calculation (e.g., "= €163.08") but the `estimated_monthly_loss` number field contains a different value (e.g., 22), so the red badge shows "~€22/mo". The AI is not following the instruction to use the exact calculated value.
 
-```text
-Ad Spend (EUR) / CPC (EUR) = Monthly Visitors
-Monthly Visitors x Conversion Rate (%) = Current Conversions
-Current Conversions x Avg. Revenue per Conversion = Current Revenue
+2. **Calculation detail is sometimes too brief**: The user wants every revenue loss item to always show full step-by-step math, not just a one-line formula.
 
-For each issue:
-  Issue causes X% relative drop in conversion rate
-  Lost Conversions = Monthly Visitors x (CR x X%)
-  Lost Revenue = Lost Conversions x Avg. Revenue per Conversion
+## Root Cause
+
+The prompt says "Use the EXACT calculated value as estimated_monthly_loss" but this instruction is easily ignored by the AI because it's buried at the end. Additionally, there's no explicit instruction requiring a full breakdown with intermediate values.
+
+## Fix
+
+### 1. Strengthen prompt to force value consistency (`supabase/functions/audit-score/index.ts`)
+
+In Step 5 (explanation format), add an explicit cross-check instruction:
+
+```
+Step 5 FORMAT:
+  Line 1-2: WHY this issue hurts conversions.
+  Line 3: "Visitors: {estimatedVisitors}"
+  Line 4: "CR used: {cr}% | Relative drop: {drop}%"
+  Line 5: "Lost conversions: {estimatedVisitors} × {cr}% × {drop}% = {X}"
+  Line 6: "Revenue per conversion: €{Y}"
+  Line 7: "Calculation: {X} × €{Y} = €{loss}"
+
+CRITICAL: The €{loss} value on the last line MUST EXACTLY EQUAL the estimated_monthly_loss number. 
+If they differ, you made an error — recalculate.
 ```
 
-## Changes
+This forces the AI to show every intermediate step AND cross-checks the final value.
 
-### 1. Add new form field: Average Order Value / Deal Value
-**File:** `src/components/AuditForm.tsx`
+### 2. Add redundant validation instruction in the tool schema description
 
-Add an optional input field for "Average order/deal value (EUR)" so the AI can calculate actual revenue loss, not just lost conversions. Without this, the AI has to guess revenue per conversion.
+Change the `estimated_monthly_loss` description from:
+> "Estimated monthly revenue loss in euros for this issue"
 
-### 2. Rewrite the revenue loss prompt instructions
-**File:** `supabase/functions/audit-score/index.ts`
+to:
+> "The EXACT euro value from the last line of the explanation calculation. Must match exactly."
 
-Replace the vague "REVENUE LOSS CALCULATION INSTRUCTIONS" block (lines 40-44) with a precise, step-by-step formula:
+### 3. No UI changes needed
 
-- Provide estimated CPC benchmarks by traffic source (Google Ads ~EUR 0.50-3.00, Meta ~EUR 0.30-1.50, etc.)
-- Instruct: Estimated Visitors = Ad Spend / estimated CPC
-- Instruct: Current Conversions = Visitors x Conversion Rate
-- Instruct: For each issue, state the estimated % relative conversion rate drop, then compute lost conversions and lost EUR
-- If average order value is provided, use it; otherwise use industry benchmarks (e-commerce ~EUR 50-80, SaaS ~EUR 30-100/mo, lead gen ~EUR 50-200, etc.)
-- Require the AI to show its math in the `explanation` field so the user can verify
-
-### 3. Update the tool schema for revenue loss items
-**File:** `supabase/functions/audit-score/index.ts`
-
-Add a `calculation_details` property to each revenue loss item schema so the AI is forced to output the intermediate values (estimated CPC used, visitors, CR drop %, lost conversions, revenue per conversion). This makes the math transparent and auditable.
-
-### 4. Display calculation transparency in the UI
-**File:** `src/components/RevenueLoss.tsx`
-
-The `explanation` field already displays in each issue card. No major UI change needed, but the explanations will now contain actual math instead of hand-waving, because the prompt forces it.
-
-### 5. Update translations
-**File:** `src/contexts/LanguageContext.tsx`
-
-Add translations for the new "Average order value" form field label and placeholder.
+The `CriticalIssues` component already displays `item.explanation` (which will now contain the full breakdown) and `item.estimated_monthly_loss` (which will now match). The `RevenueLoss` component is not currently used in the page.
 
 ## Technical Details
 
-The key change is in the edge function prompt. The new `REVENUE LOSS CALCULATION INSTRUCTIONS` block will look roughly like:
+- **Single file change**: `supabase/functions/audit-score/index.ts` — update Step 5 format block (around lines 91-94) and the tool schema description (around line 174)
+- No database changes
+- No frontend changes
 
-```
-REVENUE LOSS CALCULATION - FOLLOW THIS FORMULA EXACTLY:
-1. Estimate CPC for the traffic source:
-   - Google Search Ads: €1.00-3.00
-   - Google Display: €0.30-0.80
-   - Meta/Facebook: €0.40-1.50
-   - LinkedIn: €3.00-8.00
-   - Organic/SEO: use €0 CPC, estimate monthly organic visitors at ~1000-5000
-2. Monthly Visitors = Monthly Ad Spend / estimated CPC
-3. Current Conversions = Monthly Visitors x Conversion Rate
-4. Revenue per Conversion = [user-provided value] or industry benchmark
-5. For each conversion issue:
-   - State the estimated relative CR drop (e.g., "10% relative drop")
-   - Lost Conversions = Monthly Visitors x (CR x relative_drop%)
-   - Monthly Loss = Lost Conversions x Revenue per Conversion
-6. Show ALL math steps in the explanation field.
-```
-
-This ensures the AI cannot mix up ad spend with traffic, and the user can verify every number.
