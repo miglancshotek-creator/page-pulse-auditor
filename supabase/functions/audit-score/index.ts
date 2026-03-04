@@ -293,8 +293,107 @@ SCORING RULES:
     }
 
     const aiData = await response.json();
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall) throw new Error("No tool call in AI response");
+    console.log("AI response finish_reason:", aiData.choices?.[0]?.finish_reason);
+    let toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+    
+    // Retry once if no tool call (model sometimes returns text instead)
+    if (!toolCall) {
+      console.warn("No tool call on first attempt, retrying...");
+      console.log("AI message content:", JSON.stringify(aiData.choices?.[0]?.message?.content)?.substring(0, 500));
+      
+      const retryResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          temperature: 0,
+          messages: [
+            { role: "system", content: isEn ? "You are a landing page conversion optimization expert. You MUST respond by calling the submit_audit_results function. Do NOT respond with text." : "Jsi expert na konverzní optimalizaci landing page. MUSÍŠ odpovědět zavoláním funkce submit_audit_results. NEODPOVÍDEJ textem." },
+            { role: "user", content: prompt },
+          ],
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "submit_audit_results",
+                description: "Submit the complete audit results. YOU MUST CALL THIS FUNCTION.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    framework_scores: {
+                      type: "array",
+                      description: "Scores for each of the 7 frameworks",
+                      items: {
+                        type: "object",
+                        properties: {
+                          key: { type: "string", enum: [...FRAMEWORK_KEYS], description: "Framework identifier" },
+                          name: { type: "string", description: "Framework display name" },
+                          score: { type: "number", description: "Score 1-10" },
+                          key_issue: { type: "string", description: "The single biggest issue found in this framework" },
+                          recommendation: { type: "string", description: "Top recommendation for this framework" },
+                        },
+                        required: ["key", "name", "score", "key_issue", "recommendation"],
+                      },
+                    },
+                    critical_issues: {
+                      type: "array",
+                      description: "Critical issues found across all 7 frameworks",
+                      items: {
+                        type: "object",
+                        properties: criticalIssueProperties,
+                        required: criticalIssueRequired,
+                      },
+                    },
+                    content_optimizations: {
+                      type: "array",
+                      description: "Content optimization cards",
+                      items: {
+                        type: "object",
+                        properties: {
+                          element: { type: "string" },
+                          impact_score: { type: "number" },
+                          current_version: { type: "string" },
+                          optimized_version: { type: "string" },
+                          reasons: { type: "array", items: { type: "string" } },
+                        },
+                        required: ["element", "impact_score", "current_version", "optimized_version", "reasons"],
+                      },
+                    },
+                    overall_summary: {
+                      type: "object",
+                      properties: {
+                        narrative: { type: "string" },
+                        next_steps: { type: "array", items: { type: "string" } },
+                      },
+                      required: ["narrative", "next_steps"],
+                    },
+                    ...revenueLossProperties,
+                  },
+                  required: requiredFields,
+                },
+              },
+            },
+          ],
+          tool_choice: { type: "function", function: { name: "submit_audit_results" } },
+        }),
+      });
+      
+      if (!retryResponse.ok) {
+        const t = await retryResponse.text();
+        console.error("Retry AI error:", retryResponse.status, t);
+        throw new Error("AI scoring failed on retry");
+      }
+      
+      const retryData = await retryResponse.json();
+      toolCall = retryData.choices?.[0]?.message?.tool_calls?.[0];
+      if (!toolCall) {
+        console.error("Retry also failed. Response:", JSON.stringify(retryData.choices?.[0]?.message)?.substring(0, 1000));
+        throw new Error("No tool call in AI response after retry");
+      }
+    }
 
     const results = JSON.parse(toolCall.function.arguments);
 
