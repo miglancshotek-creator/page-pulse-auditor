@@ -75,7 +75,7 @@ const getWorstSeverity = (issues: CriticalIssue[]): "critical" | "high" | "mediu
   return "medium";
 };
 
-const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss }: CriticalIssuesProps) => {
+const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkScores }: CriticalIssuesProps) => {
   const { t, lang } = useLanguage();
 
   if (!issues || issues.length === 0) return null;
