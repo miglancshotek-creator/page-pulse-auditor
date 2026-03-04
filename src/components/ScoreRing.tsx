@@ -15,9 +15,9 @@ const ScoreRing = ({ score, size = 200, strokeWidth = 12 }: ScoreRingProps) => {
   const color = getScoreColor(score);
 
   const getScoreLabel = (s: number) => {
-    if (s >= 80) return t("score.excellent");
-    if (s >= 60) return t("score.good");
-    if (s >= 40) return t("score.improve");
+    if (s >= 90) return t("score.excellent");
+    if (s >= 75) return t("score.good");
+    if (s >= 50) return t("score.improve");
     return t("score.critical");
   };
 
