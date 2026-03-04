@@ -175,7 +175,6 @@ const AuditResult = () => {
 
   const frameworkScores = Array.isArray(rawResults.framework_scores) ? rawResults.framework_scores : [];
   const criticalIssues = Array.isArray(rawResults.critical_issues) ? rawResults.critical_issues : [];
-  const contentOptimizations = Array.isArray(rawResults.content_optimizations) ? rawResults.content_optimizations : [];
   const overallSummary = rawResults.overall_summary || null;
   const revenueLoss = rawResults.revenue_loss || null;
 
