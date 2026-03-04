@@ -50,53 +50,53 @@ serve(async (req) => {
 
     // Build business context section
     const bc = businessContext || {};
+
+    // Pre-compute visitors so the AI receives a concrete number
+    const cpcMap: Record<string, number> = {
+      google_search: 1.50, google_shopping: 0.80, google_display: 0.50,
+      meta: 0.80, linkedin: 5.00, email: 0, organic: 0, mixed: 1.20,
+    };
+    const trafficSource = bc.trafficSource || "mixed";
+    const estimatedCPC = cpcMap[trafficSource] ?? 1.20;
+    const estimatedVisitors = bc.monthlyAdSpend
+      ? (estimatedCPC > 0 ? Math.round(bc.monthlyAdSpend / estimatedCPC) : 3000)
+      : 0;
+
     const businessContextText = bc.monthlyAdSpend ? `
 BUSINESS CONTEXT:
 - Monthly Ad Spend: €${bc.monthlyAdSpend}
-- Traffic Source: ${bc.trafficSourceLabel || bc.trafficSource || "Unknown"}
+- Traffic Source: ${bc.trafficSourceLabel || trafficSource}
+- Estimated CPC: €${estimatedCPC.toFixed(2)}
+- Estimated Monthly Visitors (pre-calculated): ${estimatedVisitors} (= €${bc.monthlyAdSpend} / €${estimatedCPC.toFixed(2)})
 - Current Conversion Rate: ${bc.conversionRate ? bc.conversionRate + "%" : "Not provided (use industry average for " + (bc.businessTypeLabel || "this business type") + ")"}
 - Business Type: ${bc.businessTypeLabel || bc.businessType || "Unknown"}
 - Average Revenue per Conversion: ${bc.avgOrderValue ? "€" + bc.avgOrderValue : "Not provided (use industry benchmark)"}
 
 REVENUE LOSS CALCULATION — FOLLOW THIS FORMULA EXACTLY:
 
-Step 1: Estimate CPC (Cost Per Click) for the traffic source:
-  - Google Search Ads: €1.00–3.00
-  - Google Shopping: €0.50–1.50
-  - Google Display: €0.30–0.80
-  - Meta/Facebook/Instagram: €0.40–1.50
-  - LinkedIn Ads: €3.00–8.00
-  - Email Campaign: €0 CPC — estimate 5,000–20,000 recipients, 20% open rate, 3% CTR → visitors
-  - Organic/SEO: €0 CPC — estimate monthly organic visitors at 1,000–5,000
-  - Mixed Sources: use a blended CPC of €1.00–2.00
-  Pick a specific CPC value within the range and state it.
+Step 1: Monthly Visitors = ${estimatedVisitors} (already calculated above — DO NOT re-derive from ad spend)
 
-Step 2: Calculate Monthly Visitors:
-  Monthly Visitors = Monthly Ad Spend (€${bc.monthlyAdSpend}) / estimated CPC
-  (For organic/email: use the visitor estimate directly, ignore ad spend for visitor calc)
+Step 2: Conversion Rate:
+  ${bc.conversionRate ? "Use provided: " + bc.conversionRate + "%" : "Use industry average: E-commerce ~2.5%, SaaS ~3-5%, Lead Gen ~5-10%, Agency ~3-7%, Local ~5-8%"}
 
-Step 3: Calculate Current Conversions:
-  If conversion rate is provided: use ${bc.conversionRate ? bc.conversionRate + "%" : "industry average"}
-  Industry averages if not provided: E-commerce ~2.5%, SaaS ~3-5%, Lead Gen ~5-10%, Agency ~3-7%, Local ~5-8%
-  Current Conversions = Monthly Visitors × Conversion Rate
+Step 3: Revenue per Conversion:
+  ${bc.avgOrderValue ? "Use provided: €" + bc.avgOrderValue : "Use industry benchmark: E-commerce €50-80, SaaS €30-100/mo, Lead Gen €50-200, Agency €100-300, Local €30-80"}
 
-Step 4: Revenue per Conversion:
-  ${bc.avgOrderValue ? "Use the provided value: €" + bc.avgOrderValue : "Use industry benchmark: E-commerce €50-80, SaaS €30-100/mo, Lead Gen €50-200, Agency €100-300, Local €30-80"}
-
-Step 5: For EACH conversion issue found:
-  a. State the estimated RELATIVE conversion rate drop (e.g., "8% relative drop means CR goes from 2.5% to 2.3%")
-  b. Lost Conversions = Monthly Visitors × (Conversion Rate × relative_drop_percentage)
+Step 4: For EACH conversion issue found:
+  a. State the estimated RELATIVE conversion rate drop (e.g., "15% relative drop")
+  b. Lost Conversions = ${estimatedVisitors} × (CR × relative_drop%)
   c. Monthly Loss = Lost Conversions × Revenue per Conversion
-  d. Do NOT round the result to match the percentage drop. Use the exact calculated value.
+  d. Use the EXACT calculated value, do NOT round.
 
-Step 6: FORMAT the explanation field for each item as follows:
-  FIRST: Write 1-2 sentences describing WHY this issue hurts conversions (the business impact, user psychology).
-  THEN: Show the math on a new line starting with "${isEn ? "Calculation" : "Výpočet"}:".
+Step 5: FORMAT the explanation field for each item as follows:
+  FIRST: Write 1-2 sentences describing WHY this issue hurts conversions.
+  THEN: Show the math on a new line starting with "${isEn ? "Calculation" : "Výpočet"}:"
+  FORMAT: "${estimatedVisitors} × ({cr} × {drop%}) × {revenue_per_conversion} = €{loss}"
 
 CRITICAL RULES:
-- Do NOT add rounding notes like "(Zaokrouhleno na €X pro Y% pokles)". The math already accounts for the drop.
-- Do NOT confuse ad spend with traffic volume. Ad spend ÷ CPC = visitors.
-- Use the EXACT calculated monthly loss value as estimated_monthly_loss, do not round to a "nice" number.` : "";
+- The visitor count is ${estimatedVisitors}. NEVER divide ad spend by CPC again — visitors are already computed.
+- Do NOT show "ad_spend / CPC" anywhere in the formula. Start with ${estimatedVisitors}.
+- Use the EXACT calculated monthly loss value as estimated_monthly_loss.` : "";
 
     const langInstruction = isEn
       ? "You are a landing page conversion optimization expert. Write ALL output in English."
