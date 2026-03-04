@@ -215,7 +215,7 @@ SCORING RULES:
       issue: { type: "string", description: "Short punchy issue name" },
       category: { type: "string", description: "Which framework this belongs to" },
       severity: { type: "string", enum: ["critical", "high", "medium"] },
-      description: { type: "string", description: "Detailed explanation (3-5 sentences) of WHY this hurts conversions, what psychological/behavioral principle it violates, and what specific page evidence supports this finding. Include the business impact even without revenue numbers." },
+      description: { type: "string", description: "Concise explanation (2-3 sentences max) of WHY this hurts conversions with specific page evidence. NEVER name psychological principles, theories, or authors — use plain business language only. Include business impact even without revenue numbers." },
       solution: { type: "string", description: "Specific actionable recommendation with concrete examples of what to change and why it will improve conversions" },
     };
 
