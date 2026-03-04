@@ -259,7 +259,7 @@ SCORING RULES:
       };
       criticalIssueProperties.explanation = {
         type: "string",
-        description: "MUST contain 7 lines: Lines 1-2 why it hurts, Line 3 visitors, Line 4 CR & drop%, Line 5 lost conversions math, Line 6 revenue per conversion, Line 7 final calculation. The final €value MUST equal estimated_monthly_loss.",
+        description: "MUST contain 5 lines: Lines 1-2 why it hurts, Line 3 current CR vs benchmark CR and gap, Line 4 share of gap %, Line 5 monthly leak calculation. The final €value MUST equal estimated_monthly_loss.",
       };
     }
 
