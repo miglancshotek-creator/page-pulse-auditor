@@ -145,7 +145,7 @@ YOUR TASK:
 
 4. Provide an OVERALL SUMMARY with a narrative assessment and prioritized next steps.
 
-${bc.monthlyAdSpend ? `5. Calculate the TOTAL estimated monthly and annual revenue leak using the revenue loss formula.` : ""}
+${estimatedVisitors > 0 ? `5. Calculate the TOTAL estimated monthly and annual revenue leak using the revenue loss formula.` : ""}
 
 SCORING RULES:
 - Any criterion with weight 10 that scores ≤3 is automatically "critical" severity
