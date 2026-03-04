@@ -110,11 +110,13 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
             0
           );
 
-          // Only show "Looks good" for scores above 9/10 (90/100)
+          // Only show "Looks good" for scores strictly above 90/100 (i.e. > 9/10)
           const fwScore = frameworkScores?.find(s => s.key === fwKey)?.score || 0;
           const isAllGood = fwScore > 9 && (!hasIssues || fwIssues.every(
             (i) => i.solution?.toLowerCase().includes("no action needed") || i.solution?.toLowerCase().includes("není potřeba")
           ));
+          // If AI returned no issues but score is ≤ 9, flag it
+          const isMissingIssues = !hasIssues && fwScore <= 9 && fwScore > 0;
 
           return (
             <div
