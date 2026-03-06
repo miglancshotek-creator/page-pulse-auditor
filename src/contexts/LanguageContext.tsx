@@ -119,6 +119,9 @@ const translations: Record<string, Record<Lang, string>> = {
   "form.businessType": { cs: "Typ podnikání", en: "Business type" },
   "form.avgOrderValue": { cs: "Průměrná hodnota objednávky (€)", en: "Average order value (€)" },
   "form.avgOrderValuePlaceholder": { cs: "např. 65 (nebo nechte prázdné)", en: "e.g. 65 (or leave blank)" },
+  "form.includeMobile": { cs: "📱 Zahrnout audit mobilní verze (2× Firecrawl kredity)", en: "📱 Include mobile version audit (2× Firecrawl credits)" },
+  "result.mobileScreenshot": { cs: "Mobilní snímek", en: "Mobile screenshot" },
+  "result.desktopScreenshot": { cs: "Desktop snímek", en: "Desktop screenshot" },
 
   // Revenue Loss (legacy)
   "revenue.title": { cs: "Odhad ušlých příjmů", en: "Estimated revenue loss" },

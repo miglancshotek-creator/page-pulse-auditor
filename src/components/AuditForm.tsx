@@ -31,6 +31,7 @@ const AuditForm = () => {
   const [conversionRate, setConversionRate] = useState("");
   const [businessType, setBusinessType] = useState("ecommerce");
   const [avgOrderValue, setAvgOrderValue] = useState("");
+  const [includeMobile, setIncludeMobile] = useState(false);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"idle" | "scraping" | "scoring">("idle");
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ const AuditForm = () => {
       if (insertErr || !audit) throw new Error(t("form.error.create"));
 
       const { data: scrapeResult, error: scrapeErr } = await supabase.functions.invoke("scrape-page", {
-        body: { url: url.trim() },
+        body: { url: url.trim(), includeMobile },
       });
 
       if (scrapeErr || !scrapeResult?.success) {
@@ -71,6 +72,9 @@ const AuditForm = () => {
         screenshot_url: scrapeData.screenshotUrl,
         status: "scoring",
       }).eq("id", audit.id);
+
+      // Store mobile screenshot URL if available
+      const mobileScreenshotUrl = scrapeData.mobile?.screenshotUrl || null;
 
       setStep("scoring");
 
@@ -90,6 +94,8 @@ const AuditForm = () => {
             businessTypeLabel: BUSINESS_TYPES.find(b => b.value === businessType)?.label[lang] || "",
             avgOrderValue: avgOrderValue ? parseFloat(avgOrderValue) : null,
           },
+          mobileScreenshotUrl,
+          includeMobile,
         },
       });
 
@@ -183,6 +189,20 @@ const AuditForm = () => {
           />
         </div>
       </div>
+
+      {/* Mobile audit toggle */}
+      <label className="flex items-center gap-3 cursor-pointer px-1">
+        <input
+          type="checkbox"
+          checked={includeMobile}
+          onChange={(e) => setIncludeMobile(e.target.checked)}
+          disabled={loading}
+          className="h-4 w-4 rounded border-border text-primary focus:ring-primary/50 cursor-pointer"
+        />
+        <span className="text-sm text-muted-foreground">
+          {t("form.includeMobile")}
+        </span>
+      </label>
 
       {/* Submit Button */}
       <button
