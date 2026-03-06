@@ -31,6 +31,7 @@ const AuditForm = () => {
   const [conversionRate, setConversionRate] = useState("");
   const [businessType, setBusinessType] = useState("ecommerce");
   const [avgOrderValue, setAvgOrderValue] = useState("");
+  const [includeMobile, setIncludeMobile] = useState(false);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"idle" | "scraping" | "scoring">("idle");
   const navigate = useNavigate();
