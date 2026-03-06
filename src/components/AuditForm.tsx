@@ -190,6 +190,20 @@ const AuditForm = () => {
         </div>
       </div>
 
+      {/* Mobile audit toggle */}
+      <label className="flex items-center gap-3 cursor-pointer px-1">
+        <input
+          type="checkbox"
+          checked={includeMobile}
+          onChange={(e) => setIncludeMobile(e.target.checked)}
+          disabled={loading}
+          className="h-4 w-4 rounded border-border text-primary focus:ring-primary/50 cursor-pointer"
+        />
+        <span className="text-sm text-muted-foreground">
+          {t("form.includeMobile")}
+        </span>
+      </label>
+
       {/* Submit Button */}
       <button
         type="submit"
