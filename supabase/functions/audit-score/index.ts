@@ -571,6 +571,11 @@ SCORING RULES:
       scoresMap[fs.key] = fs.score;
     }
 
+    // Store mobile screenshot URL in results if available
+    if (mobileScreenshotUrl) {
+      results.mobile_screenshot_url = mobileScreenshotUrl;
+    }
+
     const { error: updateError } = await supabase
       .from("audits")
       .update({

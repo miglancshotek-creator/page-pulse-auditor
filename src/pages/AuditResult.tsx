@@ -233,14 +233,31 @@ const AuditResult = () => {
           </p>
         </div>
 
-        {/* Screenshot */}
-        {audit.screenshot_url && (
-          <div data-pdf-section className="rounded-xl border border-border overflow-hidden animate-fade-up max-w-4xl mx-auto">
-            <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 border-b border-border">
-              <Image className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">{t("result.screenshot")}</span>
+        {/* Screenshots */}
+        {(audit.screenshot_url || mobileScreenshotUrl) && (
+          <div data-pdf-section className="animate-fade-up">
+            <div className={`grid gap-4 max-w-5xl mx-auto ${audit.screenshot_url && mobileScreenshotUrl ? 'grid-cols-1 lg:grid-cols-[2fr_1fr]' : ''}`}>
+              {audit.screenshot_url && (
+                <div className="rounded-xl border border-border overflow-hidden">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 border-b border-border">
+                    <Image className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">
+                      {mobileScreenshotUrl ? t("result.desktopScreenshot") : t("result.screenshot")}
+                    </span>
+                  </div>
+                  <img src={audit.screenshot_url} alt={t("result.screenshot")} className="w-full" />
+                </div>
+              )}
+              {mobileScreenshotUrl && (
+                <div className="rounded-xl border border-border overflow-hidden">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 border-b border-border">
+                    <span className="text-sm">📱</span>
+                    <span className="text-xs text-muted-foreground">{t("result.mobileScreenshot")}</span>
+                  </div>
+                  <img src={mobileScreenshotUrl} alt={t("result.mobileScreenshot")} className="w-full" />
+                </div>
+              )}
             </div>
-            <img src={audit.screenshot_url} alt={t("result.screenshot")} className="w-full" />
           </div>
         )}
 
