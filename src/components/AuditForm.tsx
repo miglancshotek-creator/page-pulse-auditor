@@ -73,6 +73,9 @@ const AuditForm = () => {
         status: "scoring",
       }).eq("id", audit.id);
 
+      // Store mobile screenshot URL if available
+      const mobileScreenshotUrl = scrapeData.mobile?.screenshotUrl || null;
+
       setStep("scoring");
 
       const parsedVisitors = monthlyVisitors ? parseInt(monthlyVisitors, 10) : null;
