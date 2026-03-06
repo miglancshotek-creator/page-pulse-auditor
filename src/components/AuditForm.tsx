@@ -55,7 +55,7 @@ const AuditForm = () => {
       if (insertErr || !audit) throw new Error(t("form.error.create"));
 
       const { data: scrapeResult, error: scrapeErr } = await supabase.functions.invoke("scrape-page", {
-        body: { url: url.trim() },
+        body: { url: url.trim(), includeMobile },
       });
 
       if (scrapeErr || !scrapeResult?.success) {
