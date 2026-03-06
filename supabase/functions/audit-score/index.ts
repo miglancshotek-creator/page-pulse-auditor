@@ -211,8 +211,17 @@ PAGE DATA:
 - Found CTA texts (partial list): ${JSON.stringify(scrapeData.ctaTexts || [])}
 - Page text (excerpt): ${(scrapeData.bodyText || "").substring(0, 3000)}
 
-MOBILE LAYOUT SIGNALS:
+MOBILE LAYOUT SIGNALS (desktop HTML analysis):
 ${JSON.stringify(scrapeData.mobileSignals || {}, null, 2)}
+
+${hasMobileData ? `
+MOBILE VERSION DATA (actual mobile render):
+- Mobile headers: ${JSON.stringify(scrapeData.mobile.headers || [])}
+- Mobile CTA texts (partial): ${JSON.stringify(scrapeData.mobile.ctaTexts || [])}
+- Mobile body text (excerpt): ${(scrapeData.mobile.bodyText || "").substring(0, 2000)}
+- Mobile layout signals: ${JSON.stringify(scrapeData.mobile.mobileSignals || {}, null, 2)}
+NOTE: A real mobile screenshot was captured. Evaluate mobile-specific issues like tap target size, text readability, layout shifts, and mobile CTA visibility. Tag mobile-specific issues with "[Mobile]" prefix in the issue name.
+` : ""}
 
 YOUR TASK:
 1. Score each of the 7 frameworks on a scale of 1–10. For each framework, provide a short key_issue (the single biggest problem found) and a recommendation.
