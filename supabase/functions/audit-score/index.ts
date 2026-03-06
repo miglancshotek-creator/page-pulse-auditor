@@ -86,7 +86,8 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { auditId, scrapeData, language = "cs", businessContext } = await req.json();
+    const { auditId, scrapeData, language = "cs", businessContext, mobileScreenshotUrl, includeMobile } = await req.json();
+    const hasMobileData = includeMobile && scrapeData?.mobile;
     const isEn = language === "en";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
