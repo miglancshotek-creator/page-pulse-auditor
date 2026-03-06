@@ -177,6 +177,7 @@ const AuditResult = () => {
   const criticalIssues = Array.isArray(rawResults.critical_issues) ? rawResults.critical_issues : [];
   const overallSummary = rawResults.overall_summary || null;
   const revenueLoss = rawResults.revenue_loss || null;
+  const mobileScreenshotUrl = rawResults.mobile_screenshot_url || null;
 
   const overallScore = audit.overall_score || rawResults.overall_score || 0;
   const criticalCount = frameworkScores.filter((fw: any) => Math.round((fw.score || 0) * 10) < 50).length;
