@@ -94,6 +94,8 @@ const AuditForm = () => {
             businessTypeLabel: BUSINESS_TYPES.find(b => b.value === businessType)?.label[lang] || "",
             avgOrderValue: avgOrderValue ? parseFloat(avgOrderValue) : null,
           },
+          mobileScreenshotUrl,
+          includeMobile,
         },
       });
 
