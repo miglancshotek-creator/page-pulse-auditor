@@ -112,6 +112,7 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
           return (
             <div
               key={fwKey}
+              data-pdf-section
               className="rounded-xl border border-border bg-card overflow-hidden animate-fade-up"
               style={{ animationDelay: `${fwIndex * 100}ms` }}
             >
