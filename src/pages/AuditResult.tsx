@@ -132,7 +132,11 @@ const AuditResult = () => {
     const fwScoresEl = clone.querySelector("[data-fw-scores]") as HTMLElement | null;
     if (fwScoresEl) fwScoresEl.style.setProperty("font-size", "150%", "important");
 
-    // Force screenshot grid to single-column ONLY when multiple images are side-by-side
+    // Hide elements marked for PDF exclusion
+    clone.querySelectorAll("[data-pdf-hide]").forEach((el) => {
+      (el as HTMLElement).style.setProperty("display", "none", "important");
+    });
+
     const screenshotGrids = clone.querySelectorAll("[data-pdf-section] .grid");
     screenshotGrids.forEach((grid) => {
       const g = grid as HTMLElement;
