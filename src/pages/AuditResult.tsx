@@ -84,7 +84,7 @@ const AuditResult = () => {
     fillBg();
     let curY = M;
 
-    const addSection = (imgData: string, wPx: number, hPx: number, forceBreak: boolean, maxH?: number) => {
+    const addSection = (imgData: string, wPx: number, hPx: number, forceBreak: boolean, maxH?: number, maxW?: number) => {
       const scale = CW / wPx;
       let drawW = CW;
       let drawH = hPx * scale;
@@ -94,7 +94,13 @@ const AuditResult = () => {
         drawW = drawW * factor;
         drawH = maxH;
       }
-      if (drawH < 1) return;
+      // Optional width cap (proportional)
+      if (maxW && drawW > maxW) {
+        const factor = maxW / drawW;
+        drawH = drawH * factor;
+        drawW = maxW;
+      }
+      if (drawH < 1) return drawW;
       if (forceBreak && curY > M + 1) { pdf.addPage(); fillBg(); curY = M; }
       const remaining = A4_H - M - curY;
       if (drawH > remaining && curY > M + 1) { pdf.addPage(); fillBg(); curY = M; }
@@ -107,6 +113,7 @@ const AuditResult = () => {
       const xOffset = M + (CW - drawW) / 2;
       pdf.addImage(imgData, "JPEG", xOffset, curY, drawW, drawH);
       curY += drawH + GAP;
+      return drawW;
     };
 
     // ---- clone report offscreen at fixed width ----
@@ -141,6 +148,8 @@ const AuditResult = () => {
       const sections = Array.from(clone.querySelectorAll("[data-pdf-section]")) as HTMLElement[];
       const captureOpts = { scale: 1.5, useCORS: true, backgroundColor: "#fcfcfc", logging: false };
 
+      let lastScreenshotW: number | undefined;
+
       for (const section of sections) {
         if (section.offsetHeight === 0 || section.offsetWidth === 0) continue;
 
@@ -148,12 +157,18 @@ const AuditResult = () => {
 
         // Screenshots: cap at 80mm
         const isScreenshot = section.querySelector("img") !== null && !section.querySelector("h2") && !section.querySelector("h3");
+        // Health Score section (has data-fw-scores attribute)
+        const isHealthScore = section.querySelector("[data-fw-scores]") !== null || section.hasAttribute("data-fw-scores");
 
         const canvas = await html2canvas(section, captureOpts);
         const imgData = canvas.toDataURL("image/jpeg", 0.85);
-        addSection(imgData, canvas.width, canvas.height, forceBreak, isScreenshot ? 80 : undefined);
-        // Add extra spacing after screenshot sections
-        if (isScreenshot) curY += 8;
+
+        const drawnW = addSection(imgData, canvas.width, canvas.height, forceBreak, isScreenshot ? 80 : undefined, isHealthScore ? lastScreenshotW : undefined);
+
+        if (isScreenshot) {
+          lastScreenshotW = drawnW;
+          curY += 8;
+        }
       }
 
       const fileName = `audit-${(audit.page_title || audit.url).replace(/[^a-zA-Z0-9]/g, "-").substring(0, 40)}.pdf`;
