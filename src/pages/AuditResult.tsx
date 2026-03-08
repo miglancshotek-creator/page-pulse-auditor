@@ -75,18 +75,18 @@ const AuditResult = () => {
       const A4_HEIGHT_MM = 297;
       const MARGIN_MM = 10;
       const CONTENT_WIDTH_MM = A4_WIDTH_MM - MARGIN_MM * 2;
-      const SECTION_GAP_MM = 4;
+      const SECTION_GAP_MM = 3;
 
       const pdf = new jsPDF("p", "mm", "a4");
-      pdf.setFillColor(252, 252, 252);
-      pdf.rect(0, 0, A4_WIDTH_MM, A4_HEIGHT_MM, "F");
+      const fillPage = () => {
+        pdf.setFillColor(252, 252, 252);
+        pdf.rect(0, 0, A4_WIDTH_MM, A4_HEIGHT_MM, "F");
+      };
+      fillPage();
 
       let currentY = MARGIN_MM;
 
-      const sections = Array.from(
-        reportRef.current.querySelectorAll("[data-pdf-section]")
-      ) as HTMLElement[];
-
+      // Disable animations for capture
       reportRef.current.style.setProperty("animation", "none", "important");
       reportRef.current.querySelectorAll("*").forEach((el) => {
         const htmlEl = el as HTMLElement;
@@ -94,27 +94,85 @@ const AuditResult = () => {
         htmlEl.style.setProperty("opacity", "1", "important");
       });
 
+      const sections = Array.from(
+        reportRef.current.querySelectorAll("[data-pdf-section]")
+      ) as HTMLElement[];
+
+      const captureOpts = { scale: 2, useCORS: true, backgroundColor: "#fcfcfc", logging: false };
+
       for (const section of sections) {
-        const canvas = await html2canvas(section, {
-          scale: 2, useCORS: true, backgroundColor: "#fcfcfc", logging: false,
-        });
+        const canvas = await html2canvas(section, captureOpts);
 
         const widthPx = canvas.width / 2;
         const heightPx = canvas.height / 2;
         const scaleFactor = CONTENT_WIDTH_MM / widthPx;
-        const heightMM = heightPx * scaleFactor;
-        const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
+        let heightMM = heightPx * scaleFactor;
 
-        if (heightMM > remainingSpace && currentY > MARGIN_MM) {
-          pdf.addPage();
-          pdf.setFillColor(252, 252, 252);
-          pdf.rect(0, 0, A4_WIDTH_MM, A4_HEIGHT_MM, "F");
-          currentY = MARGIN_MM;
+        // Cap screenshot images to max 120mm height to save space
+        const isScreenshot = section.querySelector("img") !== null && section.closest("[data-pdf-section]") === section && !section.querySelector("h2");
+        if (isScreenshot && heightMM > 120) {
+          // Re-capture at smaller scale to fit
+          const fitScale = 120 / heightMM;
+          heightMM = 120;
+          const imgData = canvas.toDataURL("image/jpeg", 0.85);
+          const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
+          if (heightMM > remainingSpace && currentY > MARGIN_MM) {
+            pdf.addPage();
+            fillPage();
+            currentY = MARGIN_MM;
+          }
+          pdf.addImage(imgData, "JPEG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
+          currentY += heightMM + SECTION_GAP_MM;
+          continue;
         }
 
-        const imgData = canvas.toDataURL("image/png");
-        pdf.addImage(imgData, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
-        currentY += heightMM + SECTION_GAP_MM;
+        const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
+
+        // If section fits on current page, add it
+        if (heightMM <= remainingSpace) {
+          const imgData = canvas.toDataURL("image/png");
+          pdf.addImage(imgData, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
+          currentY += heightMM + SECTION_GAP_MM;
+        }
+        // If section is taller than a full page, split it across pages
+        else if (heightMM > A4_HEIGHT_MM - MARGIN_MM * 2) {
+          if (currentY > MARGIN_MM) {
+            pdf.addPage();
+            fillPage();
+            currentY = MARGIN_MM;
+          }
+          const fullContentH = A4_HEIGHT_MM - MARGIN_MM * 2;
+          const pxPerMM = heightPx / heightMM;
+          let srcY = 0;
+          while (srcY < heightPx) {
+            const sliceH = Math.min(fullContentH * pxPerMM, heightPx - srcY);
+            const sliceMM = sliceH / pxPerMM;
+            // Create a slice canvas
+            const sliceCanvas = document.createElement("canvas");
+            sliceCanvas.width = canvas.width;
+            sliceCanvas.height = Math.round(sliceH * 2);
+            const ctx = sliceCanvas.getContext("2d")!;
+            ctx.drawImage(canvas, 0, Math.round(srcY * 2), canvas.width, Math.round(sliceH * 2), 0, 0, canvas.width, Math.round(sliceH * 2));
+            const sliceImg = sliceCanvas.toDataURL("image/png");
+            if (srcY > 0) {
+              pdf.addPage();
+              fillPage();
+              currentY = MARGIN_MM;
+            }
+            pdf.addImage(sliceImg, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, sliceMM);
+            currentY += sliceMM + SECTION_GAP_MM;
+            srcY += sliceH;
+          }
+        }
+        // Otherwise start new page
+        else {
+          pdf.addPage();
+          fillPage();
+          currentY = MARGIN_MM;
+          const imgData = canvas.toDataURL("image/png");
+          pdf.addImage(imgData, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
+          currentY += heightMM + SECTION_GAP_MM;
+        }
       }
 
       const fileName = `audit-${(audit.page_title || audit.url).replace(/[^a-zA-Z0-9]/g, "-").substring(0, 40)}.pdf`;
