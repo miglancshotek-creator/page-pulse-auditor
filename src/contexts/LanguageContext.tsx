@@ -72,7 +72,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "score.label": { cs: "Skóre konverzního zdraví", en: "Conversion health score" },
 
   // Framework Scores
-  "fw.healthScore": { cs: "HEALTH SCORE", en: "HEALTH SCORE" },
+  "fw.healthScore": { cs: "CONVERSION RATE SCORE", en: "CONVERSION RATE SCORE" },
   "fw.criticalIssues": { cs: "kritických problémů", en: "critical issues" },
 
   // Critical Issues
