@@ -168,8 +168,8 @@ const AuditResult = () => {
             const sliceHScaled = sliceCanvas.height;
             ctx.drawImage(canvas, 0, srcYScaled, canvas.width, sliceHScaled, 0, 0, canvas.width, sliceHScaled);
 
-            const sliceImg = sliceCanvas.toDataURL("image/jpeg", 0.9);
-            pdf.addImage(sliceImg, "JPEG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, sliceHeightMM);
+            const sliceImg = sliceCanvas.toDataURL("image/png");
+            pdf.addImage(sliceImg, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, sliceHeightMM);
 
             srcY += sliceHeightPx;
             currentY += sliceHeightMM + SECTION_GAP_MM;
