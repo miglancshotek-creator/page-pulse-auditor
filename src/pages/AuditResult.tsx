@@ -149,9 +149,26 @@ const AuditResult = () => {
     document.body.appendChild(clone);
 
     try {
-      // Wait for images to load in clone
+      // Proxy external screenshot images to base64 data URLs for reliable PDF rendering
       const imgs = Array.from(clone.querySelectorAll("img")) as HTMLImageElement[];
-      await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })));
+      await Promise.all(imgs.map(async (img) => {
+        const src = img.src;
+        if (!src || src.startsWith("data:")) return;
+        try {
+          const { data, error } = await supabase.functions.invoke("image-proxy", {
+            body: { url: src },
+          });
+          if (!error && data?.dataUrl) {
+            img.src = data.dataUrl;
+          }
+        } catch {
+          // Fall back to original URL
+        }
+        // Wait for image to settle
+        if (!img.complete) {
+          await new Promise(r => { img.onload = r; img.onerror = r; });
+        }
+      }));
 
       const sections = Array.from(clone.querySelectorAll("[data-pdf-section]")) as HTMLElement[];
       const captureOpts = { scale: 1.5, useCORS: true, backgroundColor: "#fcfcfc", logging: false };
