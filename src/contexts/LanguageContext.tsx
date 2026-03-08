@@ -133,6 +133,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "result.pdfExported": { cs: "PDF exportováno", en: "PDF exported successfully" },
   "result.exporting": { cs: "Exportuji…", en: "Exporting…" },
   "result.downloadPdf": { cs: "Stáhnout PDF", en: "Download PDF" },
+  "result.downloadPrompt": { cs: "Stáhnout Build Prompt", en: "Download Build Prompt" },
 
   // 404
   "notfound.title": { cs: "Stránka nebyla nalezena", en: "Page not found" },

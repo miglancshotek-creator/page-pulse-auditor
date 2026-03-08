@@ -5,7 +5,7 @@ import FrameworkScores from "@/components/FrameworkScores";
 import CriticalIssues from "@/components/CriticalIssues";
 import OverallSummary from "@/components/OverallSummary";
 import LanguageToggle from "@/components/LanguageToggle";
-import { ArrowLeft, ExternalLink, Copy, Check, Image, Download } from "lucide-react";
+import { ArrowLeft, ExternalLink, Copy, Check, Image, Download, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import html2canvas from "html2canvas";
