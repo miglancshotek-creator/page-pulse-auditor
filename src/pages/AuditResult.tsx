@@ -87,8 +87,13 @@ const AuditResult = () => {
 
       let currentY = MARGIN_MM;
 
-      // Disable animations for capture
+      // Disable animations and flatten grid layout for capture
       reportRef.current.style.setProperty("animation", "none", "important");
+      // Force all grids to single-column so sections capture at full width
+      const grids = Array.from(reportRef.current.querySelectorAll(".grid")) as HTMLElement[];
+      grids.forEach((g) => {
+        g.style.setProperty("display", "block", "important");
+      });
       reportRef.current.querySelectorAll("*").forEach((el) => {
         const htmlEl = el as HTMLElement;
         htmlEl.style.setProperty("animation", "none", "important");
@@ -178,7 +183,9 @@ const AuditResult = () => {
       const fileName = `audit-${(audit.page_title || audit.url).replace(/[^a-zA-Z0-9]/g, "-").substring(0, 40)}.pdf`;
       pdf.save(fileName);
 
+      // Restore styles
       reportRef.current.style.removeProperty("animation");
+      grids.forEach((g) => g.style.removeProperty("display"));
       reportRef.current.querySelectorAll("*").forEach((el) => {
         const htmlEl = el as HTMLElement;
         htmlEl.style.removeProperty("animation");
@@ -188,6 +195,8 @@ const AuditResult = () => {
     } catch {
       if (reportRef.current) {
         reportRef.current.style.removeProperty("animation");
+        const grids = Array.from(reportRef.current.querySelectorAll(".grid")) as HTMLElement[];
+        grids.forEach((g) => g.style.removeProperty("display"));
         reportRef.current.querySelectorAll("*").forEach((el) => {
           const htmlEl = el as HTMLElement;
           htmlEl.style.removeProperty("animation");
