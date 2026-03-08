@@ -17,7 +17,7 @@ const OverallSummary = ({ summary }: OverallSummaryProps) => {
     <div data-pdf-section className="rounded-xl border border-border bg-card overflow-hidden animate-fade-up">
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <h2 className="text-lg font-bold">{t("summary.title")}</h2>
-        <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-sm font-bold ${getScoreTextClass(summary.score)}`}>{summary.score}/100</div>
+        <span className={`text-3xl font-bold ${getScoreTextClass(summary.score)}`}>{summary.score}/100</span>
       </div>
       <div className="px-5 py-4 space-y-4">
         <p className="text-base text-muted-foreground leading-relaxed">{summary.narrative}</p>
