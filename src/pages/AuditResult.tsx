@@ -128,6 +128,10 @@ const AuditResult = () => {
       h.style.setProperty("transition", "none", "important");
     });
 
+    // Boost Health Score fonts by 50% in PDF
+    const fwScoresEl = clone.querySelector("[data-fw-scores]") as HTMLElement | null;
+    if (fwScoresEl) fwScoresEl.style.setProperty("font-size", "150%", "important");
+
     // Force screenshot grid to single-column ONLY when multiple images are side-by-side
     const screenshotGrids = clone.querySelectorAll("[data-pdf-section] .grid");
     screenshotGrids.forEach((grid) => {
