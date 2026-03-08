@@ -86,17 +86,27 @@ const AuditResult = () => {
 
     const addSection = (imgData: string, wPx: number, hPx: number, forceBreak: boolean, maxH?: number) => {
       const scale = CW / wPx;
-      let hMM = hPx * scale;
-      if (maxH && hMM > maxH) hMM = maxH; // cap height (screenshots)
-      if (hMM < 1) return; // skip empty/invisible sections
+      let drawW = CW;
+      let drawH = hPx * scale;
+      // Proportional cap: scale both dimensions equally to preserve aspect ratio
+      if (maxH && drawH > maxH) {
+        const factor = maxH / drawH;
+        drawW = drawW * factor;
+        drawH = maxH;
+      }
+      if (drawH < 1) return;
       if (forceBreak && curY > M + 1) { pdf.addPage(); fillBg(); curY = M; }
       const remaining = A4_H - M - curY;
-      if (hMM > remaining && curY > M + 1) { pdf.addPage(); fillBg(); curY = M; }
-      // If section is taller than a full page, scale it down
+      if (drawH > remaining && curY > M + 1) { pdf.addPage(); fillBg(); curY = M; }
       const maxPageH = A4_H - M * 2;
-      if (hMM > maxPageH) hMM = maxPageH;
-      pdf.addImage(imgData, "JPEG", M, curY, CW, hMM);
-      curY += hMM + GAP;
+      if (drawH > maxPageH) {
+        const factor = maxPageH / drawH;
+        drawW = drawW * factor;
+        drawH = maxPageH;
+      }
+      const xOffset = M + (CW - drawW) / 2;
+      pdf.addImage(imgData, "JPEG", xOffset, curY, drawW, drawH);
+      curY += drawH + GAP;
     };
 
     // ---- clone report offscreen at fixed width ----
