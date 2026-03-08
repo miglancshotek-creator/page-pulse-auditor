@@ -402,6 +402,13 @@ const AuditResult = () => {
               {exporting ? (t("result.exporting")) : (t("result.downloadPdf"))}
             </button>
             <button
+              onClick={generateBuildPrompt}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg px-3 py-1.5"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              {t("result.downloadPrompt")}
+            </button>
+            <button
               onClick={copyLink}
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg px-3 py-1.5"
             >
