@@ -76,7 +76,7 @@ const AuditResult = () => {
     const M = 10;
     const CW = A4_W - M * 2; // content width mm
     const GAP = 3;
-    const RENDER_W = 800; // offscreen render width px
+    const RENDER_W = 1100; // offscreen render width px (closer to max-w-6xl)
 
     // ---- helpers ----
     const pdf = new jsPDF("p", "mm", "a4");
