@@ -152,6 +152,8 @@ const AuditResult = () => {
         const canvas = await html2canvas(section, captureOpts);
         const imgData = canvas.toDataURL("image/jpeg", 0.85);
         addSection(imgData, canvas.width, canvas.height, forceBreak, isScreenshot ? 80 : undefined);
+        // Add extra spacing after screenshot sections
+        if (isScreenshot) curY += 8;
       }
 
       const fileName = `audit-${(audit.page_title || audit.url).replace(/[^a-zA-Z0-9]/g, "-").substring(0, 40)}.pdf`;
