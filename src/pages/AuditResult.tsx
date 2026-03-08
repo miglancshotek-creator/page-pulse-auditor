@@ -118,7 +118,7 @@ const AuditResult = () => {
 
     // ---- clone report offscreen at fixed width ----
     const clone = reportRef.current.cloneNode(true) as HTMLElement;
-    clone.style.cssText = `position:absolute;left:-9999px;top:0;width:${RENDER_W}px;background:#fcfcfc;z-index:-1;`;
+    clone.style.cssText = `position:absolute;left:-9999px;top:0;width:${RENDER_W}px;background:#fcfcfc;z-index:-1;font-size:120%;`;
 
     // Only disable animations and force opacity; preserve flex/grid layouts
     clone.querySelectorAll("*").forEach((el) => {
