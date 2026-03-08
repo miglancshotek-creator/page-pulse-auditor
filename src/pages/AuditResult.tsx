@@ -303,7 +303,11 @@ const AuditResult = () => {
         )}
 
         {/* Overall summary */}
-        {overallSummary && <OverallSummary summary={{ ...overallSummary, score: overallSummary.score ? Math.round(overallSummary.score * 10) : overallScore }} />}
+        {overallSummary && (
+          <div className="max-w-5xl mx-auto">
+            <OverallSummary summary={{ ...overallSummary, score: overallSummary.score ? Math.round(overallSummary.score * 10) : overallScore }} />
+          </div>
+        )}
       </main>
     </div>
   );
