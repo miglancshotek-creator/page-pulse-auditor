@@ -279,30 +279,28 @@ const AuditResult = () => {
           </div>
         )}
 
-        {/* Framework scores card — standalone for PDF page 1 */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-2">
-            {frameworkScores.length > 0 && (
+        {/* Health Score — full width, centered above issues */}
+        {frameworkScores.length > 0 && (
+          <div className="flex justify-center">
+            <div className="w-full max-w-3xl">
               <FrameworkScores
                 scores={frameworkScores}
                 overallScore={overallScore}
                 criticalCount={criticalCount}
               />
-            )}
+            </div>
           </div>
+        )}
 
-          {/* Critical issues — right column */}
-          <div className="lg:col-span-3">
-            {criticalIssues.length > 0 && (
-              <CriticalIssues
-                issues={criticalIssues}
-                totalMonthlyLoss={totalMonthlyLoss}
-                totalAnnualLoss={totalAnnualLoss}
-                frameworkScores={frameworkScores}
-              />
-            )}
-          </div>
-        </div>
+        {/* Critical issues — full width below */}
+        {criticalIssues.length > 0 && (
+          <CriticalIssues
+            issues={criticalIssues}
+            totalMonthlyLoss={totalMonthlyLoss}
+            totalAnnualLoss={totalAnnualLoss}
+            frameworkScores={frameworkScores}
+          />
+        )}
 
         {/* Overall summary */}
         {overallSummary && <OverallSummary summary={{ ...overallSummary, score: overallSummary.score ? Math.round(overallSummary.score * 10) : overallScore }} />}
