@@ -205,7 +205,7 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
 
       {/* Revenue leak total */}
       {totalMonthlyLoss != null && totalMonthlyLoss > 0 && (
-        <div className="rounded-xl border border-[hsl(0,72%,55%)]/30 bg-[hsl(0,72%,55%)]/5 p-5">
+        <div data-pdf-section className="rounded-xl border border-[hsl(0,72%,55%)]/30 bg-[hsl(0,72%,55%)]/5 p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">{t("issues.estMonthlyLeak")}</p>
