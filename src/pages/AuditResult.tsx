@@ -111,11 +111,12 @@ const AuditResult = () => {
       h.style.setProperty("transition", "none", "important");
     });
 
-    // Force screenshot grid to single-column (won't fit side-by-side at A4 width)
+    // Force screenshot grid to single-column ONLY when multiple images are side-by-side
     const screenshotGrids = clone.querySelectorAll("[data-pdf-section] .grid");
     screenshotGrids.forEach((grid) => {
       const g = grid as HTMLElement;
-      if (g.querySelector("img")) {
+      const imgs = g.querySelectorAll(":scope > div > img, :scope > img");
+      if (imgs.length > 1) {
         g.style.setProperty("grid-template-columns", "1fr", "important");
       }
     });
