@@ -101,6 +101,13 @@ const AuditResult = () => {
       const captureOpts = { scale: 2, useCORS: true, backgroundColor: "#fcfcfc", logging: false };
 
       for (const section of sections) {
+        // Force page break if marked
+        if (section.hasAttribute("data-pdf-page-break") && currentY > MARGIN_MM) {
+          pdf.addPage();
+          fillPage();
+          currentY = MARGIN_MM;
+        }
+
         const canvas = await html2canvas(section, captureOpts);
 
         const widthPx = canvas.width / 2;
@@ -317,9 +324,8 @@ const AuditResult = () => {
           </div>
         )}
 
-        {/* Two-column layout: framework scores + critical issues */}
+        {/* Framework scores card — standalone for PDF page 1 */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Framework scores card — left column */}
           <div className="lg:col-span-2">
             {frameworkScores.length > 0 && (
               <FrameworkScores
