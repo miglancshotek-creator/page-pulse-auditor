@@ -115,7 +115,7 @@ const AuditResult = () => {
     });
 
     // Shrink FrameworkScores to 50% width in PDF
-    const fwCard = clone.querySelector("[data-pdf-section] .max-w-xs, .max-w-xs[data-pdf-section]") as HTMLElement | null;
+    const fwCard = clone.querySelector("[data-fw-scores]") as HTMLElement | null;
     if (fwCard) {
       fwCard.style.setProperty("width", `${RENDER_W * 0.5}px`, "important");
       fwCard.style.setProperty("max-width", `${RENDER_W * 0.5}px`, "important");

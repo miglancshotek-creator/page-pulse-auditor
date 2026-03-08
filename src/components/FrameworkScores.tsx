@@ -29,7 +29,7 @@ const FrameworkScores = ({ scores, overallScore, criticalCount }: FrameworkScore
   const { t, lang } = useLanguage();
 
   return (
-    <div data-pdf-section className="rounded-xl border border-border bg-card overflow-hidden animate-fade-up max-w-xs">
+    <div data-pdf-section data-fw-scores className="rounded-xl border border-border bg-card overflow-hidden animate-fade-up">
       {/* Header */}
       <div className="px-2.5 pt-2.5 pb-2">
         <p className="text-[8px] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1">
