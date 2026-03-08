@@ -217,8 +217,8 @@ const AuditResult = () => {
 
     add("=".repeat(70));
     add(isCs
-      ? "LOVABLE PROMPT: Postav vysoce konvertující landing page na základě tohoto auditu"
-      : "LOVABLE PROMPT: Build a high-converting landing page based on this audit");
+      ? "LOVABLE PROMPT: Vylepši landing page na základě auditu"
+      : "LOVABLE PROMPT: Improve landing page based on audit findings");
     add("=".repeat(70));
     blank();
 
@@ -226,11 +226,56 @@ const AuditResult = () => {
     add(isCs ? "## Původní stránka" : "## Original Page");
     add(`URL: ${audit.url}`);
     add(`${isCs ? "Název" : "Title"}: ${audit.page_title || "N/A"}`);
+    if (audit.screenshot_url) add(`${isCs ? "Screenshot (vizuální reference)" : "Screenshot (visual reference)"}: ${audit.screenshot_url}`);
     add(`${isCs ? "Datum auditu" : "Audit date"}: ${new Date(audit.created_at).toLocaleDateString(lang === "cs" ? "cs-CZ" : "en-US", { day: "numeric", month: "long", year: "numeric" })}`);
     add(`${isCs ? "Celkové skóre" : "Overall score"}: ${overallScore}/100`);
     blank();
 
-    // 2. Framework scores
+    // 2. Original page structure
+    add(isCs ? "## Struktura původní stránky" : "## Original Page Structure");
+    blank();
+
+    // Headers
+    const auditFull = audit as any;
+    const headers = auditFull.headers;
+    if (headers && (Array.isArray(headers) ? headers.length > 0 : Object.keys(headers).length > 0)) {
+      add(isCs ? "### Nadpisy stránky" : "### Page Headings");
+      if (Array.isArray(headers)) {
+        for (const h of headers) {
+          if (typeof h === "string") add(`- ${h}`);
+          else if (h.tag && h.text) add(`- ${h.tag}: ${h.text}`);
+          else add(`- ${JSON.stringify(h)}`);
+        }
+      } else if (typeof headers === "object") {
+        for (const [tag, vals] of Object.entries(headers)) {
+          if (Array.isArray(vals)) {
+            for (const v of vals) add(`- ${tag}: ${v}`);
+          } else {
+            add(`- ${tag}: ${vals}`);
+          }
+        }
+      }
+      blank();
+    }
+
+    // CTA texts
+    const ctaTexts = auditFull.cta_texts;
+    if (Array.isArray(ctaTexts) && ctaTexts.length > 0) {
+      add(isCs ? "### CTA tlačítka na stránce" : "### CTA Buttons on Page");
+      for (const cta of ctaTexts) add(`- ${cta}`);
+      blank();
+    }
+
+    // Body text (markdown content of the page)
+    const bodyText = auditFull.body_text;
+    if (bodyText && typeof bodyText === "string") {
+      add(isCs ? "### Obsah stránky (markdown)" : "### Page Content (markdown)");
+      add(bodyText.substring(0, 5000));
+      if (bodyText.length > 5000) add(`\n... (${isCs ? "zkráceno" : "truncated"})`);
+      blank();
+    }
+
+    // 3. Framework scores
     if (frameworkScores.length > 0) {
       add(isCs ? "## Skóre podle frameworků" : "## Framework Scores");
       for (const fw of frameworkScores) {
@@ -246,7 +291,7 @@ const AuditResult = () => {
       blank();
     }
 
-    // 3. Critical issues
+    // 4. Critical issues
     if (criticalIssues.length > 0) {
       add(isCs ? "## Kritické problémy k opravě" : "## Critical Issues to Fix");
       for (const issue of criticalIssues) {
@@ -258,7 +303,7 @@ const AuditResult = () => {
       }
     }
 
-    // 4. Content optimizations
+    // 5. Content optimizations
     const contentOpts = rawResults.content_optimizations;
     if (Array.isArray(contentOpts) && contentOpts.length > 0) {
       add(isCs ? "## Optimalizace obsahu" : "## Content Optimizations");
@@ -271,7 +316,7 @@ const AuditResult = () => {
       blank();
     }
 
-    // 5. Overall summary
+    // 6. Overall summary
     if (overallSummary) {
       add(isCs ? "## Celkové shrnutí" : "## Overall Summary");
       if (overallSummary.narrative) add(overallSummary.narrative);
@@ -285,46 +330,43 @@ const AuditResult = () => {
       blank();
     }
 
-    // 6. Build instructions
+    // 7. Build instructions — REPAIR, DON'T REPLACE
     add("=".repeat(70));
     add(isCs ? "## INSTRUKCE PRO LOVABLE" : "## INSTRUCTIONS FOR LOVABLE");
     add("=".repeat(70));
     blank();
-    add(isCs
-      ? `Na základě výše uvedeného auditu stránky ${audit.url} vytvoř novou, moderní landing page, která opraví VŠECHNY nalezené problémy.`
-      : `Based on the above audit of ${audit.url}, build a new, modern landing page that fixes ALL identified issues.`);
-    blank();
-    add(isCs ? "Požadavky:" : "Requirements:");
-    add(isCs
-      ? "1. Použij React + Tailwind CSS + shadcn/ui komponenty"
-      : "1. Use React + Tailwind CSS + shadcn/ui components");
-    add(isCs
-      ? "2. Stránka musí být plně responzivní (mobile-first)"
-      : "2. Page must be fully responsive (mobile-first)");
-    add(isCs
-      ? "3. Implementuj všechna doporučení z auditu výše"
-      : "3. Implement all recommendations from the audit above");
-    add(isCs
-      ? "4. Optimalizuj CTA tlačítka — jasná, kontrastní, s urgencí"
-      : "4. Optimize CTA buttons — clear, high-contrast, with urgency");
-    add(isCs
-      ? "5. Přidej sociální důkazy (testimonials, loga klientů, statistiky)"
-      : "5. Add social proof (testimonials, client logos, stats)");
-    add(isCs
-      ? "6. Zajisti rychlé načítání — lazy loading obrázků, optimalizované fonty"
-      : "6. Ensure fast loading — lazy load images, optimized fonts");
-    add(isCs
-      ? "7. Dodržuj SEO best practices — správné heading hierarchy, meta tagy, alt texty"
-      : "7. Follow SEO best practices — proper heading hierarchy, meta tags, alt text");
-    add(isCs
-      ? "8. Použij optimalizované texty z auditu místo původních"
-      : "8. Use optimized copy from the audit instead of the originals");
-    add(isCs
-      ? "9. Přidej animace při scrollu pro lepší engagement (framer-motion)"
-      : "9. Add scroll animations for better engagement (framer-motion)");
-    add(isCs
-      ? "10. Stránka musí vzbuzovat důvěru — bezpečnostní badges, garance, kontaktní info"
-      : "10. Page must build trust — security badges, guarantees, contact info");
+
+    if (isCs) {
+      add(`Toto NENÍ nová stránka. Rekonstruuj stránku ${audit.url} a aplikuj POUZE opravy nalezené v auditu.`);
+      add(`Screenshot výše slouží jako primární vizuální reference — stránka musí vypadat stejně, jen lépe.`);
+      blank();
+      add("Pravidla:");
+      add("1. ZACHOVEJ barevné schéma, logo, celkový layout a navigaci původní stránky");
+      add("2. ZACHOVEJ sekce stránky ve stejném pořadí, pokud audit nenavrhuje jinak");
+      add("3. ZACHOVEJ font styl a vizuální identitu — neopravuj to, co funguje");
+      add("4. Aplikuj POUZE změny navržené v auditu výše");
+      add("5. Použij optimalizované texty z auditu místo původních tam, kde audit navrhuje změnu");
+      add("6. Zajisti plnou responzivitu (mobile-first)");
+      add("7. Optimalizuj CTA tlačítka dle doporučení auditu — zachovej pozice, zlepši texty a kontrast");
+      add("8. Dodržuj SEO best practices — správná heading hierarchie, meta tagy, alt texty");
+      add("9. Použij React + Tailwind CSS + shadcn/ui komponenty");
+      add("10. Přidej jemné animace (framer-motion) tam, kde to zlepší engagement, ale neměň charakter stránky");
+    } else {
+      add(`This is NOT a new page. Reconstruct the page ${audit.url} and apply ONLY the fixes identified in the audit.`);
+      add(`The screenshot above serves as the primary visual reference — the page must look the same, just better.`);
+      blank();
+      add("Rules:");
+      add("1. PRESERVE the color scheme, logo, overall layout and navigation of the original page");
+      add("2. PRESERVE sections in the same order, unless the audit suggests otherwise");
+      add("3. PRESERVE font style and visual identity — don't fix what isn't broken");
+      add("4. Apply ONLY the changes recommended in the audit above");
+      add("5. Use optimized copy from the audit where changes are suggested");
+      add("6. Ensure full responsiveness (mobile-first)");
+      add("7. Optimize CTA buttons per audit recommendations — keep positions, improve copy and contrast");
+      add("8. Follow SEO best practices — proper heading hierarchy, meta tags, alt text");
+      add("9. Use React + Tailwind CSS + shadcn/ui components");
+      add("10. Add subtle animations (framer-motion) where they improve engagement, but don't change the page character");
+    }
     blank();
 
     const text = lines.join("\n");
