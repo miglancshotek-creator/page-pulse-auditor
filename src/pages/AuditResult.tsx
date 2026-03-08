@@ -70,142 +70,89 @@ const AuditResult = () => {
   const exportPDF = async () => {
     if (!reportRef.current || !audit) return;
     setExporting(true);
+
+    const A4_W = 210;
+    const A4_H = 297;
+    const M = 10;
+    const CW = A4_W - M * 2; // content width mm
+    const GAP = 3;
+    const RENDER_W = 800; // offscreen render width px
+
+    // ---- helpers ----
+    const pdf = new jsPDF("p", "mm", "a4");
+    const fillBg = () => { pdf.setFillColor(252, 252, 252); pdf.rect(0, 0, A4_W, A4_H, "F"); };
+    fillBg();
+    let curY = M;
+
+    const addSection = (imgData: string, wPx: number, hPx: number, forceBreak: boolean, maxH?: number) => {
+      const scale = CW / wPx;
+      let hMM = hPx * scale;
+      if (maxH && hMM > maxH) hMM = maxH; // cap height (screenshots)
+      if (forceBreak && curY > M) { pdf.addPage(); fillBg(); curY = M; }
+      const remaining = A4_H - M - curY;
+      if (hMM > remaining) { pdf.addPage(); fillBg(); curY = M; }
+      pdf.addImage(imgData, "JPEG", M, curY, CW, hMM);
+      curY += hMM + GAP;
+    };
+
+    // ---- clone report offscreen at fixed width ----
+    const clone = reportRef.current.cloneNode(true) as HTMLElement;
+    clone.style.cssText = `position:absolute;left:-9999px;top:0;width:${RENDER_W}px;background:#fcfcfc;z-index:-1;`;
+
+    // Force single-column block layout on everything grid/flex
+    clone.querySelectorAll("*").forEach((el) => {
+      const h = el as HTMLElement;
+      const cs = getComputedStyle(h);
+      if (cs.display.includes("grid") || cs.display.includes("flex")) {
+        h.style.setProperty("display", "block", "important");
+      }
+      h.style.setProperty("animation", "none", "important");
+      h.style.setProperty("opacity", "1", "important");
+      // Remove max-width constraints so sections fill the 800px
+      if (h.classList.contains("max-w-xs") || h.classList.contains("max-w-5xl")) {
+        h.style.setProperty("max-width", "none", "important");
+      }
+    });
+
+    // Shrink FrameworkScores to 50% width in PDF
+    const fwCard = clone.querySelector("[data-pdf-section] .max-w-xs, .max-w-xs[data-pdf-section]") as HTMLElement | null;
+    if (fwCard) {
+      fwCard.style.setProperty("width", `${RENDER_W * 0.5}px`, "important");
+      fwCard.style.setProperty("max-width", `${RENDER_W * 0.5}px`, "important");
+    }
+
+    document.body.appendChild(clone);
+
     try {
-      const A4_WIDTH_MM = 210;
-      const A4_HEIGHT_MM = 297;
-      const MARGIN_MM = 10;
-      const CONTENT_WIDTH_MM = A4_WIDTH_MM - MARGIN_MM * 2;
-      const SECTION_GAP_MM = 3;
-      const MAX_CONTENT_HEIGHT_MM = A4_HEIGHT_MM - MARGIN_MM * 2;
+      // Wait for images to load in clone
+      const imgs = Array.from(clone.querySelectorAll("img")) as HTMLImageElement[];
+      await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })));
 
-      const pdf = new jsPDF("p", "mm", "a4");
-      const fillPage = () => {
-        pdf.setFillColor(252, 252, 252);
-        pdf.rect(0, 0, A4_WIDTH_MM, A4_HEIGHT_MM, "F");
-      };
-      fillPage();
-
-      let currentY = MARGIN_MM;
-
-      // Disable animations and flatten grid layout for capture
-      reportRef.current.style.setProperty("animation", "none", "important");
-      // Force all grids to single-column so sections capture at full width
-      const grids = Array.from(reportRef.current.querySelectorAll(".grid")) as HTMLElement[];
-      grids.forEach((g) => {
-        g.style.setProperty("display", "block", "important");
-      });
-      reportRef.current.querySelectorAll("*").forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        htmlEl.style.setProperty("animation", "none", "important");
-        htmlEl.style.setProperty("opacity", "1", "important");
-      });
-
-      const sections = Array.from(
-        reportRef.current.querySelectorAll("[data-pdf-section]")
-      ) as HTMLElement[];
-
-      const captureOpts = { scale: 2, useCORS: true, backgroundColor: "#fcfcfc", logging: false };
+      const sections = Array.from(clone.querySelectorAll("[data-pdf-section]")) as HTMLElement[];
+      const captureOpts = { scale: 1.5, useCORS: true, backgroundColor: "#fcfcfc", logging: false };
 
       for (const section of sections) {
-        // Skip zero-size sections
         if (section.offsetHeight === 0 || section.offsetWidth === 0) continue;
 
-        // Force page break if marked
-        if (section.hasAttribute("data-pdf-page-break") && currentY > MARGIN_MM) {
-          pdf.addPage();
-          fillPage();
-          currentY = MARGIN_MM;
-        }
+        const forceBreak = section.hasAttribute("data-pdf-page-break");
+
+        // Screenshots: cap at 80mm
+        const isScreenshot = section.querySelector("img") !== null && !section.querySelector("h2") && !section.querySelector("h3");
 
         const canvas = await html2canvas(section, captureOpts);
-        const widthPx = canvas.width;
-        const heightPx = canvas.height;
-        const scaleFactor = CONTENT_WIDTH_MM / widthPx;
-        let heightMM = heightPx * scaleFactor;
-
-        // Cap screenshot images to save space on page 1
-        const isScreenshot = section.querySelector("img") !== null && !section.querySelector("h2") && !section.querySelector("h3");
-        if (isScreenshot && heightMM > 80) {
-          heightMM = 80;
-        }
-
-        const imgData = canvas.toDataURL("image/jpeg", 0.9);
-        const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
-
-        if (heightMM <= remainingSpace) {
-          // Fits on current page
-          pdf.addImage(imgData, "JPEG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
-          currentY += heightMM + SECTION_GAP_MM;
-        } else if (heightMM <= MAX_CONTENT_HEIGHT_MM) {
-          // Doesn't fit here but fits on a fresh page
-          pdf.addPage();
-          fillPage();
-          currentY = MARGIN_MM;
-          pdf.addImage(imgData, "JPEG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
-          currentY += heightMM + SECTION_GAP_MM;
-        } else {
-          // Section taller than a full page — slice it
-          if (currentY > MARGIN_MM) {
-            pdf.addPage();
-            fillPage();
-            currentY = MARGIN_MM;
-          }
-          const pxPerMM = heightPx / heightMM;
-          let srcY = 0;
-          while (srcY < heightPx) {
-            const availableMM = A4_HEIGHT_MM - MARGIN_MM - currentY;
-            const sliceHeightPx = Math.min(availableMM * pxPerMM, heightPx - srcY);
-            const sliceHeightMM = sliceHeightPx / pxPerMM;
-
-            const sliceCanvas = document.createElement("canvas");
-            sliceCanvas.width = canvas.width;
-            sliceCanvas.height = Math.round(sliceHeightPx * (canvas.width / widthPx));
-            const ctx = sliceCanvas.getContext("2d")!;
-            const srcYScaled = Math.round(srcY * (canvas.width / widthPx));
-            const sliceHScaled = sliceCanvas.height;
-            ctx.drawImage(canvas, 0, srcYScaled, canvas.width, sliceHScaled, 0, 0, canvas.width, sliceHScaled);
-
-            const sliceImg = sliceCanvas.toDataURL("image/jpeg", 0.9);
-            pdf.addImage(sliceImg, "JPEG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, sliceHeightMM);
-
-            srcY += sliceHeightPx;
-            currentY += sliceHeightMM + SECTION_GAP_MM;
-
-            if (srcY < heightPx) {
-              pdf.addPage();
-              fillPage();
-              currentY = MARGIN_MM;
-            }
-          }
-        }
+        const imgData = canvas.toDataURL("image/jpeg", 0.85);
+        addSection(imgData, canvas.width, canvas.height, forceBreak, isScreenshot ? 80 : undefined);
       }
 
       const fileName = `audit-${(audit.page_title || audit.url).replace(/[^a-zA-Z0-9]/g, "-").substring(0, 40)}.pdf`;
       pdf.save(fileName);
-
-      // Restore styles
-      reportRef.current.style.removeProperty("animation");
-      grids.forEach((g) => g.style.removeProperty("display"));
-      reportRef.current.querySelectorAll("*").forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        htmlEl.style.removeProperty("animation");
-        htmlEl.style.removeProperty("opacity");
-      });
       toast({ title: t("result.pdfExported") || "PDF exported successfully" });
     } catch {
-      if (reportRef.current) {
-        reportRef.current.style.removeProperty("animation");
-        const grids = Array.from(reportRef.current.querySelectorAll(".grid")) as HTMLElement[];
-        grids.forEach((g) => g.style.removeProperty("display"));
-        reportRef.current.querySelectorAll("*").forEach((el) => {
-          const htmlEl = el as HTMLElement;
-          htmlEl.style.removeProperty("animation");
-          htmlEl.style.removeProperty("opacity");
-        });
-      }
       toast({ title: "Export failed", variant: "destructive" });
+    } finally {
+      document.body.removeChild(clone);
+      setExporting(false);
     }
-    setExporting(false);
   };
 
   const dateLang = lang === "cs" ? "cs-CZ" : "en-US";

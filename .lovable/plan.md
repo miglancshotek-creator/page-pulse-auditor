@@ -1,56 +1,78 @@
 
+# Fix Revenue Loss Calculation Logic
 
-## Problem Analysis
+## Problem
+The AI prompt provides no concrete formula for calculating revenue loss. It just says "estimate the revenue being lost," which causes the AI to conflate ad spend with traffic volume (e.g., "€7500 ad spend = 225 conversions" — nonsensical).
 
-The PDF export has a fundamental flaw: sections like "Issues Found" framework cards live inside a CSS grid (`lg:col-span-3`) that makes them only ~60% width. The current hack of forcing `display: block` on grids doesn't reliably fix child sizing, causing `html2canvas` to capture distorted/clipped content. The canvas slicing logic for tall sections also has coordinate bugs.
+## Correct Calculation Model
 
-## Plan: Clean PDF Export Rewrite
-
-### 1. Rewrite `exportPDF` in `AuditResult.tsx` — simple, no slicing
-
-Replace the entire export function with a clean approach:
-
-- **Temporary layout override**: Before capture, set `reportRef` to `position: absolute; width: 800px; left: -9999px` and force ALL children to single-column block layout. This guarantees every section renders at full 800px width regardless of grid classes.
-- **No canvas slicing**: Remove the complex slice logic entirely. Each `data-pdf-section` gets captured individually. If a section is taller than a page, scale it down to fit rather than slicing (these are card-sized sections, none should exceed a page).
-- **Balanced quality**: Use `scale: 1.5` and JPEG at 0.85 quality for smaller file size.
-- **Health Score scaling**: Before capturing the FrameworkScores section, temporarily remove `max-w-xs` and set `width: 400px` (50% of 800px container) so it appears half-size in PDF only.
-- **Page break logic**: Simple — if section doesn't fit remaining space, `addPage()` and place at top. The `data-pdf-page-break` attribute forces a new page.
-
-### 2. Fix section markup in `CriticalIssues.tsx`
-
-- Keep `data-pdf-section` on each individual framework card (already correct).
-- Keep `data-pdf-page-break` on the "Issues Found" title div.
-- No other changes needed.
-
-### 3. No changes to `FrameworkScores.tsx`
-
-Keep the current compact web styling. The PDF export will handle sizing separately.
-
-### Technical Details
+The proper chain is:
 
 ```text
-PDF Page Layout (A4 = 210x297mm, 10mm margins):
+Ad Spend (EUR) / CPC (EUR) = Monthly Visitors
+Monthly Visitors x Conversion Rate (%) = Current Conversions
+Current Conversions x Avg. Revenue per Conversion = Current Revenue
 
-Page 1:
-  ┌─────────────────────────┐
-  │  Page Title + URL        │  ~25mm
-  │  Screenshot (capped 80mm)│  ~80mm
-  │  Health Score (50% width)│  ~40mm
-  │  [remaining space]       │
-  └─────────────────────────┘
-
-Page 2+:
-  ┌─────────────────────────┐
-  │  ⚠ Issues Found (title)  │
-  │  Framework Card 1        │
-  │  Framework Card 2        │
-  │  ... (auto page break)   │
-  └─────────────────────────┘
+For each issue:
+  Issue causes X% relative drop in conversion rate
+  Lost Conversions = Monthly Visitors x (CR x X%)
+  Lost Revenue = Lost Conversions x Avg. Revenue per Conversion
 ```
 
-Key differences from current approach:
-- Fixed-width offscreen rendering eliminates grid distortion
-- No canvas slicing = no coordinate bugs
-- Each section captured independently at correct dimensions
-- JPEG 0.85 + scale 1.5 = ~40% smaller file than current settings
+## Changes
 
+### 1. Add new form field: Average Order Value / Deal Value
+**File:** `src/components/AuditForm.tsx`
+
+Add an optional input field for "Average order/deal value (EUR)" so the AI can calculate actual revenue loss, not just lost conversions. Without this, the AI has to guess revenue per conversion.
+
+### 2. Rewrite the revenue loss prompt instructions
+**File:** `supabase/functions/audit-score/index.ts`
+
+Replace the vague "REVENUE LOSS CALCULATION INSTRUCTIONS" block (lines 40-44) with a precise, step-by-step formula:
+
+- Provide estimated CPC benchmarks by traffic source (Google Ads ~EUR 0.50-3.00, Meta ~EUR 0.30-1.50, etc.)
+- Instruct: Estimated Visitors = Ad Spend / estimated CPC
+- Instruct: Current Conversions = Visitors x Conversion Rate
+- Instruct: For each issue, state the estimated % relative conversion rate drop, then compute lost conversions and lost EUR
+- If average order value is provided, use it; otherwise use industry benchmarks (e-commerce ~EUR 50-80, SaaS ~EUR 30-100/mo, lead gen ~EUR 50-200, etc.)
+- Require the AI to show its math in the `explanation` field so the user can verify
+
+### 3. Update the tool schema for revenue loss items
+**File:** `supabase/functions/audit-score/index.ts`
+
+Add a `calculation_details` property to each revenue loss item schema so the AI is forced to output the intermediate values (estimated CPC used, visitors, CR drop %, lost conversions, revenue per conversion). This makes the math transparent and auditable.
+
+### 4. Display calculation transparency in the UI
+**File:** `src/components/RevenueLoss.tsx`
+
+The `explanation` field already displays in each issue card. No major UI change needed, but the explanations will now contain actual math instead of hand-waving, because the prompt forces it.
+
+### 5. Update translations
+**File:** `src/contexts/LanguageContext.tsx`
+
+Add translations for the new "Average order value" form field label and placeholder.
+
+## Technical Details
+
+The key change is in the edge function prompt. The new `REVENUE LOSS CALCULATION INSTRUCTIONS` block will look roughly like:
+
+```
+REVENUE LOSS CALCULATION - FOLLOW THIS FORMULA EXACTLY:
+1. Estimate CPC for the traffic source:
+   - Google Search Ads: €1.00-3.00
+   - Google Display: €0.30-0.80
+   - Meta/Facebook: €0.40-1.50
+   - LinkedIn: €3.00-8.00
+   - Organic/SEO: use €0 CPC, estimate monthly organic visitors at ~1000-5000
+2. Monthly Visitors = Monthly Ad Spend / estimated CPC
+3. Current Conversions = Monthly Visitors x Conversion Rate
+4. Revenue per Conversion = [user-provided value] or industry benchmark
+5. For each conversion issue:
+   - State the estimated relative CR drop (e.g., "10% relative drop")
+   - Lost Conversions = Monthly Visitors x (CR x relative_drop%)
+   - Monthly Loss = Lost Conversions x Revenue per Conversion
+6. Show ALL math steps in the explanation field.
+```
+
+This ensures the AI cannot mix up ad spend with traffic, and the user can verify every number.
