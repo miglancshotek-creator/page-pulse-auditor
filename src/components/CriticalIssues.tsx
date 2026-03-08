@@ -81,7 +81,7 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
 
   return (
     <div className="space-y-4 animate-fade-up">
-      <div data-pdf-section className="flex items-center gap-2 mb-2">
+      <div data-pdf-section data-pdf-page-break className="flex items-center gap-2 mb-2">
         <AlertTriangle className="h-5 w-5 text-[hsl(0,72%,55%)]" />
         <h2 className="text-2xl font-bold">{t("issues.title")}</h2>
       </div>

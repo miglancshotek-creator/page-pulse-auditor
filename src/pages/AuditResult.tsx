@@ -101,6 +101,13 @@ const AuditResult = () => {
       const captureOpts = { scale: 2, useCORS: true, backgroundColor: "#fcfcfc", logging: false };
 
       for (const section of sections) {
+        // Force page break if marked
+        if (section.hasAttribute("data-pdf-page-break") && currentY > MARGIN_MM) {
+          pdf.addPage();
+          fillPage();
+          currentY = MARGIN_MM;
+        }
+
         const canvas = await html2canvas(section, captureOpts);
 
         const widthPx = canvas.width / 2;
