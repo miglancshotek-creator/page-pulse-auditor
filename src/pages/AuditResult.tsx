@@ -129,19 +129,22 @@ const AuditResult = () => {
           heightMM = 80;
         }
 
-        const imgData = canvas.toDataURL("image/jpeg", 0.9);
+        const imageType = isScreenshot ? "JPEG" : "PNG";
+        const imgData = isScreenshot
+          ? canvas.toDataURL("image/jpeg", 0.92)
+          : canvas.toDataURL("image/png");
         const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
 
         if (heightMM <= remainingSpace) {
           // Fits on current page
-          pdf.addImage(imgData, "JPEG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
+          pdf.addImage(imgData, imageType, MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
           currentY += heightMM + SECTION_GAP_MM;
         } else if (heightMM <= MAX_CONTENT_HEIGHT_MM) {
           // Doesn't fit here but fits on a fresh page
           pdf.addPage();
           fillPage();
           currentY = MARGIN_MM;
-          pdf.addImage(imgData, "JPEG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
+          pdf.addImage(imgData, imageType, MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
           currentY += heightMM + SECTION_GAP_MM;
         } else {
           // Section taller than a full page — slice it
