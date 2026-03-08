@@ -88,9 +88,13 @@ const AuditResult = () => {
       const scale = CW / wPx;
       let hMM = hPx * scale;
       if (maxH && hMM > maxH) hMM = maxH; // cap height (screenshots)
-      if (forceBreak && curY > M) { pdf.addPage(); fillBg(); curY = M; }
+      if (hMM < 1) return; // skip empty/invisible sections
+      if (forceBreak && curY > M + 1) { pdf.addPage(); fillBg(); curY = M; }
       const remaining = A4_H - M - curY;
-      if (hMM > remaining) { pdf.addPage(); fillBg(); curY = M; }
+      if (hMM > remaining && curY > M + 1) { pdf.addPage(); fillBg(); curY = M; }
+      // If section is taller than a full page, scale it down
+      const maxPageH = A4_H - M * 2;
+      if (hMM > maxPageH) hMM = maxPageH;
       pdf.addImage(imgData, "JPEG", M, curY, CW, hMM);
       curY += hMM + GAP;
     };
