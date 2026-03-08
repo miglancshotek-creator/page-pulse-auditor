@@ -80,8 +80,8 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
   const orderedFrameworks = FRAMEWORK_ORDER;
 
   return (
-    <div data-pdf-section className="space-y-4 animate-fade-up">
-      <div className="flex items-center gap-2 mb-2">
+    <div className="space-y-4 animate-fade-up">
+      <div data-pdf-section className="flex items-center gap-2 mb-2">
         <AlertTriangle className="h-5 w-5 text-[hsl(0,72%,55%)]" />
         <h2 className="text-2xl font-bold">{t("issues.title")}</h2>
       </div>
@@ -112,6 +112,7 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
           return (
             <div
               key={fwKey}
+              data-pdf-section
               className="rounded-xl border border-border bg-card overflow-hidden animate-fade-up"
               style={{ animationDelay: `${fwIndex * 100}ms` }}
             >
@@ -204,7 +205,7 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
 
       {/* Revenue leak total */}
       {totalMonthlyLoss != null && totalMonthlyLoss > 0 && (
-        <div className="rounded-xl border border-[hsl(0,72%,55%)]/30 bg-[hsl(0,72%,55%)]/5 p-5">
+        <div data-pdf-section className="rounded-xl border border-[hsl(0,72%,55%)]/30 bg-[hsl(0,72%,55%)]/5 p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">{t("issues.estMonthlyLeak")}</p>
