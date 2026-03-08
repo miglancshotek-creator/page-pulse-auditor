@@ -1,78 +1,39 @@
 
-# Fix Revenue Loss Calculation Logic
 
-## Problem
-The AI prompt provides no concrete formula for calculating revenue loss. It just says "estimate the revenue being lost," which causes the AI to conflate ad spend with traffic volume (e.g., "€7500 ad spend = 225 conversions" — nonsensical).
+## Feature: "Build Prompt" Generator — Audit to Build
 
-## Correct Calculation Model
+Generate a downloadable `.txt` file containing a detailed Lovable-ready prompt to rebuild the audited landing page with all audit fixes applied.
 
-The proper chain is:
+### How it works
 
-```text
-Ad Spend (EUR) / CPC (EUR) = Monthly Visitors
-Monthly Visitors x Conversion Rate (%) = Current Conversions
-Current Conversions x Avg. Revenue per Conversion = Current Revenue
+A new **"Download Build Prompt"** button will appear on the audit result page (next to the existing "Download PDF" button). When clicked, it generates a structured text prompt from the audit data and triggers a `.txt` file download — no backend needed.
 
-For each issue:
-  Issue causes X% relative drop in conversion rate
-  Lost Conversions = Monthly Visitors x (CR x X%)
-  Lost Revenue = Lost Conversions x Avg. Revenue per Conversion
-```
+### Prompt structure (generated from audit data)
 
-## Changes
+The `.txt` file will contain a comprehensive Lovable prompt structured as:
 
-### 1. Add new form field: Average Order Value / Deal Value
-**File:** `src/components/AuditForm.tsx`
+1. **Header** — "Build a high-converting landing page based on the following audit analysis"
+2. **Original page info** — URL, title, audit date
+3. **Conversion Rate Score** — Overall score + per-framework scores with key issues
+4. **Critical issues to fix** — Each issue with its solution, organized by framework
+5. **Content optimizations** — Current vs optimized text for headings, CTAs, etc.
+6. **Overall summary & next steps** — Narrative + prioritized action items
+7. **Build instructions** — Explicit instructions for Lovable to create a modern, conversion-optimized landing page incorporating all fixes
 
-Add an optional input field for "Average order/deal value (EUR)" so the AI can calculate actual revenue loss, not just lost conversions. Without this, the AI has to guess revenue per conversion.
+### Files to change
 
-### 2. Rewrite the revenue loss prompt instructions
-**File:** `supabase/functions/audit-score/index.ts`
+1. **`src/pages/AuditResult.tsx`** — Add a `generateBuildPrompt()` function that assembles the text from `rawResults` and `audit` data, creates a Blob, and triggers download. Add a new button in the header next to "Download PDF".
 
-Replace the vague "REVENUE LOSS CALCULATION INSTRUCTIONS" block (lines 40-44) with a precise, step-by-step formula:
+2. **`src/contexts/LanguageContext.tsx`** — Add translation keys for the new button label (`result.downloadPrompt`).
 
-- Provide estimated CPC benchmarks by traffic source (Google Ads ~EUR 0.50-3.00, Meta ~EUR 0.30-1.50, etc.)
-- Instruct: Estimated Visitors = Ad Spend / estimated CPC
-- Instruct: Current Conversions = Visitors x Conversion Rate
-- Instruct: For each issue, state the estimated % relative conversion rate drop, then compute lost conversions and lost EUR
-- If average order value is provided, use it; otherwise use industry benchmarks (e-commerce ~EUR 50-80, SaaS ~EUR 30-100/mo, lead gen ~EUR 50-200, etc.)
-- Require the AI to show its math in the `explanation` field so the user can verify
+### UI placement
 
-### 3. Update the tool schema for revenue loss items
-**File:** `supabase/functions/audit-score/index.ts`
+The button will sit in the header bar alongside "Download PDF" and "Share", with a download icon and label "Download Build Prompt" / "Stáhnout Build Prompt".
 
-Add a `calculation_details` property to each revenue loss item schema so the AI is forced to output the intermediate values (estimated CPC used, visitors, CR drop %, lost conversions, revenue per conversion). This makes the math transparent and auditable.
+### Technical approach
 
-### 4. Display calculation transparency in the UI
-**File:** `src/components/RevenueLoss.tsx`
+- Pure client-side: no edge function needed
+- Uses `Blob` + `URL.createObjectURL` + temporary `<a>` element for download
+- Filename: `build-prompt-{page-title}.txt`
+- The prompt text will be bilingual based on current language setting
 
-The `explanation` field already displays in each issue card. No major UI change needed, but the explanations will now contain actual math instead of hand-waving, because the prompt forces it.
-
-### 5. Update translations
-**File:** `src/contexts/LanguageContext.tsx`
-
-Add translations for the new "Average order value" form field label and placeholder.
-
-## Technical Details
-
-The key change is in the edge function prompt. The new `REVENUE LOSS CALCULATION INSTRUCTIONS` block will look roughly like:
-
-```
-REVENUE LOSS CALCULATION - FOLLOW THIS FORMULA EXACTLY:
-1. Estimate CPC for the traffic source:
-   - Google Search Ads: €1.00-3.00
-   - Google Display: €0.30-0.80
-   - Meta/Facebook: €0.40-1.50
-   - LinkedIn: €3.00-8.00
-   - Organic/SEO: use €0 CPC, estimate monthly organic visitors at ~1000-5000
-2. Monthly Visitors = Monthly Ad Spend / estimated CPC
-3. Current Conversions = Monthly Visitors x Conversion Rate
-4. Revenue per Conversion = [user-provided value] or industry benchmark
-5. For each conversion issue:
-   - State the estimated relative CR drop (e.g., "10% relative drop")
-   - Lost Conversions = Monthly Visitors x (CR x relative_drop%)
-   - Monthly Loss = Lost Conversions x Revenue per Conversion
-6. Show ALL math steps in the explanation field.
-```
-
-This ensures the AI cannot mix up ad spend with traffic, and the user can verify every number.
