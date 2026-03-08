@@ -304,7 +304,7 @@ const AuditResult = () => {
 
         {/* Health Score — full width, centered above issues */}
         {frameworkScores.length > 0 && (
-          <div className="max-w-5xl mx-auto">
+            <div data-pdf-section data-fw-scores className="max-w-5xl mx-auto">
             <FrameworkScores
               scores={frameworkScores}
               overallScore={overallScore}
