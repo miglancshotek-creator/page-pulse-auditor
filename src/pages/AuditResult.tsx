@@ -114,7 +114,7 @@ const AuditResult = () => {
         if (section.hasAttribute("data-pdf-page-break") && currentY > MARGIN_MM) {
           pdf.addPage();
           fillPage();
-          currentY = MARGIN_MM;
+          currentY = MARGIN_MM + 2;
         }
 
         const canvas = await html2canvas(section, captureOpts);
