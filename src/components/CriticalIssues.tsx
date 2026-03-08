@@ -80,13 +80,13 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
   const orderedFrameworks = FRAMEWORK_ORDER;
 
   return (
-    <div className="space-y-4 animate-fade-up">
-      <div data-pdf-section data-pdf-page-break className="flex items-center gap-2 mb-2">
-        <AlertTriangle className="h-5 w-5 text-[hsl(0,72%,55%)]" />
-        <h2 className="text-2xl font-bold">{t("issues.title")}</h2>
+    <div className="space-y-5 animate-fade-up">
+      <div data-pdf-section data-pdf-page-break className="flex items-center gap-2.5 mb-2">
+        <AlertTriangle className="h-6 w-6 text-[hsl(0,72%,55%)]" />
+        <h2 className="text-3xl font-bold">{t("issues.title")}</h2>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {orderedFrameworks.map((fwKey, fwIndex) => {
           const fwIssues = grouped[fwKey] || [];
           const label = FRAMEWORK_LABELS[fwKey]?.[lang] || fwKey;
@@ -117,28 +117,28 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
               style={{ animationDelay: `${fwIndex * 100}ms` }}
             >
               {/* Framework header */}
-              <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${fwDotClass}`} />
-                  <h3 className="text-base font-bold">{label}</h3>
+              <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className={`h-3 w-3 rounded-full shrink-0 ${fwDotClass}`} />
+                  <h3 className="text-lg font-bold">{label}</h3>
                   {isAllGood ? (
-                    <span className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${fwBadgeClass}`}>
+                    <span className={`text-[11px] font-bold tracking-[0.08em] uppercase px-2.5 py-1 rounded border ${fwBadgeClass}`}>
                       ✓ {lang === "cs" ? "V pořádku" : "Looks good"}
                     </span>
                   ) : isMissingIssues ? (
-                    <span className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${fwBadgeClass}`}>
+                    <span className={`text-[11px] font-bold tracking-[0.08em] uppercase px-2.5 py-1 rounded border ${fwBadgeClass}`}>
                       {lang === "cs" ? "⚠ K revizi" : "⚠ Review"}
                     </span>
                   ) : (
                     <span
-                      className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${fwBadgeClass}`}
+                      className={`text-[11px] font-bold tracking-[0.08em] uppercase px-2.5 py-1 rounded border ${fwBadgeClass}`}
                     >
                       {fwSeverity}
                     </span>
                   )}
                 </div>
                 {frameworkLoss > 0 && !isAllGood && (
-                  <span className="text-sm font-bold text-[hsl(0,72%,55%)] tabular-nums">
+                  <span className="text-base font-bold text-[hsl(0,72%,55%)] tabular-nums">
                     ~{formatCurrency(frameworkLoss)}/mo
                   </span>
                 )}
@@ -146,16 +146,16 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
 
               {/* Issues within framework */}
               {isAllGood ? (
-                <div className="px-4 py-4">
-                  <p className="text-sm text-muted-foreground">
+                <div className="px-5 py-5">
+                  <p className="text-base text-muted-foreground">
                     {lang === "cs"
                       ? "Tato sekce je dobře optimalizovaná. Nebyly nalezeny žádné závažné problémy."
                       : "This section is well-optimized. No significant issues found."}
                   </p>
                 </div>
               ) : isMissingIssues ? (
-                <div className="px-4 py-4">
-                  <p className="text-sm text-[hsl(38,92%,55%)]">
+                <div className="px-5 py-5">
+                  <p className="text-base text-[hsl(38,92%,55%)]">
                     {lang === "cs"
                       ? `Skóre ${Math.round(fwScore * 10)}/100 — problémy nebyly vráceny, ale doporučujeme revizi.`
                       : `Score ${Math.round(fwScore * 10)}/100 — no specific issues returned, review recommended.`}
@@ -164,24 +164,24 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
               ) : (
                 <div className="divide-y divide-border">
                   {fwIssues.map((item, i) => (
-                      <div key={i} className="px-4 py-3">
-                        <div className="flex items-start justify-between gap-3 mb-1.5">
+                      <div key={i} className="px-5 py-4">
+                        <div className="flex items-start justify-between gap-3 mb-2">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="text-sm font-semibold">{cleanIssueTitle(item.issue)}</h4>
+                            <h4 className="text-base font-semibold">{cleanIssueTitle(item.issue)}</h4>
                           </div>
                           {item.estimated_monthly_loss != null && item.estimated_monthly_loss > 0 && (
-                            <span className="text-xs font-bold text-[hsl(0,72%,55%)] shrink-0 tabular-nums">
+                            <span className="text-sm font-bold text-[hsl(0,72%,55%)] shrink-0 tabular-nums">
                               ~{formatCurrency(item.estimated_monthly_loss)}/mo
                             </span>
                           )}
                         </div>
 
-                        <p className="text-sm text-muted-foreground leading-relaxed mb-2">
+                        <p className="text-base text-muted-foreground leading-relaxed mb-3">
                           {item.description}
                         </p>
 
-                        <div className="rounded-lg bg-primary/5 border border-primary/10 p-2.5">
-                          <p className="text-sm">
+                        <div className="rounded-lg bg-primary/5 border border-primary/10 p-3">
+                          <p className="text-base">
                             <span className="font-semibold text-primary">
                               {t("issues.solution")}:{" "}
                             </span>
@@ -190,7 +190,7 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
                         </div>
 
                         {item.explanation && (
-                          <div className="mt-2 rounded-lg bg-muted/40 border border-border/60 p-3 font-mono text-[11px] text-muted-foreground leading-[1.7] whitespace-pre-line tabular-nums">
+                          <div className="mt-2.5 rounded-lg bg-muted/40 border border-border/60 p-3.5 font-mono text-xs text-muted-foreground leading-[1.7] whitespace-pre-line tabular-nums">
                             {item.explanation}
                           </div>
                         )}
@@ -205,17 +205,17 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
 
       {/* Revenue leak total */}
       {totalMonthlyLoss != null && totalMonthlyLoss > 0 && (
-        <div data-pdf-section className="rounded-xl border border-[hsl(0,72%,55%)]/30 bg-[hsl(0,72%,55%)]/5 p-5">
+        <div data-pdf-section className="rounded-xl border border-[hsl(0,72%,55%)]/30 bg-[hsl(0,72%,55%)]/5 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">{t("issues.estMonthlyLeak")}</p>
+              <p className="text-base text-muted-foreground">{t("issues.estMonthlyLeak")}</p>
               {totalAnnualLoss != null && (
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-sm text-muted-foreground mt-0.5">
                   {t("issues.estAnnualLeak")}: {formatCurrency(totalAnnualLoss)}
                 </p>
               )}
             </div>
-            <p className="text-3xl font-extrabold text-[hsl(0,72%,55%)]">
+            <p className="text-4xl font-extrabold text-[hsl(0,72%,55%)]">
               {formatCurrency(totalMonthlyLoss)}
             </p>
           </div>
