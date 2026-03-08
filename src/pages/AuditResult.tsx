@@ -281,25 +281,25 @@ const AuditResult = () => {
 
         {/* Health Score — full width, centered above issues */}
         {frameworkScores.length > 0 && (
-          <div className="flex justify-center">
-            <div className="w-full max-w-3xl">
-              <FrameworkScores
-                scores={frameworkScores}
-                overallScore={overallScore}
-                criticalCount={criticalCount}
-              />
-            </div>
+          <div className="max-w-5xl mx-auto">
+            <FrameworkScores
+              scores={frameworkScores}
+              overallScore={overallScore}
+              criticalCount={criticalCount}
+            />
           </div>
         )}
 
-        {/* Critical issues — full width below */}
+        {/* Critical issues — same width as screenshot */}
         {criticalIssues.length > 0 && (
-          <CriticalIssues
-            issues={criticalIssues}
-            totalMonthlyLoss={totalMonthlyLoss}
-            totalAnnualLoss={totalAnnualLoss}
-            frameworkScores={frameworkScores}
-          />
+          <div className="max-w-5xl mx-auto">
+            <CriticalIssues
+              issues={criticalIssues}
+              totalMonthlyLoss={totalMonthlyLoss}
+              totalAnnualLoss={totalAnnualLoss}
+              frameworkScores={frameworkScores}
+            />
+          </div>
         )}
 
         {/* Overall summary */}
