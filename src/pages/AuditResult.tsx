@@ -175,7 +175,7 @@ const AuditResult = () => {
 
         if (isScreenshot) {
           lastScreenshotW = drawnW;
-          curY += 8;
+          curY += 3;
         }
       }
 
