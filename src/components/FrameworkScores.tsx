@@ -31,22 +31,22 @@ const FrameworkScores = ({ scores, overallScore, criticalCount }: FrameworkScore
   return (
     <div data-pdf-section data-fw-scores className="rounded-xl border border-border bg-card overflow-hidden animate-fade-up">
       {/* Header */}
-      <div className="px-2.5 pt-2.5 pb-2">
-        <p className="text-[8px] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1">
+      <div className="px-4 py-3 border-b border-border">
+        <p className="text-[10px] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
           {t("fw.healthScore")}
         </p>
-        <div className="flex items-end justify-between mb-1">
-          <div className="flex items-baseline gap-0.5">
-            <span className="text-2xl font-extrabold tracking-tight">{overallScore}</span>
-            <span className="text-xs text-muted-foreground font-medium">/100</span>
+        <div className="flex items-end justify-between mb-2">
+          <div className="flex items-baseline gap-1">
+            <span className="text-3xl font-extrabold tracking-tight">{overallScore}</span>
+            <span className="text-sm text-muted-foreground font-medium">/100</span>
           </div>
           {criticalCount > 0 && (
-            <span className={`text-[8px] font-bold tracking-[0.1em] uppercase px-1.5 py-0.5 rounded border ${getScoreBadgeClass(0)}`}>
+            <span className={`text-[9px] font-bold tracking-[0.08em] uppercase px-2 py-0.5 rounded border ${getScoreBadgeClass(0)}`}>
               {criticalCount} {t("fw.criticalIssues")}
             </span>
           )}
         </div>
-        <div className="h-0.5 rounded-full bg-muted/30 overflow-hidden">
+        <div className="h-1 rounded-full bg-muted/30 overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-1000 ${getScoreBgClass(overallScore)}`}
             style={{ width: `${overallScore}%` }}
@@ -54,23 +54,20 @@ const FrameworkScores = ({ scores, overallScore, criticalCount }: FrameworkScore
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="border-t border-border" />
-
       {/* Framework bars */}
-      <div className="px-2.5 py-2 space-y-1">
+      <div className="px-4 py-3 space-y-2">
         {scores.map((fw) => {
           const label = FRAMEWORK_LABELS[fw.key]?.[lang] || fw.name;
           return (
-            <div key={fw.key} className="flex items-center gap-1.5">
-              <span className="text-[9px] text-muted-foreground w-12 shrink-0 text-right">{label}</span>
-              <div className="flex-1 h-1 rounded-full bg-muted/20 overflow-hidden">
+            <div key={fw.key} className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground w-16 shrink-0 text-right">{label}</span>
+              <div className="flex-1 h-1.5 rounded-full bg-muted/20 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-700 ${getScoreBgClass(fw.score * 10)}`}
                   style={{ width: `${fw.score * 10}%` }}
                 />
               </div>
-              <span className="text-[9px] font-bold w-8 text-right tabular-nums">{Math.round(fw.score * 10)}/100</span>
+              <span className="text-xs font-bold w-12 text-right tabular-nums">{Math.round(fw.score * 10)}/100</span>
             </div>
           );
         })}
