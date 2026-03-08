@@ -108,12 +108,10 @@ const AuditResult = () => {
         const scaleFactor = CONTENT_WIDTH_MM / widthPx;
         let heightMM = heightPx * scaleFactor;
 
-        // Cap screenshot images to max 120mm height to save space
+        // Cap screenshot images to max 80mm height so Health Score fits on same page
         const isScreenshot = section.querySelector("img") !== null && section.closest("[data-pdf-section]") === section && !section.querySelector("h2");
-        if (isScreenshot && heightMM > 120) {
-          // Re-capture at smaller scale to fit
-          const fitScale = 120 / heightMM;
-          heightMM = 120;
+        if (isScreenshot && heightMM > 80) {
+          heightMM = 80;
           const imgData = canvas.toDataURL("image/jpeg", 0.85);
           const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
           if (heightMM > remainingSpace && currentY > MARGIN_MM) {
