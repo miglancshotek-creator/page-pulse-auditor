@@ -114,7 +114,7 @@ const AuditResult = () => {
         if (section.hasAttribute("data-pdf-page-break") && currentY > MARGIN_MM) {
           pdf.addPage();
           fillPage();
-          currentY = MARGIN_MM;
+          currentY = MARGIN_MM + 2;
         }
 
         const canvas = await html2canvas(section, captureOpts);
@@ -129,19 +129,22 @@ const AuditResult = () => {
           heightMM = 80;
         }
 
-        const imgData = canvas.toDataURL("image/jpeg", 0.9);
+        const imageType = isScreenshot ? "JPEG" : "PNG";
+        const imgData = isScreenshot
+          ? canvas.toDataURL("image/jpeg", 0.92)
+          : canvas.toDataURL("image/png");
         const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
 
         if (heightMM <= remainingSpace) {
           // Fits on current page
-          pdf.addImage(imgData, "JPEG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
+          pdf.addImage(imgData, imageType, MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
           currentY += heightMM + SECTION_GAP_MM;
         } else if (heightMM <= MAX_CONTENT_HEIGHT_MM) {
           // Doesn't fit here but fits on a fresh page
           pdf.addPage();
           fillPage();
           currentY = MARGIN_MM;
-          pdf.addImage(imgData, "JPEG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
+          pdf.addImage(imgData, imageType, MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
           currentY += heightMM + SECTION_GAP_MM;
         } else {
           // Section taller than a full page — slice it
@@ -165,8 +168,8 @@ const AuditResult = () => {
             const sliceHScaled = sliceCanvas.height;
             ctx.drawImage(canvas, 0, srcYScaled, canvas.width, sliceHScaled, 0, 0, canvas.width, sliceHScaled);
 
-            const sliceImg = sliceCanvas.toDataURL("image/jpeg", 0.9);
-            pdf.addImage(sliceImg, "JPEG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, sliceHeightMM);
+            const sliceImg = sliceCanvas.toDataURL("image/png");
+            pdf.addImage(sliceImg, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, sliceHeightMM);
 
             srcY += sliceHeightPx;
             currentY += sliceHeightMM + SECTION_GAP_MM;
