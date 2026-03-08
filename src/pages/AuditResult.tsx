@@ -207,6 +207,138 @@ const AuditResult = () => {
     }
   };
 
+  const generateBuildPrompt = () => {
+    if (!audit) return;
+
+    const isCs = lang === "cs";
+    const lines: string[] = [];
+    const add = (s: string) => lines.push(s);
+    const blank = () => lines.push("");
+
+    add("=".repeat(70));
+    add(isCs
+      ? "LOVABLE PROMPT: Postav vysoce konvertující landing page na základě tohoto auditu"
+      : "LOVABLE PROMPT: Build a high-converting landing page based on this audit");
+    add("=".repeat(70));
+    blank();
+
+    // 1. Original page info
+    add(isCs ? "## Původní stránka" : "## Original Page");
+    add(`URL: ${audit.url}`);
+    add(`${isCs ? "Název" : "Title"}: ${audit.page_title || "N/A"}`);
+    add(`${isCs ? "Datum auditu" : "Audit date"}: ${new Date(audit.created_at).toLocaleDateString(lang === "cs" ? "cs-CZ" : "en-US", { day: "numeric", month: "long", year: "numeric" })}`);
+    add(`${isCs ? "Celkové skóre" : "Overall score"}: ${overallScore}/100`);
+    blank();
+
+    // 2. Framework scores
+    if (frameworkScores.length > 0) {
+      add(isCs ? "## Skóre podle frameworků" : "## Framework Scores");
+      for (const fw of frameworkScores) {
+        const score = Math.round((fw.score || 0) * 10);
+        add(`- ${fw.name}: ${score}/100`);
+        if (fw.issues?.length) {
+          for (const issue of fw.issues) {
+            add(`  • ${isCs ? "Problém" : "Issue"}: ${issue.title || issue}`);
+            if (issue.solution) add(`    ${isCs ? "Řešení" : "Solution"}: ${issue.solution}`);
+          }
+        }
+      }
+      blank();
+    }
+
+    // 3. Critical issues
+    if (criticalIssues.length > 0) {
+      add(isCs ? "## Kritické problémy k opravě" : "## Critical Issues to Fix");
+      for (const issue of criticalIssues) {
+        add(`### ${issue.framework || "General"}: ${issue.title}`);
+        if (issue.description) add(issue.description);
+        if (issue.solution) add(`${isCs ? "Řešení" : "Solution"}: ${issue.solution}`);
+        if (issue.est_monthly_leak) add(`${isCs ? "Měsíční únik" : "Monthly leak"}: ${issue.est_monthly_leak}`);
+        blank();
+      }
+    }
+
+    // 4. Content optimizations
+    const contentOpts = rawResults.content_optimizations;
+    if (Array.isArray(contentOpts) && contentOpts.length > 0) {
+      add(isCs ? "## Optimalizace obsahu" : "## Content Optimizations");
+      for (const opt of contentOpts) {
+        add(`- ${opt.element || opt.type || "Element"}`);
+        if (opt.current) add(`  ${isCs ? "Aktuální" : "Current"}: ${opt.current}`);
+        if (opt.optimized) add(`  ${isCs ? "Optimalizovaná" : "Optimized"}: ${opt.optimized}`);
+        if (opt.why) add(`  ${isCs ? "Proč" : "Why"}: ${opt.why}`);
+      }
+      blank();
+    }
+
+    // 5. Overall summary
+    if (overallSummary) {
+      add(isCs ? "## Celkové shrnutí" : "## Overall Summary");
+      if (overallSummary.narrative) add(overallSummary.narrative);
+      if (overallSummary.next_steps?.length) {
+        blank();
+        add(isCs ? "Další kroky:" : "Next steps:");
+        for (const step of overallSummary.next_steps) {
+          add(`- ${step}`);
+        }
+      }
+      blank();
+    }
+
+    // 6. Build instructions
+    add("=".repeat(70));
+    add(isCs ? "## INSTRUKCE PRO LOVABLE" : "## INSTRUCTIONS FOR LOVABLE");
+    add("=".repeat(70));
+    blank();
+    add(isCs
+      ? `Na základě výše uvedeného auditu stránky ${audit.url} vytvoř novou, moderní landing page, která opraví VŠECHNY nalezené problémy.`
+      : `Based on the above audit of ${audit.url}, build a new, modern landing page that fixes ALL identified issues.`);
+    blank();
+    add(isCs ? "Požadavky:" : "Requirements:");
+    add(isCs
+      ? "1. Použij React + Tailwind CSS + shadcn/ui komponenty"
+      : "1. Use React + Tailwind CSS + shadcn/ui components");
+    add(isCs
+      ? "2. Stránka musí být plně responzivní (mobile-first)"
+      : "2. Page must be fully responsive (mobile-first)");
+    add(isCs
+      ? "3. Implementuj všechna doporučení z auditu výše"
+      : "3. Implement all recommendations from the audit above");
+    add(isCs
+      ? "4. Optimalizuj CTA tlačítka — jasná, kontrastní, s urgencí"
+      : "4. Optimize CTA buttons — clear, high-contrast, with urgency");
+    add(isCs
+      ? "5. Přidej sociální důkazy (testimonials, loga klientů, statistiky)"
+      : "5. Add social proof (testimonials, client logos, stats)");
+    add(isCs
+      ? "6. Zajisti rychlé načítání — lazy loading obrázků, optimalizované fonty"
+      : "6. Ensure fast loading — lazy load images, optimized fonts");
+    add(isCs
+      ? "7. Dodržuj SEO best practices — správné heading hierarchy, meta tagy, alt texty"
+      : "7. Follow SEO best practices — proper heading hierarchy, meta tags, alt text");
+    add(isCs
+      ? "8. Použij optimalizované texty z auditu místo původních"
+      : "8. Use optimized copy from the audit instead of the originals");
+    add(isCs
+      ? "9. Přidej animace při scrollu pro lepší engagement (framer-motion)"
+      : "9. Add scroll animations for better engagement (framer-motion)");
+    add(isCs
+      ? "10. Stránka musí vzbuzovat důvěru — bezpečnostní badges, garance, kontaktní info"
+      : "10. Page must build trust — security badges, guarantees, contact info");
+    blank();
+
+    const text = lines.join("\n");
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `build-prompt-${(audit.page_title || audit.url).replace(/[^a-zA-Z0-9]/g, "-").substring(0, 40)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const dateLang = lang === "cs" ? "cs-CZ" : "en-US";
 
   if (loading) {
