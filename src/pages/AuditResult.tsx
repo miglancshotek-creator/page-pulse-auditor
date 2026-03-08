@@ -103,27 +103,22 @@ const AuditResult = () => {
     const clone = reportRef.current.cloneNode(true) as HTMLElement;
     clone.style.cssText = `position:absolute;left:-9999px;top:0;width:${RENDER_W}px;background:#fcfcfc;z-index:-1;`;
 
-    // Force single-column block layout on everything grid/flex
+    // Only disable animations and force opacity; preserve flex/grid layouts
     clone.querySelectorAll("*").forEach((el) => {
       const h = el as HTMLElement;
-      const cs = getComputedStyle(h);
-      if (cs.display.includes("grid") || cs.display.includes("flex")) {
-        h.style.setProperty("display", "block", "important");
-      }
       h.style.setProperty("animation", "none", "important");
       h.style.setProperty("opacity", "1", "important");
-      // Remove max-width constraints so sections fill the 800px
-      if (h.classList.contains("max-w-xs") || h.classList.contains("max-w-5xl")) {
-        h.style.setProperty("max-width", "none", "important");
-      }
+      h.style.setProperty("transition", "none", "important");
     });
 
-    // Shrink FrameworkScores to 50% width in PDF
-    const fwCard = clone.querySelector("[data-fw-scores]") as HTMLElement | null;
-    if (fwCard) {
-      fwCard.style.setProperty("width", `${RENDER_W * 0.5}px`, "important");
-      fwCard.style.setProperty("max-width", `${RENDER_W * 0.5}px`, "important");
-    }
+    // Force screenshot grid to single-column (won't fit side-by-side at A4 width)
+    const screenshotGrids = clone.querySelectorAll("[data-pdf-section] .grid");
+    screenshotGrids.forEach((grid) => {
+      const g = grid as HTMLElement;
+      if (g.querySelector("img")) {
+        g.style.setProperty("grid-template-columns", "1fr", "important");
+      }
+    });
 
     document.body.appendChild(clone);
 
