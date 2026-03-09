@@ -105,6 +105,40 @@ serve(async (req) => {
     const { data: guidelinesData } = await supabase.from("audit_guidelines").select("content").limit(1).single();
     const guidelinesText = guidelinesData?.content || "";
 
+    // Fetch previous completed audit for the same URL to avoid re-suggesting applied changes
+    let previousOptimizationsText = "";
+    try {
+      const { data: previousAudit } = await supabase
+        .from("audits")
+        .select("raw_ai_response")
+        .eq("url", scrapeData.url)
+        .eq("status", "completed")
+        .neq("id", auditId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (previousAudit?.raw_ai_response) {
+        const prevParsed = parseMaybeJson(previousAudit.raw_ai_response);
+        const prevOptimizations = prevParsed?.content_optimizations;
+        if (Array.isArray(prevOptimizations) && prevOptimizations.length > 0) {
+          const items = prevOptimizations.map((opt: any) =>
+            `- Element: ${opt.element}\n  Previously recommended: "${opt.optimized_version}"`
+          ).join("\n");
+          previousOptimizationsText = `
+PREVIOUSLY APPLIED OPTIMIZATIONS (from prior audit of this same URL):
+The following text changes were recommended in a previous audit and have likely been applied by the site owner.
+DO NOT suggest changing these texts again UNLESS you have strong, specific evidence that the current version is underperforming compared to the previously recommended version.
+If the current text on the page matches or closely resembles a previously recommended "optimized_version" below, SKIP it entirely in content_optimizations. Focus on OTHER elements that were not previously optimized.
+
+${items}
+`;
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to fetch previous audit:", e);
+    }
+
     // Build business context section
     const bc = businessContext || {};
 
@@ -222,6 +256,7 @@ MOBILE VERSION DATA (actual mobile render):
 - Mobile layout signals: ${JSON.stringify(scrapeData.mobile.mobileSignals || {}, null, 2)}
 NOTE: A real mobile screenshot was captured. Evaluate mobile-specific issues like tap target size, text readability, layout shifts, and mobile CTA visibility. Tag mobile-specific issues with "[Mobile]" prefix in the issue name.
 ` : ""}
+${previousOptimizationsText}
 
 YOUR TASK:
 1. Score each of the 7 frameworks on a scale of 1–10. For each framework, provide a short key_issue (the single biggest problem found) and a recommendation.
@@ -344,7 +379,7 @@ SCORING RULES:
                   },
                   content_optimizations: {
                     type: "array",
-                    description: "Content optimization cards for key text elements",
+                    description: "Content optimization cards for key text elements. IMPORTANT: Do NOT re-optimize text that matches or closely resembles previously applied recommendations (listed in PREVIOUSLY APPLIED OPTIMIZATIONS section of the prompt). Only suggest changes for elements that were NOT previously optimized or where genuine new issues are clearly evident.",
                     items: {
                       type: "object",
                       properties: {
