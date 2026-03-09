@@ -399,13 +399,14 @@ const AuditResult = () => {
       add("1. PRESERVE the color scheme, logo, overall layout and navigation of the original page");
       add("2. PRESERVE sections in the same order, unless the audit suggests otherwise");
       add("3. PRESERVE font style and visual identity — don't fix what isn't broken");
-      add("4. Apply ONLY the changes recommended in the audit above");
-      add("5. Use optimized copy from the audit where changes are suggested");
-      add("6. Ensure full responsiveness (mobile-first)");
-      add("7. Optimize CTA buttons per audit recommendations — keep positions, improve copy and contrast");
-      add("8. Follow SEO best practices — proper heading hierarchy, meta tags, alt text");
-      add("9. Use React + Tailwind CSS + shadcn/ui components");
-      add("10. Add subtle animations (framer-motion) where they improve engagement, but don't change the page character");
+      add("4. USE the original images and visual elements listed in 'Images on Page' and 'Design & Branding' sections");
+      add("5. Apply ONLY the changes recommended in the audit above");
+      add("6. Use optimized copy from the audit where changes are suggested");
+      add("7. Ensure full responsiveness (mobile-first)");
+      add("8. Optimize CTA buttons per audit recommendations — keep positions, improve copy and contrast");
+      add("9. Follow SEO best practices — proper heading hierarchy, meta tags, alt text");
+      add("10. Use React + Tailwind CSS + shadcn/ui components");
+      add("11. Add subtle animations (framer-motion) where they improve engagement, but don't change the page character");
     }
     blank();
 
