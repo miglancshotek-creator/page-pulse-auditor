@@ -584,6 +584,8 @@ SCORING RULES:
         quick_wins: results.critical_issues || [],
         breakdown: results.framework_scores || [],
         raw_ai_response: JSON.stringify(results),
+        image_urls: scrapeData.imageUrls || [],
+        branding_data: scrapeData.brandingData || {},
         status: "completed",
       })
       .eq("id", auditId);
