@@ -379,7 +379,7 @@ SCORING RULES:
                   },
                   content_optimizations: {
                     type: "array",
-                    description: "Content optimization cards for key text elements",
+                    description: "Content optimization cards for key text elements. IMPORTANT: Do NOT re-optimize text that matches or closely resembles previously applied recommendations (listed in PREVIOUSLY APPLIED OPTIMIZATIONS section of the prompt). Only suggest changes for elements that were NOT previously optimized or where genuine new issues are clearly evident.",
                     items: {
                       type: "object",
                       properties: {
