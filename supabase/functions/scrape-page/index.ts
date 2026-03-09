@@ -17,6 +17,7 @@ async function scrapeUrl(apiKey: string, url: string, mobile: boolean) {
       formats: ["markdown", "html", "screenshot", "links"],
       onlyMainContent: false,
       waitFor: 5000,
+      maxAge: 0,
       ...(mobile ? { mobile: true } : {}),
     }),
   });
