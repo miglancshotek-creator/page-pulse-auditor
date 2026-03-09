@@ -383,13 +383,14 @@ const AuditResult = () => {
       add("1. ZACHOVEJ barevné schéma, logo, celkový layout a navigaci původní stránky");
       add("2. ZACHOVEJ sekce stránky ve stejném pořadí, pokud audit nenavrhuje jinak");
       add("3. ZACHOVEJ font styl a vizuální identitu — neopravuj to, co funguje");
-      add("4. Aplikuj POUZE změny navržené v auditu výše");
-      add("5. Použij optimalizované texty z auditu místo původních tam, kde audit navrhuje změnu");
-      add("6. Zajisti plnou responzivitu (mobile-first)");
-      add("7. Optimalizuj CTA tlačítka dle doporučení auditu — zachovej pozice, zlepši texty a kontrast");
-      add("8. Dodržuj SEO best practices — správná heading hierarchie, meta tagy, alt texty");
-      add("9. Použij React + Tailwind CSS + shadcn/ui komponenty");
-      add("10. Přidej jemné animace (framer-motion) tam, kde to zlepší engagement, ale neměň charakter stránky");
+      add("4. POUŽIJ původní obrázky a vizuální prvky uvedené v sekci 'Obrázky na stránce' a 'Design & Branding'");
+      add("5. Aplikuj POUZE změny navržené v auditu výše");
+      add("6. Použij optimalizované texty z auditu místo původních tam, kde audit navrhuje změnu");
+      add("7. Zajisti plnou responzivitu (mobile-first)");
+      add("8. Optimalizuj CTA tlačítka dle doporučení auditu — zachovej pozice, zlepši texty a kontrast");
+      add("9. Dodržuj SEO best practices — správná heading hierarchie, meta tagy, alt texty");
+      add("10. Použij React + Tailwind CSS + shadcn/ui komponenty");
+      add("11. Přidej jemné animace (framer-motion) tam, kde to zlepší engagement, ale neměň charakter stránky");
     } else {
       add(`This is NOT a new page. Reconstruct the page ${audit.url} and apply ONLY the fixes identified in the audit.`);
       add(`The screenshot above serves as the primary visual reference — the page must look the same, just better.`);
