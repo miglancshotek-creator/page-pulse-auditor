@@ -266,6 +266,45 @@ const AuditResult = () => {
       blank();
     }
 
+    // Image URLs from scraped content
+    const imageUrls = auditFull.image_urls;
+    if (Array.isArray(imageUrls) && imageUrls.length > 0) {
+      add(isCs ? "### Obrázky na stránce" : "### Images on Page");
+      for (const img of imageUrls) {
+        if (typeof img === "string") {
+          add(`- ${img}`);
+        } else if (img.url) {
+          add(`- ${img.url}${img.alt ? ` (alt: "${img.alt}")` : ""}`);
+        }
+      }
+      blank();
+    }
+
+    // Branding data from scraped content
+    const brandingData = auditFull.branding_data;
+    if (brandingData && typeof brandingData === "object" && Object.keys(brandingData).length > 0) {
+      add(isCs ? "### Design & Branding" : "### Design & Branding");
+      if (brandingData.colorScheme) add(`${isCs ? "Barevné schéma" : "Color scheme"}: ${brandingData.colorScheme}`);
+      if (brandingData.logo) add(`Logo: ${brandingData.logo}`);
+      if (brandingData.colors && typeof brandingData.colors === "object") {
+        add(isCs ? "Hlavní barvy:" : "Primary colors:");
+        for (const [key, value] of Object.entries(brandingData.colors)) {
+          if (typeof value === "string") add(`  - ${key}: ${value}`);
+        }
+      }
+      if (brandingData.fonts && Array.isArray(brandingData.fonts)) {
+        add(isCs ? "Fonty:" : "Fonts:");
+        for (const font of brandingData.fonts) {
+          if (font.family) add(`  - ${font.family}`);
+        }
+      }
+      if (brandingData.images && typeof brandingData.images === "object") {
+        if (brandingData.images.favicon) add(`Favicon: ${brandingData.images.favicon}`);
+        if (brandingData.images.ogImage) add(`OG Image: ${brandingData.images.ogImage}`);
+      }
+      blank();
+    }
+
     // Body text (markdown content of the page)
     const bodyText = auditFull.body_text;
     if (bodyText && typeof bodyText === "string") {
