@@ -35,11 +35,13 @@ export type Database = {
       audits: {
         Row: {
           body_text: string | null
+          branding_data: Json | null
           breakdown: Json | null
           created_at: string
           cta_texts: Json | null
           headers: Json | null
           id: string
+          image_urls: Json | null
           overall_score: number | null
           page_title: string | null
           quick_wins: Json | null
@@ -51,11 +53,13 @@ export type Database = {
         }
         Insert: {
           body_text?: string | null
+          branding_data?: Json | null
           breakdown?: Json | null
           created_at?: string
           cta_texts?: Json | null
           headers?: Json | null
           id?: string
+          image_urls?: Json | null
           overall_score?: number | null
           page_title?: string | null
           quick_wins?: Json | null
@@ -67,11 +71,13 @@ export type Database = {
         }
         Update: {
           body_text?: string | null
+          branding_data?: Json | null
           breakdown?: Json | null
           created_at?: string
           cta_texts?: Json | null
           headers?: Json | null
           id?: string
+          image_urls?: Json | null
           overall_score?: number | null
           page_title?: string | null
           quick_wins?: Json | null

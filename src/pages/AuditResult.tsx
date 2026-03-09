@@ -266,6 +266,45 @@ const AuditResult = () => {
       blank();
     }
 
+    // Image URLs from scraped content
+    const imageUrls = auditFull.image_urls;
+    if (Array.isArray(imageUrls) && imageUrls.length > 0) {
+      add(isCs ? "### Obrázky na stránce" : "### Images on Page");
+      for (const img of imageUrls) {
+        if (typeof img === "string") {
+          add(`- ${img}`);
+        } else if (img.url) {
+          add(`- ${img.url}${img.alt ? ` (alt: "${img.alt}")` : ""}`);
+        }
+      }
+      blank();
+    }
+
+    // Branding data from scraped content
+    const brandingData = auditFull.branding_data;
+    if (brandingData && typeof brandingData === "object" && Object.keys(brandingData).length > 0) {
+      add(isCs ? "### Design & Branding" : "### Design & Branding");
+      if (brandingData.colorScheme) add(`${isCs ? "Barevné schéma" : "Color scheme"}: ${brandingData.colorScheme}`);
+      if (brandingData.logo) add(`Logo: ${brandingData.logo}`);
+      if (brandingData.colors && typeof brandingData.colors === "object") {
+        add(isCs ? "Hlavní barvy:" : "Primary colors:");
+        for (const [key, value] of Object.entries(brandingData.colors)) {
+          if (typeof value === "string") add(`  - ${key}: ${value}`);
+        }
+      }
+      if (brandingData.fonts && Array.isArray(brandingData.fonts)) {
+        add(isCs ? "Fonty:" : "Fonts:");
+        for (const font of brandingData.fonts) {
+          if (font.family) add(`  - ${font.family}`);
+        }
+      }
+      if (brandingData.images && typeof brandingData.images === "object") {
+        if (brandingData.images.favicon) add(`Favicon: ${brandingData.images.favicon}`);
+        if (brandingData.images.ogImage) add(`OG Image: ${brandingData.images.ogImage}`);
+      }
+      blank();
+    }
+
     // Body text (markdown content of the page)
     const bodyText = auditFull.body_text;
     if (bodyText && typeof bodyText === "string") {
@@ -344,13 +383,14 @@ const AuditResult = () => {
       add("1. ZACHOVEJ barevné schéma, logo, celkový layout a navigaci původní stránky");
       add("2. ZACHOVEJ sekce stránky ve stejném pořadí, pokud audit nenavrhuje jinak");
       add("3. ZACHOVEJ font styl a vizuální identitu — neopravuj to, co funguje");
-      add("4. Aplikuj POUZE změny navržené v auditu výše");
-      add("5. Použij optimalizované texty z auditu místo původních tam, kde audit navrhuje změnu");
-      add("6. Zajisti plnou responzivitu (mobile-first)");
-      add("7. Optimalizuj CTA tlačítka dle doporučení auditu — zachovej pozice, zlepši texty a kontrast");
-      add("8. Dodržuj SEO best practices — správná heading hierarchie, meta tagy, alt texty");
-      add("9. Použij React + Tailwind CSS + shadcn/ui komponenty");
-      add("10. Přidej jemné animace (framer-motion) tam, kde to zlepší engagement, ale neměň charakter stránky");
+      add("4. POUŽIJ původní obrázky a vizuální prvky uvedené v sekci 'Obrázky na stránce' a 'Design & Branding'");
+      add("5. Aplikuj POUZE změny navržené v auditu výše");
+      add("6. Použij optimalizované texty z auditu místo původních tam, kde audit navrhuje změnu");
+      add("7. Zajisti plnou responzivitu (mobile-first)");
+      add("8. Optimalizuj CTA tlačítka dle doporučení auditu — zachovej pozice, zlepši texty a kontrast");
+      add("9. Dodržuj SEO best practices — správná heading hierarchie, meta tagy, alt texty");
+      add("10. Použij React + Tailwind CSS + shadcn/ui komponenty");
+      add("11. Přidej jemné animace (framer-motion) tam, kde to zlepší engagement, ale neměň charakter stránky");
     } else {
       add(`This is NOT a new page. Reconstruct the page ${audit.url} and apply ONLY the fixes identified in the audit.`);
       add(`The screenshot above serves as the primary visual reference — the page must look the same, just better.`);
@@ -359,13 +399,14 @@ const AuditResult = () => {
       add("1. PRESERVE the color scheme, logo, overall layout and navigation of the original page");
       add("2. PRESERVE sections in the same order, unless the audit suggests otherwise");
       add("3. PRESERVE font style and visual identity — don't fix what isn't broken");
-      add("4. Apply ONLY the changes recommended in the audit above");
-      add("5. Use optimized copy from the audit where changes are suggested");
-      add("6. Ensure full responsiveness (mobile-first)");
-      add("7. Optimize CTA buttons per audit recommendations — keep positions, improve copy and contrast");
-      add("8. Follow SEO best practices — proper heading hierarchy, meta tags, alt text");
-      add("9. Use React + Tailwind CSS + shadcn/ui components");
-      add("10. Add subtle animations (framer-motion) where they improve engagement, but don't change the page character");
+      add("4. USE the original images and visual elements listed in 'Images on Page' and 'Design & Branding' sections");
+      add("5. Apply ONLY the changes recommended in the audit above");
+      add("6. Use optimized copy from the audit where changes are suggested");
+      add("7. Ensure full responsiveness (mobile-first)");
+      add("8. Optimize CTA buttons per audit recommendations — keep positions, improve copy and contrast");
+      add("9. Follow SEO best practices — proper heading hierarchy, meta tags, alt text");
+      add("10. Use React + Tailwind CSS + shadcn/ui components");
+      add("11. Add subtle animations (framer-motion) where they improve engagement, but don't change the page character");
     }
     blank();
 
