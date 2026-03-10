@@ -9,7 +9,9 @@ export function renderWithBoldQuotes(text: string): React.ReactNode {
 
   // Match text in various quote styles: "…", '…', "…", «…»
   // Only match double quotes and smart quotes — never single quotes/apostrophes
-  const pattern = /[""\u201C\u201D«»](.+?)[""\u201C\u201D«»]/g;
+  // Double/smart quotes: any content
+  // Single quotes: only multi-word content (contains a space) to avoid apostrophes
+  const pattern = /[""\u201C\u201D«»](.+?)[""\u201C\u201D«»]|'([^']*\s[^']*?)'/g;
 
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
