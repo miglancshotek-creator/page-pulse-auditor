@@ -178,7 +178,7 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
                         </div>
 
                         <p className="text-base text-muted-foreground leading-relaxed mb-3">
-                          {item.description}
+                          {renderWithBoldQuotes(item.description)}
                         </p>
 
                         <div className="rounded-lg bg-primary/5 border border-primary/10 p-3">
@@ -186,13 +186,13 @@ const CriticalIssues = ({ issues, totalMonthlyLoss, totalAnnualLoss, frameworkSc
                             <span className="font-semibold text-primary">
                               {t("issues.solution")}:{" "}
                             </span>
-                            <span className="text-foreground/80">{item.solution}</span>
+                            <span className="text-foreground/80">{renderWithBoldQuotes(item.solution)}</span>
                           </p>
                         </div>
 
                         {item.explanation && (
                           <div className="mt-2.5 rounded-lg bg-muted/40 border border-border/60 p-3.5 font-mono text-xs text-muted-foreground leading-[1.7] whitespace-pre-line tabular-nums">
-                            {item.explanation}
+                            {renderWithBoldQuotes(item.explanation)}
                           </div>
                         )}
                       </div>

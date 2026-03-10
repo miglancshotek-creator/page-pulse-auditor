@@ -43,7 +43,7 @@ const AuditBreakdown = ({ items }: AuditBreakdownProps) => {
               <div className="flex justify-center">
                 <span className={`text-sm font-bold px-2 py-0.5 rounded ${config.bg} ${config.color}`}>{item.score}</span>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">{item.recommendation}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{renderWithBoldQuotes(item.recommendation)}</p>
             </div>
           );
         })}
