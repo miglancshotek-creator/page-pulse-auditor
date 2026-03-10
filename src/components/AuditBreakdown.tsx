@@ -1,5 +1,6 @@
 import { CheckCircle, AlertTriangle, XCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { renderWithBoldQuotes } from "@/lib/bold-quotes";
 
 interface BreakdownItem {
   category: string;
