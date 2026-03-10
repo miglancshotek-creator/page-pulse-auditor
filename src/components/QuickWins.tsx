@@ -1,5 +1,6 @@
 import { Zap } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { renderWithBoldQuotes } from "@/lib/bold-quotes";
 
 interface QuickWin {
   title: string;
@@ -39,7 +40,7 @@ const QuickWins = ({ wins }: QuickWinsProps) => {
                   {impactLabel(win.impact)}
                 </span>
               </div>
-              <p className="text-base text-muted-foreground leading-relaxed">{win.description}</p>
+              <p className="text-base text-muted-foreground leading-relaxed">{renderWithBoldQuotes(win.description)}</p>
             </div>
           </div>
         </div>
