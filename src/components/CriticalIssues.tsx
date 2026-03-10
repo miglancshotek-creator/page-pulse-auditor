@@ -1,6 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AlertTriangle } from "lucide-react";
 import { getScoreBgClass, getScoreBadgeClass, getScoreSeverity } from "@/lib/score-colors";
+import { renderWithBoldQuotes } from "@/lib/bold-quotes";
 
 interface CriticalIssue {
   issue: string;
