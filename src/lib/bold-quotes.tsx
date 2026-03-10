@@ -8,7 +8,8 @@ export function renderWithBoldQuotes(text: string): React.ReactNode {
   if (!text) return text;
 
   // Match text in various quote styles: "…", '…', "…", «…»
-  const pattern = /(?:[""\u201C\u201D«»](.+?)[""\u201C\u201D«»])|(?:'(.+?)')/g;
+  // Only match double quotes and smart quotes — never single quotes/apostrophes
+  const pattern = /[""\u201C\u201D«»](.+?)[""\u201C\u201D«»]/g;
 
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
