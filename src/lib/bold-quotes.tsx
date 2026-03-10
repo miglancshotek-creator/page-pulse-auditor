@@ -11,7 +11,7 @@ export function renderWithBoldQuotes(text: string): React.ReactNode {
   // Only match double quotes and smart quotes — never single quotes/apostrophes
   // Double/smart quotes: any content
   // Single quotes: only multi-word content (contains a space) to avoid apostrophes
-  const pattern = /(?<!\w)[""\u201C\u201D«»](.+?)[""\u201C\u201D«»](?!\w)|(?<!\w)'([^']*\s[^']*?)'(?!\w)/g;
+  const pattern = /(?<!\w)[""\u201C\u201D«»](.+?)[""\u201C\u201D«»](?!\w)|(?<!\w)'((?:[^']|'(?=\w))*?\s(?:[^']|'(?=\w))*?)'(?!\w)/g;
 
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
