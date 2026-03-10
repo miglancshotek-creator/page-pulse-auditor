@@ -1,5 +1,6 @@
 import { Zap } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { renderWithBoldQuotes } from "@/lib/bold-quotes";
 
 interface QuickWin {
   title: string;
